@@ -1,0 +1,9 @@
+{
+   "name": "wewiins",
+   "version": "0.0.0",
+   "scripts": {
+       "build-keycloak-theme": "pnpm --filter keycloak-theme run build-keycloak-theme",
+       "start-keycloak-theme": "pnpm --filter keycloak-theme run start-theme",
+       "add-story": "pnpm --filter keycloak-theme run add-story"
+   }
+}

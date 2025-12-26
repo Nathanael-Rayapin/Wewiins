@@ -1,0 +1,64 @@
+.kcFormGroupClass {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.kcLabelClass {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--black);
+}
+
+.kcInputClass {
+    height: 55px;
+    border-radius: 8px;
+    background-color: var(--gray-salt);
+    padding: 0 16px 0 16px;
+}
+
+.kcInputClass:focus {
+    border: 1px solid var(--primary);
+}
+
+/* Custom Classes */
+.firstname-and-lastname {
+    margin-bottom: 24px;
+    gap: 40px;
+}
+
+.all-other-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.all-other-fields .kcInputClass {
+    width: 100%;
+}
+
+#lastName.kcInputClass,
+#firstName.kcInputClass {
+    width: 100%;
+}
+
+.icon-wrapper {
+    position: relative;
+}
+
+.icon-wrapper img {
+    position: absolute;
+    width: 18px;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+}
+
+/* Errors */
+.kcInputErrorMessageClass {
+    color: var(--red-dark);
+    display: block;
+    margin-top: 8px;
+}
+

@@ -1636,14 +1636,14 @@
                 "subComponents": {},
                 "config": {
                     "allowed-protocol-mapper-types": [
+                        "oidc-usermodel-attribute-mapper",
                         "oidc-usermodel-property-mapper",
-                        "saml-user-property-mapper",
+                        "oidc-full-name-mapper",
                         "oidc-sha256-pairwise-sub-mapper",
-                        "saml-user-attribute-mapper",
                         "saml-role-list-mapper",
                         "oidc-address-mapper",
-                        "oidc-full-name-mapper",
-                        "oidc-usermodel-attribute-mapper"
+                        "saml-user-attribute-mapper",
+                        "saml-user-property-mapper"
                     ]
                 }
             },
@@ -1674,13 +1674,13 @@
                 "config": {
                     "allowed-protocol-mapper-types": [
                         "saml-user-property-mapper",
+                        "saml-user-attribute-mapper",
+                        "oidc-usermodel-attribute-mapper",
                         "oidc-address-mapper",
                         "saml-role-list-mapper",
                         "oidc-full-name-mapper",
-                        "oidc-usermodel-property-mapper",
-                        "oidc-usermodel-attribute-mapper",
                         "oidc-sha256-pairwise-sub-mapper",
-                        "saml-user-attribute-mapper"
+                        "oidc-usermodel-property-mapper"
                     ]
                 }
             },
@@ -1721,7 +1721,7 @@
                 "subComponents": {},
                 "config": {
                     "kc.user.profile.config": [
-                        "{\"attributes\":[{\"name\":\"username\",\"displayName\":\"${username}\",\"validations\":{\"length\":{\"min\":3,\"max\":255},\"username-prohibited-characters\":{},\"up-username-not-idn-homograph\":{}},\"annotations\":{},\"permissions\":{\"view\":[\"admin\"],\"edit\":[\"admin\"]},\"multivalued\":false},{\"name\":\"email\",\"displayName\":\"${email}\",\"validations\":{\"email\":{},\"length\":{\"max\":255}},\"annotations\":{},\"required\":{\"roles\":[\"admin\",\"user\"]},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"firstName\",\"displayName\":\"${firstName}\",\"validations\":{\"length\":{\"max\":255},\"person-name-prohibited-characters\":{}},\"annotations\":{\"inputType\":\"text\"},\"required\":{\"roles\":[\"admin\",\"user\"]},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"lastName\",\"displayName\":\"${lastName}\",\"validations\":{\"length\":{\"max\":255},\"person-name-prohibited-characters\":{}},\"annotations\":{\"inputType\":\"text\"},\"required\":{\"roles\":[\"admin\",\"user\"]},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"compagnyName\",\"displayName\":\"${profile.attributes.compagnyName}\",\"validations\":{\"length\":{\"min\":\"1\",\"max\":\"255\"}},\"annotations\":{\"inputType\":\"text\"},\"required\":{\"roles\":[\"admin\",\"user\"]},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"phoneNumber\",\"displayName\":\"${profile.attributes.phoneNumber}\",\"validations\":{\"length\":{\"min\":\"9\",\"max\":\"10\"}},\"annotations\":{\"kcNumberFormat\":\"{2} {2} {2} {2} {2}\",\"kcNumberUnFormat\":\"{2}{2}{2}{2}{2}\"},\"required\":{\"roles\":[\"admin\",\"user\"]},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false}],\"groups\":[{\"name\":\"user-metadata\",\"displayHeader\":\"User metadata\",\"displayDescription\":\"Attributes, which refer to user metadata\"}]}"
+                        "{\"attributes\":[{\"name\":\"username\",\"displayName\":\"${username}\",\"validations\":{\"length\":{\"min\":3,\"max\":255},\"username-prohibited-characters\":{},\"up-username-not-idn-homograph\":{}},\"annotations\":{},\"permissions\":{\"view\":[\"admin\"],\"edit\":[\"admin\"]},\"multivalued\":false},{\"name\":\"email\",\"displayName\":\"${email}\",\"validations\":{\"email\":{},\"length\":{\"max\":255}},\"annotations\":{\"inputTypePlaceholder\":\"exemple@gmail.com\"},\"required\":{\"roles\":[\"admin\",\"user\"]},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"lastName\",\"displayName\":\"${lastName}\",\"validations\":{\"length\":{\"max\":255},\"person-name-prohibited-characters\":{}},\"annotations\":{\"inputTypePlaceholder\":\"Doe\",\"inputType\":\"text\"},\"required\":{\"roles\":[\"admin\",\"user\"]},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"firstName\",\"displayName\":\"${firstName}\",\"validations\":{\"length\":{\"max\":255},\"person-name-prohibited-characters\":{}},\"annotations\":{\"inputTypePlaceholder\":\"John\",\"inputType\":\"text\"},\"required\":{\"roles\":[\"admin\",\"user\"]},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"compagnyName\",\"displayName\":\"${profile.attributes.compagnyName}\",\"validations\":{\"length\":{\"min\":\"1\",\"max\":\"255\"}},\"annotations\":{\"inputTypePlaceholder\":\"Atelier Doe\",\"inputType\":\"text\"},\"required\":{\"roles\":[\"admin\",\"user\"]},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"phoneNumber\",\"displayName\":\"${profile.attributes.phoneNumber}\",\"validations\":{\"length\":{\"min\":\"9\",\"max\":\"10\"},\"pattern\":{\"pattern\":\"^(\\\\+33|0)[1-9](\\\\d{2}){4}$\",\"error-message\":\"phoneNumberError\"}},\"annotations\":{\"inputTypePlaceholder\":\"06 12 34 56 78\",\"kcNumberUnFormat\":\"{2}{2}{2}{2}{2}\",\"kcNumberFormat\":\"{2} {2} {2} {2} {2}\"},\"required\":{\"roles\":[\"admin\",\"user\"]},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false}],\"groups\":[{\"name\":\"user-metadata\",\"displayHeader\":\"User metadata\",\"displayDescription\":\"Attributes, which refer to user metadata\"}]}"
                     ]
                 }
             }
@@ -2083,6 +2083,59 @@
             ]
         },
         {
+            "id": "0d6b97c6-9509-483f-abf8-90a4bb99a2d8",
+            "alias": "custom registration",
+            "description": "custom registration flow",
+            "providerId": "basic-flow",
+            "topLevel": true,
+            "builtIn": false,
+            "authenticationExecutions": [
+                {
+                    "authenticator": "registration-page-form",
+                    "authenticatorFlow": true,
+                    "requirement": "REQUIRED",
+                    "priority": 10,
+                    "autheticatorFlow": true,
+                    "userSetupAllowed": false,
+                    "flowAlias": "custom registration registration form"
+                }
+            ]
+        },
+        {
+            "id": "9e295fe6-c903-4115-abed-05d928d457e7",
+            "alias": "custom registration registration form",
+            "description": "registration form",
+            "providerId": "form-flow",
+            "topLevel": false,
+            "builtIn": false,
+            "authenticationExecutions": [
+                {
+                    "authenticator": "registration-user-creation",
+                    "authenticatorFlow": false,
+                    "requirement": "REQUIRED",
+                    "priority": 20,
+                    "autheticatorFlow": false,
+                    "userSetupAllowed": false
+                },
+                {
+                    "authenticator": "registration-recaptcha-action",
+                    "authenticatorFlow": false,
+                    "requirement": "DISABLED",
+                    "priority": 60,
+                    "autheticatorFlow": false,
+                    "userSetupAllowed": false
+                },
+                {
+                    "authenticator": "registration-terms-and-conditions",
+                    "authenticatorFlow": false,
+                    "requirement": "DISABLED",
+                    "priority": 70,
+                    "autheticatorFlow": false,
+                    "userSetupAllowed": false
+                }
+            ]
+        },
+        {
             "id": "4aa24ca0-ad09-4f30-806b-4c699724d731",
             "alias": "direct grant",
             "description": "OpenID Connect Resource Owner Grant",
@@ -2099,20 +2152,20 @@
                     "userSetupAllowed": false
                 },
                 {
-                    "authenticator": "direct-grant-validate-password",
                     "authenticatorFlow": false,
                     "requirement": "REQUIRED",
                     "priority": 20,
                     "autheticatorFlow": false,
-                    "userSetupAllowed": false
+                    "userSetupAllowed": false,
+                    "authenticator": "direct-grant-validate-password"
                 },
                 {
                     "authenticatorFlow": true,
                     "requirement": "CONDITIONAL",
                     "priority": 30,
                     "autheticatorFlow": true,
-                    "flowAlias": "Direct Grant - Conditional OTP",
-                    "userSetupAllowed": false
+                    "userSetupAllowed": false,
+                    "flowAlias": "Direct Grant - Conditional OTP"
                 }
             ]
         },
@@ -2143,13 +2196,13 @@
             "builtIn": true,
             "authenticationExecutions": [
                 {
-                    "authenticatorConfig": "review profile config",
                     "authenticator": "idp-review-profile",
                     "authenticatorFlow": false,
                     "requirement": "REQUIRED",
                     "priority": 10,
                     "autheticatorFlow": false,
-                    "userSetupAllowed": false
+                    "userSetupAllowed": false,
+                    "authenticatorConfig": "review profile config"
                 },
                 {
                     "authenticatorFlow": true,
@@ -2182,8 +2235,8 @@
                     "requirement": "CONDITIONAL",
                     "priority": 20,
                     "autheticatorFlow": true,
-                    "flowAlias": "Browser - Conditional OTP",
-                    "userSetupAllowed": false
+                    "userSetupAllowed": false,
+                    "flowAlias": "Browser - Conditional OTP"
                 }
             ]
         },
@@ -2201,8 +2254,8 @@
                     "requirement": "REQUIRED",
                     "priority": 10,
                     "autheticatorFlow": true,
-                    "flowAlias": "registration form",
-                    "userSetupAllowed": false
+                    "userSetupAllowed": false,
+                    "flowAlias": "registration form"
                 }
             ]
         },
@@ -2265,12 +2318,12 @@
                     "userSetupAllowed": false
                 },
                 {
-                    "authenticator": "reset-credential-email",
                     "authenticatorFlow": false,
                     "requirement": "REQUIRED",
                     "priority": 20,
                     "autheticatorFlow": false,
-                    "userSetupAllowed": false
+                    "userSetupAllowed": false,
+                    "authenticator": "reset-credential-email"
                 },
                 {
                     "authenticator": "reset-password",
@@ -2285,8 +2338,8 @@
                     "requirement": "CONDITIONAL",
                     "priority": 40,
                     "autheticatorFlow": true,
-                    "flowAlias": "Reset - Conditional OTP",
-                    "userSetupAllowed": false
+                    "userSetupAllowed": false,
+                    "flowAlias": "Reset - Conditional OTP"
                 }
             ]
         },
@@ -2436,7 +2489,7 @@
         }
     ],
     "browserFlow": "browser",
-    "registrationFlow": "registration",
+    "registrationFlow": "custom registration",
     "directGrantFlow": "direct grant",
     "resetCredentialsFlow": "reset credentials",
     "clientAuthenticationFlow": "clients",

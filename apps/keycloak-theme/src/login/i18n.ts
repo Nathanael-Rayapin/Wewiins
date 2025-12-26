@@ -9,13 +9,26 @@ const { useI18n, ofTypeI18n } = i18nBuilder
     .withCustomTranslations({
         en: {
             email: "Email",
-            firstName: "Representative's first name",
-            lastName: "Representative's name",
+            firstName: "First name",
+            lastName: "Last name",
+            alternateLastName: "Last name",
+            registerTitle: "We are delighted to welcome you",
+            doRegister: "Register",
+            doConnect: "Log in",
+            alreadyHaveAccount: "Do you have an account ? This way, please !",
+            phoneNumberError: "Please enter a valid French phone number",
+
         },
         fr: {
             email: "Adresse e-mail",
-            firstName: "Prénom du représentant",
-            lastName: "Nom du représentant",
+            firstName: "Prénom",
+            lastName: "Nom",
+            alternateLastName: "Nom",
+            registerTitle: "Heureux de vous accueillir",
+            doRegister: "S'inscrire",
+            doConnect: "Se connecter",
+            alreadyHaveAccount: "Vous avez un compte ? C'est par ici ! ",
+            phoneNumberError: "Veuillez saisir un numéro de téléphone français valide"
         }
     })
     .build();

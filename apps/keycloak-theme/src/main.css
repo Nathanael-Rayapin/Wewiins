@@ -1,0 +1,20 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap');
+
+.kcLabelClass,
+.kcButtonClass,
+p, a {
+  font-family: "Nunito Sans", sans-serif;
+}
+
+/* Color Variables */
+
+:root {
+    --gray-salt: #fafafa;
+    --gray-dark: #696969;
+    --black: #000000;
+    --primary: #48A4A3;
+    --primary-dark: #347A79;
+    --secondary-blue: #242552;
+    --red-dark: #C60541;
+}

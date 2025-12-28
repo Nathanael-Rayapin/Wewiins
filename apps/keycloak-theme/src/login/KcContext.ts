@@ -9,6 +9,11 @@ export type KcContextExtension = {
     // See: https://docs.keycloakify.dev/faq-and-help/some-values-you-need-are-missing-from-in-kccontext
 };
 
-export type KcContextExtensionPerPage = {};
+export type KcContextExtensionPerPage = {
+    "login-verify-email.ftl": {
+        otpRemainingTime?: number;
+        otpInputDefaultValue?: string;
+    }
+};
 
 export type KcContext = ExtendKcContext<KcContextExtension, KcContextExtensionPerPage>;

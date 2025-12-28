@@ -14,6 +14,7 @@
         "storybook": "storybook dev -p 6006",
         "start-theme": "keycloakify start-keycloak",
         "add-story": "keycloakify add-story",
+        "eject-page": "keycloakify eject-page",
         "format": "prettier . --write"
     },
     "license": "MIT",
@@ -23,6 +24,7 @@
         "keycloakify": "^11.13.2",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
+        "react-otp-input": "^3.1.1",
         "tailwindcss": "^4.1.18"
     },
     "devDependencies": {

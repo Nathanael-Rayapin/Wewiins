@@ -3,7 +3,7 @@ set -e
 
 echo "🔐 Starting Project in dev mode..."
 
-if ! docker compose up -d angular; then
+if ! docker compose up -d; then
   echo "❌ Failed to start Project"
   exit 1
 fi

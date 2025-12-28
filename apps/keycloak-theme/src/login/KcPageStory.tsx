@@ -11,7 +11,11 @@ const kcContextExtension: KcContextExtension = {
         ...kcEnvDefaults
     }
 };
-const kcContextExtensionPerPage: KcContextExtensionPerPage = {};
+const kcContextExtensionPerPage: KcContextExtensionPerPage = {
+    "login-verify-email.ftl": {
+        otpRemainingTime: 600
+    }
+};
 
 export const { getKcContextMock } = createGetKcContextMock({
     kcContextExtension,

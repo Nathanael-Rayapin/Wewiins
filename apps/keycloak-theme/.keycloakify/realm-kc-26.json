@@ -459,8 +459,6 @@
             "attributes": {
                 "additional_emails": ["test.user@protonmail.com", "testuser@hotmail.com"],
                 "gender": ["prefer_not_to_say"],
-                "favorite_pet": ["cats"],
-                "favourite_pet": ["cat"],
                 "bio": ["Hello I'm Test User and I do not exist."],
                 "phone_number": ["1111111111"],
                 "locale": ["en"],
@@ -770,25 +768,6 @@
             "authenticationFlowBindingOverrides": {},
             "fullScopeAllowed": true,
             "nodeReRegistrationTimeout": -1,
-            "protocolMappers": [
-                {
-                    "id": "91a196c1-f93c-48a5-aced-b8d60fb09b62",
-                    "name": "Favourite Pet",
-                    "protocol": "openid-connect",
-                    "protocolMapper": "oidc-usermodel-attribute-mapper",
-                    "consentRequired": false,
-                    "config": {
-                        "introspection.token.claim": "true",
-                        "userinfo.token.claim": "true",
-                        "user.attribute": "favourite_pet",
-                        "id.token.claim": "true",
-                        "lightweight.claim": "false",
-                        "access.token.claim": "true",
-                        "claim.name": "favourite_pet",
-                        "jsonType.label": "String"
-                    }
-                }
-            ],
             "defaultClientScopes": [
                 "web-origins",
                 "acr",
@@ -1636,14 +1615,14 @@
                 "subComponents": {},
                 "config": {
                     "allowed-protocol-mapper-types": [
-                        "oidc-usermodel-attribute-mapper",
-                        "oidc-usermodel-property-mapper",
-                        "oidc-full-name-mapper",
-                        "oidc-sha256-pairwise-sub-mapper",
-                        "saml-role-list-mapper",
                         "oidc-address-mapper",
+                        "saml-user-property-mapper",
+                        "saml-role-list-mapper",
+                        "oidc-full-name-mapper",
+                        "oidc-usermodel-property-mapper",
                         "saml-user-attribute-mapper",
-                        "saml-user-property-mapper"
+                        "oidc-sha256-pairwise-sub-mapper",
+                        "oidc-usermodel-attribute-mapper"
                     ]
                 }
             },
@@ -1673,14 +1652,14 @@
                 "subComponents": {},
                 "config": {
                     "allowed-protocol-mapper-types": [
-                        "saml-user-property-mapper",
                         "saml-user-attribute-mapper",
-                        "oidc-usermodel-attribute-mapper",
-                        "oidc-address-mapper",
-                        "saml-role-list-mapper",
-                        "oidc-full-name-mapper",
                         "oidc-sha256-pairwise-sub-mapper",
-                        "oidc-usermodel-property-mapper"
+                        "oidc-usermodel-attribute-mapper",
+                        "oidc-full-name-mapper",
+                        "saml-user-property-mapper",
+                        "saml-role-list-mapper",
+                        "oidc-usermodel-property-mapper",
+                        "oidc-address-mapper"
                     ]
                 }
             },
@@ -2122,14 +2101,6 @@
                     "authenticatorFlow": false,
                     "requirement": "DISABLED",
                     "priority": 60,
-                    "autheticatorFlow": false,
-                    "userSetupAllowed": false
-                },
-                {
-                    "authenticator": "registration-terms-and-conditions",
-                    "authenticatorFlow": false,
-                    "requirement": "DISABLED",
-                    "priority": 70,
                     "autheticatorFlow": false,
                     "userSetupAllowed": false
                 }

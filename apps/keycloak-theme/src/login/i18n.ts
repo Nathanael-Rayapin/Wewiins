@@ -8,6 +8,10 @@ const { useI18n, ofTypeI18n } = i18nBuilder
     .withExtraLanguages({/* ... */})
     .withCustomTranslations({
         en: {
+            // Verify Email
+            emailVerifyTitle: "Email verification",
+            emailVerifyCTA: "Verify",
+            // Register
             email: "Email",
             firstName: "First name",
             lastName: "Last name",
@@ -20,6 +24,10 @@ const { useI18n, ofTypeI18n } = i18nBuilder
 
         },
         fr: {
+            // Verify Email
+            emailVerifyTitle: "Code de vérification",
+            emailVerifyCTA: "Vérifier",
+            // Register
             email: "Adresse e-mail",
             firstName: "Prénom",
             lastName: "Nom",

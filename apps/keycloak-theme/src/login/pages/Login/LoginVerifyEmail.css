@@ -1,0 +1,62 @@
+.kcFormButtonsClass button {
+    width: 100%;
+    height: 55px;
+    border-radius: 8px;
+    color: var(--gray-salt);
+    background-color: var(--primary);
+    font-weight: 600;
+    font-size: 20px;
+    margin-top: 96px;
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+}
+
+.kcFormButtonsClass button:disabled {
+    background-color: var(--accent);
+    cursor: default;
+}
+
+.kcFormButtonsClass button:not(:disabled):hover {
+    background-color: var(--primary-dark);
+}
+
+
+/* Custom Classes */
+.wewiins-bg {
+    border-top-left-radius: 24px;
+    border-bottom-left-radius: 24px;
+    background-color: var(--secondary-blue);
+}
+
+.verification-title {
+    font-size: 32px;
+    margin-bottom: 96px;
+}
+
+.verification-code {
+    max-width: 460px;
+    width: 100%;
+    height: 100%;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.verification-code p.instruction1 {
+    font-size: 16px;
+    text-align: center;
+}
+
+.verification-code p.instruction2 {
+    font-size: 16px;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.verification-code p.instruction2 a {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--primary);
+    text-decoration: underline;
+}

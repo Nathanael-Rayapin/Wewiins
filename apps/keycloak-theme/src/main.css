@@ -1,20 +1,49 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap');
 
 .kcLabelClass,
 .kcButtonClass,
-p, a {
+p,
+a {
   font-family: "Nunito Sans", sans-serif;
 }
 
 /* Color Variables */
-
 :root {
-    --gray-salt: #fafafa;
-    --gray-dark: #696969;
-    --black: #000000;
-    --primary: #48A4A3;
-    --primary-dark: #347A79;
-    --secondary-blue: #242552;
-    --red-dark: #C60541;
+  --gray-salt: #fafafa;
+  --gray-dark: #696969;
+  --accent: #E2E2E2;
+  --black: #000000;
+  --primary: #48A4A3;
+  --primary-dark: #347A79;
+  --secondary-blue: #242552;
+  --red-dark: #C60541;
+  --success: #249689;
+  --error: #ff5963;
+  --warning: #f9cf58;
+}
+
+/* Global Infos */
+.kcAlertClass {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+  width: 450px;
+  color: var(--gray-salt);
+  font-weight: 600;
+}
+
+.alert-success.kcAlertClass {
+  background-color: var(--success);
+}
+
+.alert-error.kcAlertClass {
+  background-color: var(--error);
+}
+
+.alert-info.kcAlertClass {
+  background-color: var(--warning);
 }

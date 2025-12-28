@@ -17,6 +17,9 @@ dependencies:
   react-dom:
     specifier: ^18.2.0
     version: 18.3.1(react@18.3.1)
+  react-otp-input:
+    specifier: ^3.1.1
+    version: 3.1.1(react-dom@18.3.1)(react@18.3.1)
   tailwindcss:
     specifier: ^4.1.18
     version: 4.1.18
@@ -3307,6 +3310,16 @@ packages:
   /react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
     dev: true
+
+  /react-otp-input@3.1.1(react-dom@18.3.1)(react@18.3.1):
+    resolution: {integrity: sha512-bjPavgJ0/Zmf/AYi4onj8FbH93IjeD+e8pWwxIJreDEWsU1ILR5fs8jEJmMGWSBe/yyvPP6X/W6Mk9UkOCkTPw==}
+    peerDependencies:
+      react: '>=16.8.6 || ^17.0.0 || ^18.0.0'
+      react-dom: '>=16.8.6 || ^17.0.0 || ^18.0.0'
+    dependencies:
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    dev: false
 
   /react-refresh@0.17.0:
     resolution: {integrity: sha512-z6F7K9bV85EfseRCp2bzrpyQ0Gkw1uLoCel9XBVWPg/TjRj94SkJzUTGfOa4bs7iJvBWtQG0Wq7wnI0syw3EBQ==}

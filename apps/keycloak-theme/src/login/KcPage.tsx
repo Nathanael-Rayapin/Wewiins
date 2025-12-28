@@ -4,12 +4,19 @@ import type { KcContext } from "./KcContext";
 import { useI18n } from "./i18n";
 import DefaultPage from "keycloakify/login/DefaultPage";
 import Template from "./Template";
+import "../main.css";
 
 const UserProfileFormFields = lazy(
     () => import("./UserProfileFormFields")
 );
 const Register = lazy(
-    () => import("./pages/Register")
+    () => import("./pages/Register/Register")
+);
+const LoginVerifyEmail = lazy(
+    () => import("./pages/Login/LoginVerifyEmail")
+);
+const Error = lazy(
+    () => import("./pages/Error/Error")
 );
 
 const doMakeUserConfirmPassword = false;
@@ -30,6 +37,20 @@ export default function KcPage(props: { kcContext: KcContext }) {
                             doUseDefaultCss={false}
                             UserProfileFormFields={UserProfileFormFields}
                             doMakeUserConfirmPassword={doMakeUserConfirmPassword}
+                        />
+                    );
+                    case "login-verify-email.ftl": return (
+                        <LoginVerifyEmail
+                            {...{ kcContext, i18n, classes }}
+                            Template={Template}
+                            doUseDefaultCss={false}
+                        />
+                    );
+                    case "error.ftl": return (
+                        <Error
+                            {...{ kcContext, i18n, classes }}
+                            Template={Template}
+                            doUseDefaultCss={true}
                         />
                     );
                     default:

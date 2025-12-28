@@ -27,7 +27,10 @@ services:
       KC_DB_PASSWORD: keycloak
     ports:
       - "127.0.0.1:8080:8080"
-    command: start-dev
+    command: start-dev --import-realm
+    volumes:
+      - ./keycloak/data/import:/opt/keycloak/data/import
+      - ./keycloak/providers:/opt/keycloak/providers/
     depends_on:
       - postgres
     networks:

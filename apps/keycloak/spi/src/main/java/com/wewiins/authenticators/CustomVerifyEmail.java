@@ -1,6 +1,7 @@
 package com.wewiins.authenticators;
 
 import jakarta.ws.rs.core.Response;
+import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.RequiredActionContext;
 import org.keycloak.authentication.RequiredActionProvider;
 import org.keycloak.authentication.requiredactions.VerifyEmail;
@@ -27,19 +28,20 @@ import com.wewiins.services.EmailService;
 
 public class CustomVerifyEmail implements RequiredActionProvider {
     public static final String EMAIL_RESEND_COOLDOWN_KEY_PREFIX = "verify-email-cooldown-";
-    public static final String PROVIDER_ID = "CUSTOM_VERIFY_EMAIL";
+    public static final String PROVIDER_ID = "custom-verify-email";
+    private static final String BREVO_API_KEY = System.getenv("BREVO_API_KEY");
     private static final Logger logger = Logger.getLogger(VerifyEmail.class);
 
     public static final String AUTH_NOTE_EMAIL_OTP_CODE = "EMAIL_OTP_CODE";
     public static final String AUTH_NOTE_EMAIL_OTP_GENERATED_AT = "EMAIL_OTP_GENERATED_AT";
     public static final String AUTH_NOTE_OTP_FAILED_ATTEMPTS = "OTP_FAILED_ATTEMPTS";
     public static final String AUTH_NOTE_OTP_LOCKED_UNTIL = "OTP_LOCKED_UNTIL";
+
     public static final String VERIFY_EMAIL_TEMPLATE = "login-verify-email.ftl";
 
     private final EmailService emailService = new EmailService();
 
-    public CustomVerifyEmail() {
-    }
+    public CustomVerifyEmail() {}
 
     @Override
     public void evaluateTriggers(RequiredActionContext context) {
@@ -214,7 +216,7 @@ public class CustomVerifyEmail implements RequiredActionProvider {
 
         try {
             String otpCode = authSession.getAuthNote(AUTH_NOTE_EMAIL_OTP_CODE);
-            emailService.sendOTPEmail(user.getEmail(), otpCode, getBrevoApiKey(context));
+            emailService.sendOTPEmail(user.getEmail(), otpCode, BREVO_API_KEY, 23L);
 
             event.success();
             return context.form()
@@ -260,13 +262,6 @@ public class CustomVerifyEmail implements RequiredActionProvider {
                         .getConfig()
                         .getOrDefault("otp_ttl", "600")
         );
-    }
-
-    private String getBrevoApiKey(RequiredActionContext context) {
-        return context.getRealm()
-                .getRequiredActionProviderByAlias(PROVIDER_ID)
-                .getConfig()
-                .getOrDefault("brevoApiKey", "");
     }
 
     private long getRemainingOtpTime(RequiredActionContext context) {

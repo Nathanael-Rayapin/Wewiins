@@ -19,14 +19,14 @@ public class EmailService {
         this.client = HttpClient.newHttpClient();
     }
 
-    public void sendOTPEmail(String email, String otpCode, String brevoApiKey) throws IOException, InterruptedException  {
+    public void sendOTPEmail(String email, String otpCode, String brevoApiKey, Long templateId) throws IOException, InterruptedException  {
         String url = "https://api.brevo.com/v3/smtp/email";
         logger.infof("Sending OTP email to %s with apiKey=%s and code=%s", email, brevoApiKey, otpCode);
 
 
         String json = String.format(
-                "{\"to\":[{\"email\":\"%s\"}],\"templateId\":23,\"params\":{\"otpCode\":\"%s\"}}",
-                email, otpCode
+                "{\"to\":[{\"email\":\"%s\"}],\"templateId\":%d,\"params\":{\"otpCode\":\"%s\"}}",
+                email, templateId, otpCode
         );
 
         HttpRequest request = HttpRequest.newBuilder()

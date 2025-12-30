@@ -61,13 +61,6 @@ public class CustomVerifyEmailFactory implements RequiredActionFactory {
                 .type(ProviderConfigProperty.STRING_TYPE)
                 .defaultValue("600")
                 .add()
-
-                .property()
-                .name("brevoApiKey")
-                .label("Brevo API Key")
-                .helpText("Clé API pour envoyer les emails via Brevo")
-                .type(ProviderConfigProperty.STRING_TYPE)
-                .add()
                 .build();
     }
 }

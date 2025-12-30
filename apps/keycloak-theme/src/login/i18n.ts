@@ -8,6 +8,10 @@ const { useI18n, ofTypeI18n } = i18nBuilder
     .withExtraLanguages({/* ... */})
     .withCustomTranslations({
         en: {
+            // Login
+            loginTitle: "We are delighted to see you again !",
+            noAccount: "Don't have an account? Don't worry !",
+            createAccount: "Create your own account ",
             // Verify Email
             emailVerifyTitle: "Email verification",
             emailVerifyCTA: "Verify",
@@ -24,6 +28,10 @@ const { useI18n, ofTypeI18n } = i18nBuilder
 
         },
         fr: {
+            // Login
+            loginTitle: "Nous sommes ravis de vous revoir !",
+            noAccount: "Vous n’avez pas de compte ? Pas de panique ! ",
+            createAccount: "Créer votre propre compte",
             // Verify Email
             emailVerifyTitle: "Code de vérification",
             emailVerifyCTA: "Vérifier",

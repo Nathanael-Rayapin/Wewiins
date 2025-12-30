@@ -13,6 +13,13 @@ export type KcContextExtensionPerPage = {
     "login-verify-email.ftl": {
         otpRemainingTime?: number;
         otpInputDefaultValue?: string;
+    },
+    "login-otp.ftl": {
+        user?: {
+            email?: string;
+        };
+        otpRemainingTime?: number;
+        otpInputDefaultValue?: string;
     }
 };
 

@@ -53,7 +53,6 @@ export default function Register(props: RegisterProps) {
             classes={classes}
             headerNode={undefined}
             displayMessage={messagesPerField.exists("global")}
-
         >
             <div className="flex flex-row min-h-screen">
                 <div className="w-full lg:w-1/2 px-8 lg:px-0">

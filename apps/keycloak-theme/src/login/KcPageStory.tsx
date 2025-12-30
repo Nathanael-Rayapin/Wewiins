@@ -14,6 +14,12 @@ const kcContextExtension: KcContextExtension = {
 const kcContextExtensionPerPage: KcContextExtensionPerPage = {
     "login-verify-email.ftl": {
         otpRemainingTime: 600
+    },
+    "login-otp.ftl": {
+        otpRemainingTime: 600,
+        user: {
+            email: "john.doe@gmail.com"
+        }
     }
 };
 

@@ -1,0 +1,101 @@
+#kc-form {
+    max-width: 460px;
+    width: 100%;
+    height: 100%;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.kcFormGroupClass #kc-login {
+    width: 100%;
+    height: 55px;
+    border-radius: 8px;
+    color: var(--gray-salt);
+    background-color: var(--primary);
+    font-weight: 600;
+    font-size: 20px;
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+}
+
+.kcFormGroupClass #kc-login:not(:disabled):hover {
+    background-color: var(--primary-dark);
+}
+
+.kcFormGroupClass #kc-login:disabled {
+    background-color: var(--accent);
+    cursor: default;
+}
+
+.kcLabelClass {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--black);
+}
+
+.kcInputClass {
+    width: 100%;
+    height: 55px;
+    border-radius: 8px;
+    background-color: var(--gray-salt);
+    padding: 0 16px 0 16px;
+}
+
+.kcInputClass:focus {
+    border: 1px solid var(--primary);
+}
+
+#kc-form-options {
+    margin: 20px 0 40px 0;
+}
+
+#kc-registration {
+    margin-top: 96px;
+    text-align: center;
+}
+
+#kc-registration a {
+    display: block;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--primary);
+    margin-top: 4px;
+    text-decoration: underline;
+}
+
+#kc-registration a:hover {
+    color: var(--primary-dark);
+}
+
+/* Custom Classes */
+.login-title {
+    font-size: 32px;
+    margin-bottom: 96px;
+}
+
+.wewiins-bg {
+    border-top-left-radius: 24px;
+    border-bottom-left-radius: 24px;
+    background-color: var(--secondary-blue);
+}
+
+.icon-wrapper {
+    position: relative;
+}
+
+.icon-wrapper img {
+    position: absolute;
+    width: 18px;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+}
+
+/* Errors */
+.kcInputErrorMessageClass {
+    color: var(--red-dark);
+    display: block;
+    margin-top: 8px;
+}

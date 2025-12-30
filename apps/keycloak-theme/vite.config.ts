@@ -9,10 +9,10 @@ export default defineConfig({
         react(),
         keycloakify({
             accountThemeImplementation: "none",
-            themeName: "my-wewiins-theme",
+            themeName: "wewiins-theme",
             keycloakVersionTargets: {
                 "22-to-25": false,
-                "all-other-versions": "my-wewiins-theme.jar"
+                "all-other-versions": "wewiins-theme.jar"
             }
         }),
         tailwindcss()

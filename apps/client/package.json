@@ -3,9 +3,12 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
+    "start-local": "ng serve --configuration local",
+    "start-development": "ng serve --configuration development",
+    "build-local": "ng build --configuration local",
+    "build-development": "ng build --configuration development",
+    "watch-local": "ng build --watch --configuration local",
+    "watch-development": "ng build --watch --configuration development",
     "test": "ng test"
   },
   "prettier": {

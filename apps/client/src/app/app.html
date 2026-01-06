@@ -1,4 +1,4 @@
-<div class="flex flex-col justify-center items-center min-h-screen">
-  <h1>Bonjour {{ keycloakService.userProfile()?.firstName }}, vous êtes connecté !</h1>
-  <p class="text-center">La suite arrive bientôt</p>
+<div class="main-container flex flex-row min-h-screen">
+  <app-sidebar></app-sidebar>
+  <router-outlet/>
 </div>

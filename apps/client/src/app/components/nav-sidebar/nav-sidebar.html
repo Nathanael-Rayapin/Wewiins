@@ -1,0 +1,17 @@
+<div class="nav-sidebar-container flex flex-row items-center">
+    <a
+    class="flex items-center nav-item button"
+    [routerLink]="item().pagePath"
+    routerLinkActive="active-button"
+    ariaCurrentWhenActive="page"
+    (mouseenter)="isHovered.set(true)"
+    (mouseleave)="isHovered.set(false)"
+    #rla="routerLinkActive">
+        <img
+        [ngSrc]="rla.isActive || isHovered() ? item().iconActivePath : item().iconPath" 
+        width="24" 
+        height="24" 
+        priority />
+        {{ item().name }}
+    </a>
+</div>

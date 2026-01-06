@@ -1,0 +1,24 @@
+.nav-sidebar-container {
+
+    .nav-item {
+        width: 100%;
+        font-family: "Rubik", sans-serif;
+        color: var(--primary-background);
+        font-weight: 500;
+        font-size: 14px;
+        gap: 12px;
+        padding: 10px 20px;
+        transition: all 0.3s ease-in-out;
+        border-radius: 12px;
+
+        &:hover {
+            color: var(--primary-text);
+            background-color: var(--primary-background);
+        }
+    }
+
+    .nav-item.active-button {
+        color: var(--primary-text);
+        background-color: var(--primary-background);
+    }
+}

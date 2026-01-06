@@ -1,0 +1,51 @@
+:host {
+    width: 258px;
+    background-color: var(--primary-background);
+}
+
+.sidebar-container {
+    width: 256px;
+    background-color: var(--primary-text);
+    padding-top: 32px;
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+
+    .sidebar-pages {
+        gap: 48px;
+
+        img {
+            margin: 0 auto;
+        }
+    }
+
+    .nav-link {
+        width: 216px;
+        margin: 0 auto;
+        gap: 12px;
+    }
+
+    .logout {
+        height: 88px;
+        background-color: var(--primary-background);
+        margin-top: 28px;
+        border-bottom-right-radius: 9px;
+        
+        button {
+            width: 216px;
+            font-family: "Rubik", sans-serif;
+            font-size: 16px;
+            margin: 0 auto;
+            gap: 12px;
+            padding: 0 20px;
+            color: var(--error);
+            text-decoration: underline;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+
+            &:hover {
+                color: var(--secondary-color);
+            }
+        }
+    }
+}

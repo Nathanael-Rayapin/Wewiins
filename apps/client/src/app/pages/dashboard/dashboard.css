@@ -1,0 +1,7 @@
+:host {
+    width: 100%;
+}
+
+.dashboard-container {
+    background-color: var(--tertiary-background);
+}

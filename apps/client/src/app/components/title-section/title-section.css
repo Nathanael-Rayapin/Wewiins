@@ -1,0 +1,18 @@
+.title-section-container {
+    gap: 16px;
+
+    h1.title {
+        font-family: "Signika", sans-serif;
+        font-size: 56px;
+        font-weight: 500;
+        color: var(--primary-text);
+    }
+
+    .buttons-section {
+        gap: 24px;
+
+        img {
+            cursor: pointer;
+        }
+    }
+}

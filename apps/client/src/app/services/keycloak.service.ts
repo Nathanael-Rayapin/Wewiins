@@ -20,14 +20,9 @@ export class KeycloakService {
             realm: environment.keycloak.realm,
             clientId: environment.keycloak.clientId
         });
-
-        console.log("STEP 0");
         
         this.keycloak.onAuthSuccess = async () => {
-             console.log("STEP 1");
             const profile = await this.keycloak.loadUserProfile();
-            console.log("STEP 2 ", profile.email);
-            
             this.userProfile.set(profile);
         };
 

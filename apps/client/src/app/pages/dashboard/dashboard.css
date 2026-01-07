@@ -4,4 +4,5 @@
 
 .dashboard-container {
     background-color: var(--tertiary-background);
+    padding: 32px 24px;
 }

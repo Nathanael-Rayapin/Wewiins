@@ -38,7 +38,7 @@
             margin: 0 auto;
             gap: 12px;
             padding: 0 20px;
-            color: var(--error);
+            color: var(--secondary-light-color);
             text-decoration: underline;
             cursor: pointer;
             transition: all 0.3s ease-in-out;

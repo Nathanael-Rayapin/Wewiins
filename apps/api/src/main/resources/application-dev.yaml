@@ -1,0 +1,12 @@
+spring:
+  security:
+    oauth2:
+      resource-server:
+        jwt:
+          issuer-uri: ${REALM_ISSUER_URI}
+supabase:
+  url: ${SUPABASE_URL}
+  service-role:
+    key: ${SUPABASE_SERVICE_ROLE_KEY}
+stripe:
+  secret-key: ${STRIPE_SECRET_KEY}

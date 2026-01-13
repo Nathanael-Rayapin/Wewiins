@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { TitleSection } from '../../components/title-section/title-section';
+import { OrchestrationService } from '../../services/orchestration.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -7,6 +8,11 @@ import { TitleSection } from '../../components/title-section/title-section';
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
-export class Dashboard {
+export class Dashboard implements OnInit {
 
+  private orchestrationService = inject(OrchestrationService);
+
+  ngOnInit(): void {
+    this.orchestrationService.initializeDashboard();
+  }
 }

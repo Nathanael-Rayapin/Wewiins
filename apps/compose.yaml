@@ -38,11 +38,11 @@ services:
     networks:
       - keycloak-network
 
-  angular:
+  client:
     build:
       context: ./client
       dockerfile: Dockerfile
-    container_name: angular-dev
+    container_name: client-dev
     ports:
       - "4200:4200"
     volumes:
@@ -52,6 +52,23 @@ services:
       - keycloak-network
     depends_on:
       - keycloak
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: api-dev
+    ports:
+      - "8181:8080"
+    env_file:
+      - ./api/.env.dev
+    volumes:
+      - ./api/src:/api/src
+    networks:
+      - keycloak-network
+    depends_on:
+      - keycloak
+      - postgres
 
 volumes:
   keycloak-postgres-data:

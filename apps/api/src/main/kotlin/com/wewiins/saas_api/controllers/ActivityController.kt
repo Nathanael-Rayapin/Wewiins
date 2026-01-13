@@ -1,6 +1,6 @@
 package com.wewiins.saas_api.controllers
 
-import com.wewiins.saas_api.models.ActivityRevenue
+import com.wewiins.saas_api.dto.ActivityRevenue
 import com.wewiins.saas_api.services.ActivityService
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -15,11 +15,11 @@ class ActivityController(
 ) {
 
     @GetMapping("/revenue/{connectedAccountId}")
-    fun getRevenueByProvider(
+    fun getRevenueByAccountId(
         @PathVariable connectedAccountId: String,
         @RequestParam startDate: Long,
         @RequestParam endDate: Long
     ): List<ActivityRevenue> {
-        return activityService.getPaymentIntentsByQuery(connectedAccountId, startDate, endDate)
+        return activityService.getRevenueByAccountId(connectedAccountId, startDate, endDate)
     }
 }

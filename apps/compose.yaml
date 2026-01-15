@@ -10,6 +10,11 @@ services:
       POSTGRES_PASSWORD: keycloak
     volumes:
       - keycloak-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     ports:
       - "5433:5432"
     networks:
@@ -25,10 +30,20 @@ services:
       KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
       KC_DB_USERNAME: keycloak
       KC_DB_PASSWORD: keycloak
+      KC_HOSTNAME_URL: http://localhost:8080
+      KC_HOSTNAME_ADMIN_URL: http://localhost:8080
+      KC_HEALTH_ENABLED: true
+      KC_HTTP_MANAGEMENT_HEALTH_ENABLED: true
     env_file:
       - .env.dev
     ports:
-      - "127.0.0.1:8080:8080"
+      - "8080:8080"
+      - "9000:9000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9000/health/ready || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
     command: start-dev --import-realm
     volumes:
       - ./keycloak/data/import:/opt/keycloak/data/import
@@ -58,6 +73,11 @@ services:
       context: ./api
       dockerfile: Dockerfile
     container_name: api-dev
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/api/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     ports:
       - "8181:8080"
     env_file:

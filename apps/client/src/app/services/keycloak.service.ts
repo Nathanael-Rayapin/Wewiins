@@ -1,4 +1,4 @@
-import { Injectable, signal } from "@angular/core";
+import { computed, Injectable, signal } from "@angular/core";
 import { KeycloakProfile } from "keycloak-js";
 import { environment } from "../../environments/environment";
 import Keycloak from 'keycloak-js';
@@ -9,12 +9,17 @@ export class KeycloakService {
     private keycloak!: Keycloak;
 
     readonly userProfile = signal<KeycloakProfile | null>(null);
+    readonly isInitialized = signal<boolean>(false);
+
+    readonly isReady = computed(() => 
+        this.isInitialized() && this.userProfile() !== null
+    );
 
     constructor(private router: Router) { }
 
     async init(): Promise<boolean> {
         if (environment.keycloak.enabled === false) {
-            // ✅ Angular démarre directement en local
+            this.isInitialized.set(true);
             return true;
         }
 
@@ -26,17 +31,16 @@ export class KeycloakService {
 
         this.keycloak.onAuthSuccess = async () => {
             const profile = await this.keycloak.loadUserProfile();
+            this.isInitialized.set(true);
             this.userProfile.set(profile);
         };
 
-        this.keycloak.onAuthLogout = () => {
-            this.userProfile.set(null);
-        };
-
         this.keycloak.onTokenExpired = () => {
-            this.refreshToken().catch(() => {
-                this.logout();
-            });
+            console.log("On Token Expired");
+            
+            // this.refreshToken().catch(() => {
+            //     this.logout();
+            // });
         };
 
         return this.keycloak.init({

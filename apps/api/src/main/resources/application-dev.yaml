@@ -3,6 +3,7 @@ spring:
     oauth2:
       resource-server:
         jwt:
+          jwk-set-uri: ${REALM_JWK_URI}
           issuer-uri: ${REALM_ISSUER_URI}
 supabase:
   url: ${SUPABASE_URL}

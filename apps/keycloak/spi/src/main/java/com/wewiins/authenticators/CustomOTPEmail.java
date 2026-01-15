@@ -235,7 +235,7 @@ public class CustomOTPEmail implements Authenticator {
 
     @Override
     public boolean requiresUser() {
-        return true; // User must be identified before OTP
+        return true;
     }
 
     @Override

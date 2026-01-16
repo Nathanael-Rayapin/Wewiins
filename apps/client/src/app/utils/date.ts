@@ -1,7 +1,7 @@
 import { IDateFrom, IDateRange } from "../interfaces/date";
 
 export function getDateRange(period: IDateFrom): IDateRange {
-    // Yesterday at 11:59:59 p.m.
+    // Yesterday at 23:59:59 p.m.
     const endDate = new Date();
     endDate.setDate(endDate.getDate() - 1);
     endDate.setHours(23, 59, 59, 999);

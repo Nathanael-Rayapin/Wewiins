@@ -11,7 +11,7 @@ export class KeycloakService {
     readonly userProfile = signal<KeycloakProfile | null>(null);
     readonly isInitialized = signal<boolean>(false);
 
-    readonly isReady = computed(() => 
+    readonly isReady = computed(() =>
         this.isInitialized() && this.userProfile() !== null
     );
 
@@ -30,17 +30,15 @@ export class KeycloakService {
         });
 
         this.keycloak.onAuthSuccess = async () => {
-            const profile = await this.keycloak.loadUserProfile();
-            this.isInitialized.set(true);
-            this.userProfile.set(profile);
-        };
-
-        this.keycloak.onTokenExpired = () => {
-            console.log("On Token Expired");
-            
-            // this.refreshToken().catch(() => {
-            //     this.logout();
-            // });
+            try {
+                const profile = await this.keycloak.loadUserProfile();
+                this.userProfile.set(profile);
+            } catch (error) {
+                console.error('Impossible de charger le profil utilisateur', error);
+                this.userProfile.set(null);
+            } finally {
+                this.isInitialized.set(true);
+            }
         };
 
         return this.keycloak.init({

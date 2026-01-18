@@ -5,7 +5,7 @@ WORKDIR /api
 # Copier seulement pom.xml pour cache des dépendances
 COPY pom.xml .
 
-# Télécharger les dépendances (layer cachée si pom.xml ne change pas)
+# Télécharger les dépendances
 RUN mvn dependency:resolve dependency:resolve-plugins -B
 
 # Copier le code source

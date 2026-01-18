@@ -82,13 +82,23 @@ services:
       - "8181:8080"
     env_file:
       - ./api/.env.dev
-    volumes:
-      - ./api/src:/api/src
     networks:
       - keycloak-network
     depends_on:
       - keycloak
       - postgres
+    develop:
+      watch:
+        - action: sync+exec
+          path: ./api/src
+          target: /api/src
+          initial_sync: true
+          ignore:
+            - target/
+          exec: 
+            command: mvn compile -DskipTests -q
+        - action: rebuild
+          path: pom.xml
 
 volumes:
   keycloak-postgres-data:

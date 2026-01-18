@@ -68,6 +68,7 @@ data class ActivitySlotBooking(
 )
 
 data class ActivityRevenue(
+    val activity_offer_id: UUID,
     val activity_title: String,
     val total_price: Double
 )

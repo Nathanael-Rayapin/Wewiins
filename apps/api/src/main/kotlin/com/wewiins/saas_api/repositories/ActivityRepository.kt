@@ -5,6 +5,7 @@ import com.wewiins.saas_api.dto.ActivityRevenue
 import io.github.jan.supabase.SupabaseClient
 import org.springframework.stereotype.Repository
 import org.slf4j.LoggerFactory
+import java.util.UUID
 
 
 @Repository
@@ -30,16 +31,24 @@ class ActivityRepository(
         return result.data
             .mapNotNull { paymentIntent ->
                 val metadata = paymentIntent.metadata
+                val id = metadata["activity_offer_id"] ?: return@mapNotNull null
                 val title = metadata["activity_title"] ?: return@mapNotNull null
                 val amount = paymentIntent.amount?.toDouble()?.div(100.0) ?: 0.0
 
-                title to amount
+                Triple(id, title.lowercase().trim(), amount)
+                // it.first = id
+                // it.second = title
+                // it.third = amount
             }
-            .groupBy({ it.first }, { it.second })
-            .map { (title, amounts) ->
+            .groupBy({ it.first })
+            .map { (id, triples) ->
+                val title = triples.first().second
                 ActivityRevenue(
-                    activity_title = title,
-                    total_price = amounts.sum()
+                    activity_offer_id = UUID.fromString(id),
+                    activity_title = title
+                        .split(" ")
+                        .joinToString(" ") { it.replaceFirstChar { char -> char.uppercase() } },
+                    total_price = triples.sumOf { it.third }
                 )
             }
     }

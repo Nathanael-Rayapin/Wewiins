@@ -1,4 +1,44 @@
-<div class="dashboard-container flex flex-col min-h-screen w-full">
+<div class="dashboard-container flex flex-col min-h-screen w-full h-full">
   <app-title-section></app-title-section>
-  <p>La suite arrive bientôt</p>
-</div>
+  <div class="dashboard-content h-full">
+
+    @if (isLoading() === false) {
+    <div class="flex flex-col gap-4 w-full">
+      <div class="flex flex-row gap 8 justify-between">
+        @if (hasErrorOnRevenue() === false) {
+        <!-- Revenue -->
+        <div class="revenue-chart-container flex flex-col gap-8">
+          <div class="revenue-title-container flex flex-row justify-between items-center">
+            <h2>Chiffre d'affaire</h2>
+            <div class="select flex justify-center">
+              <p-select [options]="dateRange" [(ngModel)]="selectedRange" class="w-full md:w-56" />
+            </div>
+          </div>
+          <div class="canvas-container w-full flex justify-center">
+            <canvas baseChart [data]="chartRevenue()" type="doughnut" [options]="chartOptions" width="170" height="170"
+              aria-label="Répartition des revenus des trois plus grandes activités" role="img">
+              <p>Répartition des revenus des trois plus grandes activités</p>
+            </canvas>
+            <p class="canvas-revenue">{{ getTotalRevenue() }}</p>
+
+          </div>
+          <div class="revenue-list-container flex flex-col gap-4">
+            @for (revenue of revenues(); track revenue.activity_offer_id; let idx = $index) {
+            <div class="flex flex-row items-center gap-2">
+              <div class="round" [style.background-color]="idx === 0 ? '#C60541' : idx === 1 ? '#FFCE35' : '#49A3A3'">
+              </div>
+              <p class="revenue-title">{{revenue.activity_title}}</p>
+            </div>
+            }
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+    } @else {
+    <!-- Loading -->
+    <div class="loading-spinner flex justify-center">
+      <p-progress-spinner strokeWidth="8" fill="transparent" animationDuration=".5s" class="progress-spinner" />
+    </div>
+    }
+  </div>

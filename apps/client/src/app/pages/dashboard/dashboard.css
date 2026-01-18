@@ -5,4 +5,72 @@
 .dashboard-container {
     background-color: var(--tertiary-background);
     padding: 32px 24px;
+
+    .dashboard-content {
+        position: relative;
+
+        .revenue-chart-container {
+            width: 440px;
+            height: 400px;
+            padding: 24px;
+            background-color: var(--primary-background);
+            box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px 0px;
+            border-radius: 12px;
+
+            .revenue-title-container {
+                h2 {
+                    font-weight: 500;
+                    font-size: 20px;
+                    color: var(--tertiary-text);
+                }
+
+                .select {
+                    width: 150px;
+                    height: 40px;
+                }
+            }
+
+            .revenue-list-container {
+                margin-top: auto;
+
+                .round {
+                    width: 14px;
+                    height: 14px;
+                    border-radius: 50%;
+                }
+
+                .revenue-title {
+                    font-size: 16px;
+                    color: var(--secondary-text);
+                }
+            }
+
+            .canvas-container {
+                position: relative;
+
+                .canvas-revenue {
+                    font-family: "Signika", sans-serif;
+                    font-size: 24px;
+                    color: var(--secondary-text);
+                    position: absolute;
+                    top: 53%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                }
+            }
+        }
+
+        .loading-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+
+            .progress-spinner {
+                width: 50px;
+                height: 50px;
+            }
+        }
+    }
+
 }

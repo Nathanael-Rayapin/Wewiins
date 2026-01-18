@@ -23,9 +23,9 @@ export function getDateRange(period: IDateFrom): IDateRange {
         default:
             startDate.setDate(startDate.getDate() - 7);
     }
-
+    
     return { 
-        startDate: startDate.getTime(), 
-        endDate: endDate.getTime() 
+        startDate: Math.floor(startDate.getTime() / 1000), 
+        endDate: Math.floor(endDate.getTime() / 1000)
     };
 }

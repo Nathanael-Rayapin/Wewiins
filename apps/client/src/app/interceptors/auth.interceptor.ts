@@ -13,9 +13,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
     const token = keycloakService.getToken();
 
-    console.log("🔶 authInterceptor - URL:", req.url);
-    console.log("🔶 Token:", token ? "YES (length: " + token.length + ")" : "NO");
-
     if (!token) {
         console.error("❌ No token available!");
         return next(req);
@@ -27,8 +24,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
             Authorization: `Bearer ${token}`
         }
     });
-
-    console.log("✅ Authorization header added:", authReq.headers.get('Authorization')?.substring(0, 30) + "...");
 
     return next(authReq);
 };

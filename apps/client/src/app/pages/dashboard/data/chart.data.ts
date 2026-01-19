@@ -27,11 +27,21 @@ export const chartRevenueData = signal<ChartRevenueData>({
 });
 
 interface ChartRevenueOptions {
-  responsive: boolean;
-  maintainAspectRatio: boolean;
+    responsive: boolean;
+    maintainAspectRatio: boolean;
+    plugins: {
+      tooltip: {
+        enabled: boolean;
+      };
+    }
 }
 
 export const chartRevenueOptions: ChartRevenueOptions = {
-    responsive: false,
-    maintainAspectRatio: false
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: {
+      tooltip: {
+        enabled: false,
+      }
+    }
 };

@@ -30,7 +30,7 @@ export class Dashboard {
   protected revenues: WritableSignal<IActivityRevenue[]> = signal([]);
 
   isLoading = signal(true);
-  hasErrorOnRevenue = signal(false);
+  hasError = signal(false);
 
   constructor() {
     effect(() => {
@@ -47,7 +47,7 @@ export class Dashboard {
       },
       error: (error) => {
         console.error("Erreur lors du chargement du dashboard", error);
-        this.hasErrorOnRevenue.set(true);
+        this.hasError.set(true);
       },
       complete: () => {
         this.isLoading.set(false);
@@ -56,12 +56,21 @@ export class Dashboard {
   }
 
   protected initRevenues(revenues: IActivityRevenue[]): void {
-    this.chartRevenue.update((revenue) => {
-      revenue.datasets[0].data = revenues.map(revenue => revenue.total_price);
-      return revenue;
-    });
+    if (revenues.length === 0) {
+      // If no revenues, we set a default value
+      this.chartRevenue.update((revenue) => {
+        revenue.datasets[0].data = [100];
+        return revenue;
+      });
+    } else {
+      // Else, we update the chart with the new revenues
+      this.chartRevenue.update((revenue) => {
+        revenue.datasets[0].data = revenues.map(revenue => revenue.total_price);
+        return revenue;
+      });
 
-    this.revenues.set(revenues);
+      this.revenues.set(revenues);
+    }
   }
 
   protected getTotalRevenue(): string {

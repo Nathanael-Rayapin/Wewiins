@@ -21,6 +21,7 @@ class ActivityRepository(
 
         val params = com.stripe.param.PaymentIntentSearchParams.builder()
             .setQuery(query)
+            .setLimit(100)
             .build()
 
         val result = stripeClient
@@ -51,6 +52,8 @@ class ActivityRepository(
                     total_price = triples.sumOf { it.third }
                 )
             }
+            .sortedByDescending { it.total_price }
+            .take(3)
     }
 
 }

@@ -5,7 +5,7 @@
     @if (isLoading() === false) {
     <div class="flex flex-col gap-4 w-full">
       <div class="flex flex-row gap 8 justify-between">
-        @if (hasErrorOnRevenue() === false) {
+        @if (hasError() === false) {
         <!-- Revenue -->
         <div class="revenue-chart-container flex flex-col gap-8">
           <div class="revenue-title-container flex flex-row justify-between items-center">
@@ -14,8 +14,8 @@
               <p-select [options]="dateRange" [(ngModel)]="selectedRange" class="w-full md:w-56" />
             </div>
           </div>
-          <div class="canvas-container w-full flex justify-center">
-            <canvas baseChart [data]="chartRevenue()" type="doughnut" [options]="chartOptions" width="170" height="170"
+          <div class="canvas-container w-full">
+            <canvas baseChart [data]="chartRevenue()" type="doughnut" [options]="chartOptions"
               aria-label="Répartition des revenus des trois plus grandes activités" role="img">
               <p>Répartition des revenus des trois plus grandes activités</p>
             </canvas>
@@ -29,6 +29,8 @@
               </div>
               <p class="revenue-title">{{revenue.activity_title}}</p>
             </div>
+            } @empty {
+            <p class="revenue-empty">Aucun revenu n’a été généré sur cette période.</p>
             }
           </div>
         </div>

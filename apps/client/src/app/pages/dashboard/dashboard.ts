@@ -4,12 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { OrchestrationService } from '../../services/orchestration.service';
 import { KeycloakService } from '../../services/keycloak.service';
 import { SelectModule } from 'primeng/select';
-import { dateRangeOptions } from '../../interfaces/date';
+import { dateRangeOptions, IDateFrom } from '../../interfaces/date';
 import { BaseChartDirective } from 'ng2-charts';
 import { chartRevenueData, chartRevenueOptions } from './data/chart.data';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { IActivityRevenue } from '../../dto/activity';
 import { formatPrice } from '../../utils/price';
+import { ActivityService } from '../../services/activity.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -21,26 +22,34 @@ export class Dashboard {
 
   private keycloakService = inject(KeycloakService);
   private orchestrationService = inject(OrchestrationService);
+  private activityService = inject(ActivityService);
 
   // Chart Base on Revenue
-  protected dateRange: string[] = Object.values(dateRangeOptions);
-  protected selectedRange = signal(this.dateRange[0]);
+  protected dateRangeSelectOptions = Object.entries(dateRangeOptions)
+    .map(([key, value]) => ({
+      label: value,
+      value: key as IDateFrom
+    }));
+
+  protected selectedRange = signal(this.dateRangeSelectOptions[0].value);
   protected chartRevenue = chartRevenueData;
   protected chartOptions = chartRevenueOptions;
   protected revenues: WritableSignal<IActivityRevenue[]> = signal([]);
 
   isLoading = signal(true);
+
   hasError = signal(false);
+  hasErrorOnRevenue = signal(false);
 
   constructor() {
     effect(() => {
       if (this.keycloakService.isReady()) {
-        this.loadDashboardData();
+        this.initDashboardData();
       }
     });
   }
 
-  private loadDashboardData(): void {
+  private initDashboardData(): void {
     this.orchestrationService.initializeDashboard().subscribe({
       next: (response) => {
         this.initRevenues(response.revenue);
@@ -56,26 +65,36 @@ export class Dashboard {
   }
 
   protected initRevenues(revenues: IActivityRevenue[]): void {
-    if (revenues.length === 0) {
-      // If no revenues, we set a default value
-      this.chartRevenue.update((revenue) => {
-        revenue.datasets[0].data = [100];
-        return revenue;
-      });
-    } else {
-      // Else, we update the chart with the new revenues
-      this.chartRevenue.update((revenue) => {
-        revenue.datasets[0].data = revenues.map(revenue => revenue.total_price);
-        return revenue;
-      });
+    const newData = revenues.length === 0
+      ? [100]
+      : revenues.map(r => r.total_price);
 
-      this.revenues.set(revenues);
-    }
+    this.chartRevenue.set({
+      ...this.chartRevenue(),
+      datasets: [{ ...this.chartRevenue().datasets[0], data: newData }]
+    });
+
+    this.revenues.set(revenues);
   }
 
   protected getTotalRevenue(): string {
     const total = this.revenues().reduce((sum, revenue) => sum + revenue.total_price, 0);
     const rounded = Math.round(total);
     return formatPrice(rounded);
+  }
+
+  protected updateSelectedRevenueRange(): void {
+    this.activityService.loadDashboardRevenue(this.selectedRange()).subscribe({
+      next: (response) => {
+        this.initRevenues(response);
+      },
+      error: (error) => {
+        console.error("Erreur lors du chargement des revenus", error);
+        this.hasErrorOnRevenue.set(true);
+      },
+      complete: () => {
+        this.isLoading.set(false);
+      }
+    });
   }
 }

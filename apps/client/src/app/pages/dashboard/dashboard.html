@@ -11,7 +11,7 @@
           <div class="revenue-title-container flex flex-row justify-between items-center">
             <h2>Chiffre d'affaire</h2>
             <div class="select flex justify-center">
-              <p-select [options]="dateRange" [(ngModel)]="selectedRange" class="w-full md:w-56" />
+              <p-select [options]="dateRangeSelectOptions" [(ngModel)]="selectedRange" class="w-full md:w-56" (onChange)="updateSelectedRevenueRange()" />
             </div>
           </div>
           <div class="canvas-container w-full">
@@ -30,7 +30,7 @@
               <p class="revenue-title">{{revenue.activity_title}}</p>
             </div>
             } @empty {
-            <p class="revenue-empty">Aucun revenu n’a été généré sur cette période.</p>
+            <p class="revenue-empty">Aucun revenu n'a été généré sur cette période.</p>
             }
           </div>
         </div>

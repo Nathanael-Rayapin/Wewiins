@@ -1,7 +1,9 @@
 package com.wewiins.saas_api.controllers
 
 import com.wewiins.saas_api.dto.Orchestration
+import com.wewiins.saas_api.dto.VerifiedAccount
 import com.wewiins.saas_api.services.OrchestrationService
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -12,16 +14,20 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/orchestration")
 class OrchestrationController(
-    private val orchestrationService: OrchestrationService
+    private val orchestrationService: OrchestrationService,
 ) {
     @GetMapping("/initialize")
     fun initializeDashboard(
         @RequestParam email: String,
         @RequestParam startDate: Long,
-        @RequestParam endDate: Long
+        @RequestParam endDate: Long,
+        request: HttpServletRequest
     ): ResponseEntity<Orchestration> {
+        // Récupérer le compte depuis l'interceptor
+        val verifiedAccount = request.getAttribute("verifiedAccount") as VerifiedAccount
+
         val orchestrationData = orchestrationService.initializeDashboard(
-            email = email,
+            verifiedAccount = verifiedAccount,
             startDate = startDate,
             endDate = endDate
         )

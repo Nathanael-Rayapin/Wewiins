@@ -1,7 +1,11 @@
 package com.wewiins.saas_api.controllers
 
 import com.wewiins.saas_api.dto.ActivityRevenue
+import com.wewiins.saas_api.dto.VerifiedAccount
 import com.wewiins.saas_api.services.ActivityService
+import jakarta.servlet.http.HttpServletRequest
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
@@ -14,12 +18,21 @@ class ActivityController(
     private val activityService: ActivityService
 ) {
 
-    @GetMapping("/revenue/{connectedAccountId}")
+    @GetMapping("/revenue")
     fun getRevenueByAccountId(
-        @PathVariable connectedAccountId: String,
+        @RequestParam email: String,
         @RequestParam startDate: Long,
-        @RequestParam endDate: Long
-    ): List<ActivityRevenue> {
-        return activityService.getRevenueByAccountId(connectedAccountId, startDate, endDate)
+        @RequestParam endDate: Long,
+        request: HttpServletRequest
+    ): ResponseEntity<List<ActivityRevenue>> {
+        val verifiedAccount = request.getAttribute("verifiedAccount") as VerifiedAccount
+
+        val revenuesData = activityService.getRevenueByAccountId(
+            connectedAccountId = verifiedAccount.stripe_connected_account_id,
+            startDate = startDate,
+            endDate = endDate
+        )
+
+        return ResponseEntity.ok(revenuesData)
     }
 }

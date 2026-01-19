@@ -1,6 +1,7 @@
 package com.wewiins.saas_api.services
 
 import com.wewiins.saas_api.dto.Orchestration
+import com.wewiins.saas_api.dto.VerifiedAccount
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
@@ -9,32 +10,16 @@ import org.springframework.stereotype.Service
 
 @Service
 class OrchestrationService(
-    private val accountService: AccountService,
     private val activityService: ActivityService
 ) {
     private val logger = LoggerFactory.getLogger(OrchestrationService::class.java)
 
     fun initializeDashboard(
-        email: String,
+        verifiedAccount: VerifiedAccount,
         startDate: Long,
         endDate: Long
     ): Orchestration? {
         logger.info("Dashboard initialization started")
-
-        // Step 1 : Verify Provider
-        val verifiedAccount = accountService.getProviderVerifiedAccount(email)
-
-        if (verifiedAccount == null) {
-            logger.warn("Provider account not found for email: $email - Stopping orchestration")
-            return null
-        }
-
-        if (!verifiedAccount.is_verified) {
-            logger.warn("Provider not verified for email: $email - Stopping orchestration")
-            return null
-        }
-
-        logger.info("Provider verified - Proceeding with data fetching")
 
         // Step 2 : Retrieve all initial data
         return runBlocking {
@@ -46,10 +31,10 @@ class OrchestrationService(
                 )
             }
 
-            // Tu pourras ajouter d'autres appels parallèles ici
+            // We can add other parallel calls here.
             // val statsDeferred = async(Dispatchers.IO) { statsService.getStats(...) }
 
-            // Attente de tous les résultats
+            // Waiting for all results
             val revenue = revenueDeferred.await()
             // val stats = statsDeferred.await()
 

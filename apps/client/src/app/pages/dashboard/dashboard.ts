@@ -37,25 +37,24 @@ export class Dashboard {
   protected revenues: WritableSignal<IActivityRevenue[]> = signal([]);
 
   isLoading = signal(true);
-
   hasError = signal(false);
   hasErrorOnRevenue = signal(false);
 
   constructor() {
     effect(() => {
-      if (this.keycloakService.isReady()) {
+      if (this.keycloakService.isReady()) {   
         this.initDashboardData();
       }
     });
   }
 
-  private initDashboardData(): void {
+  private initDashboardData(): void {    
     this.orchestrationService.initializeDashboard().subscribe({
-      next: (response) => {
+      next: (response) => {       
         this.initRevenues(response.revenue);
       },
-      error: (error) => {
-        console.error("Erreur lors du chargement du dashboard", error);
+      error: (error: Error) => {
+        console.error("Erreur lors du chargement du dashboard", error.name);
         this.hasError.set(true);
       },
       complete: () => {
@@ -64,7 +63,7 @@ export class Dashboard {
     });
   }
 
-  protected initRevenues(revenues: IActivityRevenue[]): void {
+  private initRevenues(revenues: IActivityRevenue[]): void {
     const newData = revenues.length === 0
       ? [100]
       : revenues.map(r => r.total_price);

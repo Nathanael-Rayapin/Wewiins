@@ -13,14 +13,16 @@ export class OrchestrationService {
     private http = inject(HttpClient);
     private keycloakService = inject(KeycloakService);
 
-    initializeDashboard(): Observable<IOrchestratorResponse> {
+    initializeDashboard(): Observable<IOrchestratorResponse> {  
+        console.log("STEP 5");
+                              
         try {
             const email = this.keycloakService.getUserEmail();
 
             if (!email) {
                 throw new Error('User email not found');
             }
-
+            
             // Initialized to one week from yesteday
             const { startDate, endDate } = getDateRange("aWeekAgo");
 

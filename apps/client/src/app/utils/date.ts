@@ -5,7 +5,7 @@ export function getDateRange(period: IDateFrom): IDateRange {
     const endDate = new Date();
     endDate.setDate(endDate.getDate() - 1);
     endDate.setHours(23, 59, 59, 999);
-
+    
     const startDate = new Date(endDate);
     startDate.setHours(0, 0, 0, 0);
 
@@ -22,7 +22,7 @@ export function getDateRange(period: IDateFrom): IDateRange {
             break;
         default:
             startDate.setDate(startDate.getDate() - 7);
-    }
+    }    
     
     return { 
         startDate: Math.floor(startDate.getTime() / 1000), 

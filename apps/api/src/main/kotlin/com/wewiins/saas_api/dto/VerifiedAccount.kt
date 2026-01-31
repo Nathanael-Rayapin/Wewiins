@@ -18,5 +18,5 @@ data class Account(
 
 data class VerifiedAccount(
     val is_verified: Boolean,
-    val stripe_connected_account_id: String,
+    val stripe_connected_account_id: String? = null,
 )

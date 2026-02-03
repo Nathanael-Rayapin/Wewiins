@@ -1,17 +1,17 @@
-package com.wewiins.saas_api.dto
+package com.wewiins.saas_api.dto.activity
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.wewiins.saas_api.dto.activity.ActivityOfferDto
-import com.wewiins.saas_api.dto.enums.BookingStatus
+import com.wewiins.saas_api.dto.user.UserDto
+import com.wewiins.saas_api.enums.BookingStatus
 import java.time.LocalDate
 import java.time.OffsetDateTime
 
-data class BookingsRaw(
+data class ActivityBookingRaw(
     val id: String,
 
     val reference: String,
 
-    val users: UserName,
+    val users: UserDto,
 
     val date: LocalDate,
 
@@ -32,7 +32,7 @@ data class BookingsRaw(
     val status: BookingStatus,
 )
 
-data class Bookings(
+data class ActivityBooking(
     val id: String,
     val reference: String,
     val name: String,

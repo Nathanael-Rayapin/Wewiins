@@ -1,4 +1,4 @@
-package com.wewiins.saas_api.dto.enums
+package com.wewiins.saas_api.enums
 
 enum class BookingType {
     EXPIRING,

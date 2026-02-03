@@ -2,7 +2,7 @@ package com.wewiins.saas_api.dto
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-data class VerifiedAccount(
+data class VerifiedAccountDto(
     @field:JsonProperty("is_verified")
     val isVerified: Boolean,
 

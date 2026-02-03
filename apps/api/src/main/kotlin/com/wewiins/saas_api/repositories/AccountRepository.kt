@@ -1,7 +1,6 @@
 package com.wewiins.saas_api.repositories
 
-import com.wewiins.saas_api.dto.Account
-import com.wewiins.saas_api.dto.VerifiedAccount
+import com.wewiins.saas_api.dto.VerifiedAccountDto
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
@@ -15,7 +14,7 @@ class AccountRepository(
 ) {
     private val logger = LoggerFactory.getLogger(AccountRepository::class.java)
 
-    suspend fun getProviderVerifiedAccount(email: String): VerifiedAccount? {
+    suspend fun getProviderVerifiedAccount(email: String): VerifiedAccountDto? {
         logger.info("Is provider verified method called for $email")
 
         val result = supabaseClient
@@ -25,7 +24,7 @@ class AccountRepository(
                     eq("email", email)
                 }
             }
-            .decodeList<VerifiedAccount>()
+            .decodeList<VerifiedAccountDto>()
 
         val account = result.firstOrNull()
 
@@ -34,7 +33,7 @@ class AccountRepository(
             return null
         }
 
-        logger.info("Provider account retrieved - is_verified: ${account.is_verified}")
+        logger.info("Provider account retrieved - is_verified: ${account.isVerified}")
         return account
     }
 }

@@ -1,12 +1,21 @@
 package com.wewiins.saas_api.repositories
 
 import com.stripe.StripeClient
-import com.wewiins.saas_api.dto.ActivityRevenue
+import com.stripe.param.BalanceTransactionListParams
+import com.wewiins.saas_api.dto.activity.AverageScore
+import com.wewiins.saas_api.dto.user.ProviderDto
+import com.wewiins.saas_api.dto.VisitsCountDto
+import com.wewiins.saas_api.dto.activity.ActivityBooking
+import com.wewiins.saas_api.dto.activity.ActivityBookingRaw
+import com.wewiins.saas_api.interfaces.Revenue
 import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.postgrest.query.Columns
+import io.github.jan.supabase.postgrest.query.Count
 import org.springframework.stereotype.Repository
 import org.slf4j.LoggerFactory
-import java.util.UUID
-
+import kotlin.math.roundToInt
 
 @Repository
 class ActivityRepository(
@@ -16,44 +25,283 @@ class ActivityRepository(
 
     private val logger = LoggerFactory.getLogger(ActivityRepository::class.java)
 
-    suspend fun getRevenueByAccountId(query: String): List<ActivityRevenue> {
-        logger.info("🔎 Stripe payment intent search query = {}", query)
+    suspend fun getRevenueByPeriod(
+        connectedAccountId: String,
+        startDate: Long,
+        endDate: Long
+    ): Revenue {
+        logger.info(
+            "🔎 Fetching Revenue for connected account {} from {} to {}",
+            connectedAccountId,
+            startDate,
+            endDate
+        )
 
-        val params = com.stripe.param.PaymentIntentSearchParams.builder()
-            .setQuery(query)
-            .setLimit(100)
+        val params = BalanceTransactionListParams.builder()
+            .setLimit(100L)
+            .setType("charge")
+            .setCreated(
+                BalanceTransactionListParams.Created.builder()
+                    .setGte(startDate)
+                    .setLte(endDate)
+                    .build()
+            )
             .build()
 
         val result = stripeClient
             .v1()
-            .paymentIntents()
-            .search(params)
+            .balanceTransactions()
+            .list(params)
 
-        return result.data
-            .mapNotNull { paymentIntent ->
-                val metadata = paymentIntent.metadata
-                val id = metadata["activity_offer_id"] ?: return@mapNotNull null
-                val title = metadata["activity_title"] ?: return@mapNotNull null
-                val amount = paymentIntent.amount?.toDouble()?.div(100.0) ?: 0.0
+        val revenue = result.data
+            .filter { it.status == "available" }
+            .sumOf { transaction ->
+                transaction.amount.toDouble() / 100.0
+            }
 
-                Triple(id, title.lowercase().trim(), amount)
-                // it.first = id
-                // it.second = title
-                // it.third = amount
-            }
-            .groupBy({ it.first })
-            .map { (id, triples) ->
-                val title = triples.first().second
-                ActivityRevenue(
-                    activity_offer_id = UUID.fromString(id),
-                    activity_title = title
-                        .split(" ")
-                        .joinToString(" ") { it.replaceFirstChar { char -> char.uppercase() } },
-                    total_price = triples.sumOf { it.third }
-                )
-            }
-            .sortedByDescending { it.total_price }
-            .take(3)
+        val isComplete = !result.hasMore
+
+        return Revenue(
+            revenue = revenue,
+            isComplete = isComplete
+        )
     }
 
+    suspend fun getBookingNumberByPeriod(
+        connectedAccountId: String,
+        startDate: Long,
+        endDate: Long
+    ): Int {
+        logger.info(
+            "🔎 Fetching Bookings for connected account {} from {} to {}",
+            connectedAccountId,
+            startDate,
+            endDate
+        )
+
+        // Convertir les timestamps Unix (secondes) en format ISO pour Supabase
+        val startDateTime = java.time.Instant.ofEpochSecond(startDate)
+            .atZone(java.time.ZoneId.systemDefault())
+            .toLocalDateTime()
+            .toString()
+
+        val endDateTime = java.time.Instant.ofEpochSecond(endDate)
+            .atZone(java.time.ZoneId.systemDefault())
+            .toLocalDateTime()
+            .toString()
+
+        val response = supabaseClient.postgrest["activity_slot_bookings"]
+            .select(
+                columns = Columns.raw(
+                    """
+                id,
+                activity_offers!inner(
+                    id,
+                    activities!inner(
+                        id,
+                        providers!inner(
+                            stripe_connected_account_id
+                        )
+                    )
+                )
+            """.trimIndent()
+                )
+            ) {
+                filter {
+                    gte("created_at", startDateTime)
+                    lte("created_at", endDateTime)
+                    eq("activity_offers.activities.providers.stripe_connected_account_id", connectedAccountId)
+                }
+                count(Count.EXACT)
+            }
+
+        return response.countOrNull()?.toInt() ?: 0
+    }
+
+    suspend fun getVisitNumberByPeriod(
+        connectedAccountId: String,
+        startDate: Long,
+        endDate: Long
+    ): Int {
+        logger.info(
+            "🔎 Fetching Visits for connected account {} from {} to {}",
+            connectedAccountId,
+            startDate,
+            endDate
+        )
+
+        // Convert timestamps to LocalDate (format YYYY-MM-DD)
+        val startLocalDate = java.time.Instant.ofEpochSecond(startDate)
+            .atZone(java.time.ZoneId.systemDefault())
+            .toLocalDate()
+
+        val endLocalDate = java.time.Instant.ofEpochSecond(endDate)
+            .atZone(java.time.ZoneId.systemDefault())
+            .toLocalDate()
+
+        logger.debug("📅 Période convertie : {} à {}", startLocalDate, endLocalDate)
+
+        // Retrieve the provider_id from stripe_connected_account_id
+        val provider = supabaseClient
+            .from("providers")
+            .select {
+                filter {
+                    eq("stripe_connected_account_id", connectedAccountId)
+                }
+            }
+            .decodeSingleOrNull<ProviderDto>()
+            ?: run {
+                logger.warn("⚠️ Aucun provider trouvé pour connected_account_id: {}", connectedAccountId)
+                return 0
+            }
+
+        logger.debug("Provider trouvé : {}", provider.id)
+
+        // Retrieve the total number of visits for this provider over the period
+        val stats = supabaseClient
+            .from("activity_visit_stats")
+            .select(columns = Columns.list("visit_count")) {
+                filter {
+                    eq("provider_id", provider.id)
+                    gte("visit_date", startLocalDate.toString())
+                    lte("visit_date", endLocalDate.toString())
+                }
+            }
+            .decodeList<VisitsCountDto>()
+
+        // Calculate the total number of visits
+        val totalVisits = stats.sumOf { it.visitCount }
+
+        logger.info("📊 Total des visites pour le provider {} : {}", connectedAccountId, totalVisits)
+
+        return totalVisits
+    }
+
+    suspend fun getAverageScoreByPeriod(
+        connectedAccountId: String,
+        startDate: Long,
+        endDate: Long
+    ): Double {
+        logger.info(
+            "🔎 Fetching Average Score for connected account {} from {} to {}",
+            connectedAccountId,
+            startDate,
+            endDate
+        )
+
+        // Convertir les timestamps Unix (secondes) en format ISO pour Supabase
+        val startDateTime = java.time.Instant.ofEpochSecond(startDate)
+            .atZone(java.time.ZoneId.systemDefault())
+            .toLocalDateTime()
+            .toString()
+
+        val endDateTime = java.time.Instant.ofEpochSecond(endDate)
+            .atZone(java.time.ZoneId.systemDefault())
+            .toLocalDateTime()
+            .toString()
+
+        val response = supabaseClient.postgrest["activities"]
+            .select(
+                columns = Columns.raw(
+                    """
+                average_score,
+                providers!inner(
+                    stripe_connected_account_id
+                )
+            """.trimIndent()
+                )
+            ) {
+                filter {
+                    gte("created_at", startDateTime)
+                    lte("created_at", endDateTime)
+                    eq("providers.stripe_connected_account_id", connectedAccountId)
+                }
+                count(Count.EXACT)
+            }
+
+        val scores = response.decodeList<AverageScore>()
+            .mapNotNull { it.averageScore }
+
+        if (scores.isEmpty()) {
+            return 0.0
+        }
+
+        return scores.average()
+            .coerceIn(0.0, 5.0)
+            .let { (it * 10).roundToInt() / 10.0 }
+    }
+
+    suspend fun getBookingsByPeriod(
+        connectedAccountId: String,
+        startDate: Long
+    ): List<ActivityBooking> {
+        logger.info(
+            "🔎 Fetching Bookings list for connected account {} from {}",
+            connectedAccountId,
+            startDate,
+        )
+
+        // Convertir les timestamps Unix (secondes) en format ISO pour Supabase
+        val startDateTime = java.time.Instant.ofEpochSecond(startDate)
+            .atZone(java.time.ZoneId.systemDefault())
+            .toLocalDateTime()
+            .toString()
+
+        val response = supabaseClient.postgrest["activity_slot_bookings"]
+            .select(
+                columns = Columns.raw(
+                    """
+                id,
+                reference,
+                date,
+                start_time,
+                end_time,
+                participants,
+                total_price,
+                status,
+                users!inner(
+                    firstname,
+                    lastname
+                ),
+                activity_offers!inner(
+                    activities!inner(
+                        title,
+                        providers!inner(
+                            stripe_connected_account_id
+                        )
+                    )
+                )
+            """.trimIndent()
+                )
+            ) {
+                filter {
+                    gte("date", startDateTime.split("T")[0])
+                    eq("activity_offers.activities.providers.stripe_connected_account_id", connectedAccountId)
+                    isIn("status", listOf("COMING_SOON", "CANCEL", "PENDING", "PAYMENT_FAILED"))
+                }
+                limit(3)
+            }
+
+
+        val bookingsData = response.decodeList<ActivityBookingRaw>()
+
+        logger.info("📊 Total bookings found: {}", bookingsData.size)
+
+        val bookings = bookingsData.map { raw ->
+            ActivityBooking(
+                id = raw.id,
+                reference = raw.reference,
+                name = "${raw.users.firstname} ${raw.users.lastname}",
+                date = raw.date,
+                startTime = raw.startTime,
+                endTime = raw.endTime,
+                participants = raw.participants,
+                title = raw.activityOffers.activities.title,
+                totalPrice = raw.totalPrice,
+                status = raw.status
+            )
+        }
+
+        return bookings
+    }
 }

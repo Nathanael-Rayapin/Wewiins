@@ -32,7 +32,13 @@ class ProviderVerificationInterceptor(
             return false
         }
 
-        if (!verifiedAccount.is_verified) {
+        if (verifiedAccount.stripeConnectedAccountId == null) {
+            logger.warn("Stripe ID account not found for email: $email")
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Stripe ID account not found")
+            return false
+        }
+
+        if (!verifiedAccount.isVerified) {
             logger.warn("Provider not verified for email: $email")
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Provider not verified")
             return false

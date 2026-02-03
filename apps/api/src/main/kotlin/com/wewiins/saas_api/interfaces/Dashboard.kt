@@ -12,7 +12,7 @@ data class Revenue(
     val isComplete: Boolean
 )
 
-data class Orchestration(
+data class Dashboard(
     val revenue: Revenue,
     val bookingNumber: Int,
     val visitNumber: Int,

@@ -4,38 +4,43 @@
 
     @if (isLoading() === false) {
     <div class="flex flex-col gap-4 w-full">
-      <div class="flex flex-row gap 8 justify-between">
-        @if (hasError() === false) {
-        <!-- Revenue -->
-        <div class="revenue-chart-container flex flex-col gap-8">
-          <div class="revenue-title-container flex flex-row justify-between items-center">
-            <h2>Chiffre d'affaire</h2>
-            <div class="select flex justify-center">
-              <p-select [options]="dateRangeSelectOptions" [(ngModel)]="selectedRange" class="w-full md:w-56" (onChange)="updateSelectedRevenueRange()" />
-            </div>
-          </div>
-          <div class="canvas-container w-full">
-            <canvas baseChart [data]="chartRevenue()" type="doughnut" [options]="chartOptions"
-              aria-label="Répartition des revenus des trois plus grandes activités" role="img">
-              <p>Répartition des revenus des trois plus grandes activités</p>
-            </canvas>
-            <p class="canvas-revenue">{{ getTotalRevenue() }}</p>
-
-          </div>
-          <div class="revenue-list-container flex flex-col gap-4">
-            @for (revenue of revenues(); track revenue.activity_offer_id; let idx = $index) {
-            <div class="flex flex-row items-center gap-2">
-              <div class="round" [style.background-color]="idx === 0 ? '#C60541' : idx === 1 ? '#FFCE35' : '#49A3A3'">
-              </div>
-              <p class="revenue-title">{{revenue.activity_title}}</p>
-            </div>
-            } @empty {
-            <p class="revenue-empty">Aucun revenu n'a été généré sur cette période.</p>
-            }
+      <div class="preview-stats-container flex flex-col mt-8 gap-y-4">
+        <div class="preview-stats-title flex justify-between w-full">
+          <h2>Chiffre clés</h2>
+          <div class="select flex justify-center">
+            <!-- <p-select [options]="dateRangeSelectOptions" [(ngModel)]="selectedRange" class="w-full md:w-56"
+                (onChange)="updateSelectedRevenueRange()" /> -->
+            <app-datepicker [(startDate)]="startDate" (startDateChange)="initDashboardStats()"></app-datepicker>
           </div>
         </div>
-        }
+        <div class="preview-stats-cards flex justify-between gap-x-4 gap-y-4 lg:gap-y-0">
+          @for(data of dashboardData(); track data.label) {
+          <app-dashboard-card 
+            class="dashboard-card" 
+            [label]="data.label" 
+            [stat]="stats()[data.key]"
+            [iconPath]="data.iconPath"
+            [key]="data.key"
+            [periodDays]="stats().periodDays"
+            >
+          </app-dashboard-card>
+          }
+        </div>
       </div>
+      <div class="preview-bookings-container flex flex-col mt-8 gap-y-4">
+        <div class="preview-bookings-title flex justify-between w-full">
+          <h2>Réservation à venir</h2>
+          <div class="select flex justify-center">
+            <!-- <p-select [options]="dateRangeSelectOptions" [(ngModel)]="selectedRange" class="w-full md:w-56"
+                (onChange)="updateSelectedRevenueRange()" /> -->
+          </div>
+        </div>
+        <div class="preview-bookings-table flex flex-col gap-x-4">
+          <app-dashboard-table [bookings]="dashboardTableData()" class="hidden lg:block"></app-dashboard-table>
+          <app-dashboard-table-card [bookings]="dashboardTableData()" class="lg:hidden"></app-dashboard-table-card>
+        </div>
+      </div>
+
     </div>
     } @else {
     <!-- Loading -->

@@ -18,8 +18,8 @@ describe('DashboardCard', () => {
         inputBinding('label', signal('Chiffre d\'affaires')),
         inputBinding('iconPath', signal('assets/icons/euro.svg')),
         inputBinding('stat', signal({ currentValue: 1013.7700000000002, previousValue: 20, percentageChange: 10, trend: 'UP' })),
-        inputBinding('key', signal('revenue')),
-        inputBinding('periodDays', signal(10))
+        inputBinding('key', signal('totalRevenue')),
+        inputBinding('filterRangeDays', signal(10))
       ]
     });
 
@@ -53,7 +53,7 @@ describe('DashboardCard', () => {
           inputBinding('iconPath', signal('assets/icons/star.svg')),
           inputBinding('stat', signal({ currentValue: 4.5, previousValue: 4, percentageChange: 10, trend: 'UP' })),
           inputBinding('key', signal('averageScore')),
-          inputBinding('periodDays', signal(10))
+          inputBinding('filterRangeDays', signal(10))
         ]
       });
 

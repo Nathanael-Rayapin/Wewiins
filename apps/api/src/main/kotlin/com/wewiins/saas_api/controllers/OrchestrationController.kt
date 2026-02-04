@@ -2,7 +2,6 @@ package com.wewiins.saas_api.controllers
 
 import com.wewiins.saas_api.dto.VerifiedAccountDto
 import com.wewiins.saas_api.interfaces.Dashboard
-import com.wewiins.saas_api.interfaces.DashboardStatsComparison
 import com.wewiins.saas_api.services.OrchestrationService
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
@@ -33,27 +32,6 @@ class OrchestrationController(
 
         return if (dashboardData != null) {
             ResponseEntity.ok(dashboardData)
-        } else {
-            ResponseEntity.status(HttpStatus.NO_CONTENT).build()
-        }
-    }
-
-    @GetMapping("/initialize/stats")
-    fun initializeDashboardStatsComparison(
-        @RequestParam startDate: Long,
-        @RequestParam endDate: Long,
-        request: HttpServletRequest
-    ): ResponseEntity<DashboardStatsComparison> {
-        val verifiedAccountDto = request.getAttribute("verifiedAccount") as VerifiedAccountDto
-
-        val dashboardStatsComparisonData = orchestrationService.initializeDashboardStatsComparison(
-            verifiedAccountDto = verifiedAccountDto,
-            startDate = startDate,
-            endDate = endDate
-        )
-
-        return if (dashboardStatsComparisonData != null) {
-            ResponseEntity.ok(dashboardStatsComparisonData)
         } else {
             ResponseEntity.status(HttpStatus.NO_CONTENT).build()
         }

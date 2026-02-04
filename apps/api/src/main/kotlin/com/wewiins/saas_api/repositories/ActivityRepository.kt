@@ -279,7 +279,7 @@ class ActivityRepository(
                     eq("activity_offers.activities.providers.stripe_connected_account_id", connectedAccountId)
                     isIn("status", listOf("COMING_SOON", "CANCEL", "PENDING", "PAYMENT_FAILED"))
                 }
-                limit(3)
+                limit(2)
             }
 
 

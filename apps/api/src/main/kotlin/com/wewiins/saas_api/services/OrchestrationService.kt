@@ -2,7 +2,6 @@ package com.wewiins.saas_api.services
 
 import com.wewiins.saas_api.dto.VerifiedAccountDto
 import com.wewiins.saas_api.interfaces.Dashboard
-import com.wewiins.saas_api.interfaces.DashboardStatsComparison
 import com.wewiins.saas_api.utils.ComparisonCalculator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -21,103 +20,34 @@ class OrchestrationService(
         startDate: Long,
         endDate: Long
     ): Dashboard? {
-        logger.info("Dashboard initialization started")
+        logger.info("Initialize dashboard for period {} to {}", startDate, endDate)
 
-        return runBlocking {
-            val revenueDeferred = async(Dispatchers.IO) {
-                activityService.getRevenueByPeriod(
-                    verifiedAccountDto.stripeConnectedAccountId!!,
-                    startDate,
-                    endDate
-                )
-            }
-
-            val bookingNumberDeferred = async(Dispatchers.IO) {
-                activityService.getBookingNumberByPeriod(
-                    verifiedAccountDto.stripeConnectedAccountId!!,
-                    startDate,
-                    endDate
-                )
-            }
-
-            val visitNumberDeferred = async(Dispatchers.IO) {
-                activityService.getVisitNumberByPeriod(
-                    verifiedAccountDto.stripeConnectedAccountId!!,
-                    startDate,
-                    endDate
-                )
-            }
-
-            val averageScoreDeferred = async(Dispatchers.IO) {
-                activityService.getAverageScoreByPeriod(
-                    verifiedAccountDto.stripeConnectedAccountId!!,
-                    startDate,
-                    endDate
-                )
-            }
-
-            val bookingDeferred = async(Dispatchers.IO) {
-                activityService.getBookingsByPeriod(
-                    verifiedAccountDto.stripeConnectedAccountId!!,
-                    startDate,
-                )
-            }
-
-            val revenue = revenueDeferred.await()
-            val bookingNumber = bookingNumberDeferred.await()
-            val visitNumber = visitNumberDeferred.await()
-            val averageScore = averageScoreDeferred.await()
-
-            val bookings = bookingDeferred.await()
-
-            logger.info("📊 Dashboard data fetched successfully")
-
-            Dashboard(
-                revenue = revenue,
-                bookingNumber = bookingNumber,
-                visitNumber = visitNumber,
-                averageScore = averageScore,
-                bookings = bookings,
-            )
-        }
-    }
-
-    fun initializeDashboardStatsComparison(
-        verifiedAccountDto: VerifiedAccountDto,
-        startDate: Long,
-        endDate: Long
-    ): DashboardStatsComparison? {
-        logger.info("Dashboard stats comparison started for period {} to {}", startDate, endDate)
-
-        // Calculer la période précédente
-        val periodDays = ComparisonCalculator.calculateDaysBetween(startDate, endDate)
+        // Calculate the previous period
+        val filterRangeDays = ComparisonCalculator.calculateDaysBetween(startDate, endDate)
         val periodDuration = endDate - startDate
-        val previousEndDate = startDate - 1 // La veille du début de la période actuelle
+        val previousEndDate = startDate - 1 // The day before the start of the current period
         val previousStartDate = previousEndDate - periodDuration
 
-        logger.info("📅 Current period: {} days ({} to {})", periodDays, startDate, endDate)
-        logger.info("📅 Previous period: {} days ({} to {})", periodDays, previousStartDate, previousEndDate)
-
         return runBlocking {
-            // Récupérer les stats de la période actuelle en parallèle
-            val currentRevenueDeferred = async(Dispatchers.IO) {
-                activityService.getRevenueByPeriod(
+            // Retrieve statistics for the current period
+            val currentTotalRevenueDeferred = async(Dispatchers.IO) {
+                activityService.getTotalRevenueByPeriod(
                     verifiedAccountDto.stripeConnectedAccountId!!,
                     startDate,
                     endDate
                 )
             }
 
-            val currentBookingNumberDeferred = async(Dispatchers.IO) {
-                activityService.getBookingNumberByPeriod(
+            val currentTotalBookingDeferred = async(Dispatchers.IO) {
+                activityService.getTotalBookingByPeriod(
                     verifiedAccountDto.stripeConnectedAccountId!!,
                     startDate,
                     endDate
                 )
             }
 
-            val currentVisitNumberDeferred = async(Dispatchers.IO) {
-                activityService.getVisitNumberByPeriod(
+            val currentTotalVisitDeferred = async(Dispatchers.IO) {
+                activityService.getTotalVisitByPeriod(
                     verifiedAccountDto.stripeConnectedAccountId!!,
                     startDate,
                     endDate
@@ -132,25 +62,25 @@ class OrchestrationService(
                 )
             }
 
-            // Récupérer les stats de la période précédente en parallèle
-            val previousRevenueDeferred = async(Dispatchers.IO) {
-                activityService.getRevenueByPeriod(
+            // Retrieve statistics from the previous period
+            val previousTotalRevenueDeferred = async(Dispatchers.IO) {
+                activityService.getTotalRevenueByPeriod(
                     verifiedAccountDto.stripeConnectedAccountId!!,
                     previousStartDate,
                     previousEndDate
                 )
             }
 
-            val previousBookingNumberDeferred = async(Dispatchers.IO) {
-                activityService.getBookingNumberByPeriod(
+            val previousTotalBookingDeferred = async(Dispatchers.IO) {
+                activityService.getTotalBookingByPeriod(
                     verifiedAccountDto.stripeConnectedAccountId!!,
                     previousStartDate,
                     previousEndDate
                 )
             }
 
-            val previousVisitNumberDeferred = async(Dispatchers.IO) {
-                activityService.getVisitNumberByPeriod(
+            val previousTotalVisitDeferred = async(Dispatchers.IO) {
+                activityService.getTotalVisitByPeriod(
                     verifiedAccountDto.stripeConnectedAccountId!!,
                     previousStartDate,
                     previousEndDate
@@ -165,31 +95,41 @@ class OrchestrationService(
                 )
             }
 
-            // Attendre tous les résultats
-            val currentRevenue = currentRevenueDeferred.await()
-            val currentBookingNumber = currentBookingNumberDeferred.await()
-            val currentVisitNumber = currentVisitNumberDeferred.await()
+            // Retrieve the first 2 reservations
+            val bookingsDeferred = async(Dispatchers.IO) {
+                activityService.getBookingsByPeriod(
+                    verifiedAccountDto.stripeConnectedAccountId!!,
+                    startDate,
+                )
+            }
+
+            // Wait for all results
+            val currentTotalRevenue = currentTotalRevenueDeferred.await()
+            val currentTotalBooking = currentTotalBookingDeferred.await()
+            val currentTotalVisit = currentTotalVisitDeferred.await()
             val currentAverageScore = currentAverageScoreDeferred.await()
 
-            val previousRevenue = previousRevenueDeferred.await()
-            val previousBookingNumber = previousBookingNumberDeferred.await()
-            val previousVisitNumber = previousVisitNumberDeferred.await()
+            val previousTotalRevenue = previousTotalRevenueDeferred.await()
+            val previousTotalBooking = previousTotalBookingDeferred.await()
+            val previousTotalVisit = previousTotalVisitDeferred.await()
             val previousAverageScore = previousAverageScoreDeferred.await()
 
-            // Calculer les comparaisons
+            val bookings = bookingsDeferred.await()
+
+            // Compare statistics
             val revenueComparison = ComparisonCalculator.calculate(
-                currentRevenue.revenue,
-                previousRevenue.revenue
+                currentTotalRevenue.revenue,
+                previousTotalRevenue.revenue
             )
 
             val bookingComparison = ComparisonCalculator.calculate(
-                currentBookingNumber,
-                previousBookingNumber
+                currentTotalBooking,
+                previousTotalBooking
             )
 
             val visitComparison = ComparisonCalculator.calculate(
-                currentVisitNumber,
-                previousVisitNumber
+                currentTotalVisit,
+                previousTotalVisit
             )
 
             val scoreComparison = ComparisonCalculator.calculate(
@@ -197,12 +137,14 @@ class OrchestrationService(
                 previousAverageScore
             )
 
-            DashboardStatsComparison(
-                revenue = revenueComparison,
-                bookingNumber = bookingComparison,
-                visitNumber = visitComparison,
+            Dashboard(
+                totalRevenue = revenueComparison,
+                totalBooking = bookingComparison,
+                totalVisit = visitComparison,
                 averageScore = scoreComparison,
-                periodDays = periodDays,
+                filterRangeDays = filterRangeDays,
+                bookings = bookings,
+                isRevenueCompletelyLoad = currentTotalRevenue.isComplete
             )
         }
     }

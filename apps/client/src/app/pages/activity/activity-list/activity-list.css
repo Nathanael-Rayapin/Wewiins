@@ -1,0 +1,79 @@
+.activity-list-content {
+    position: relative;
+
+    .search-bar {
+        position: relative;
+        width: fit-content;
+
+        .p-autocomplete .p-inputtext {
+            width: 363px;
+            height: 40px;
+            background-color: var(--filled-color);
+            padding-right: 25px;
+            border-radius: 8px;
+        }
+
+        img.icon-search {
+            position: absolute;
+            top: 50%;
+            right: 16px;
+            transform: translateY(-50%);
+        }
+    }
+
+    .activity-list {
+        flex-wrap: wrap;
+
+        .add-card,
+        .activity-card {
+            width: 363px;
+            height: 294px;
+            border-radius: 12px;
+            padding: 24px;
+            background-color: var(--primary-background);
+            box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px 0px;
+        }
+
+        .add-card {
+            cursor: pointer;
+
+            button.add-btn {
+                width: 120px;
+                height: 120px;
+                border-radius: 50%;
+                background-color: #e2074c;
+                transition: all 0.3s ease-in-out;
+                cursor: pointer;
+            }
+
+            p:nth-of-type(1) {
+                font-size: 24px;
+                font-weight: 600;
+                color: var(--primary-text);
+            }
+
+            p:nth-of-type(2) {
+                font-size: 16px;
+                color: var(--tertiary-text);
+                text-align: center;
+            }
+
+            &:hover button.add-btn {
+                transform: rotate(90deg);
+                background-color: var(--secondary-color);
+            }
+        }
+    }
+
+    .loading-spinner {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+
+        .progress-spinner {
+            width: 50px;
+            height: 50px;
+        }
+    }
+}

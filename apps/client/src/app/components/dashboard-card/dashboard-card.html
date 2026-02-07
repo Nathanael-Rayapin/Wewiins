@@ -1,0 +1,49 @@
+<!-- Mobile -->
+<div class="dashboard-card-container flex flex-col sm:hidden">
+    <div class="content flex gap-x-4 items-center">
+        <p class="value">{{ displayValue() }}</p>
+        <img class="icon" [src]="iconPath()" alt="Icône" />
+    </div>
+    <h2 class="label">{{label()}}</h2>
+</div>
+
+<!-- Tablet > Desktop -->
+<div class="dashboard-card-container flex-col justify-between hidden sm:flex">
+    <h2 class="label">{{label()}}</h2>
+
+    <div class="flex flex-col gap-y-2">
+        <div class="content flex gap-x-4 items-center">
+            <p class="value">{{ displayValue() }}</p>
+            <img class="icon" [src]="iconPath()" alt="Icône" />
+        </div>
+        @switch (stat().trend) {
+        @case ("UP") {
+        <div class="trend flex gap-x-2">
+            <img ngSrc="assets/icons/trend-up.svg" width="24" height="24" alt="Tendance haussière">
+            <div class="flex gap-x-2">
+                <span class="percent-up">+{{ stat().percentageChange }}%</span>
+                <span>{{ filterRangeDaysStr() }}</span>
+            </div>
+        </div>
+        }
+        @case ("DOWN") {
+        <div class="trend flex gap-x-2">
+            <img ngSrc="assets/icons/trend-down.svg" width="24" height="24" alt="Tendance baissière">
+            <div class="flex gap-x-2">
+                <span class="percent-down">{{ stat().percentageChange }}%</span>
+                <span>{{ filterRangeDaysStr() }}</span>
+            </div>
+        </div>
+        }
+        @default {
+        <div class="trend flex gap-x-2">
+            <img ngSrc="assets/icons/minus.svg" width="24" height="24" alt="Tendance stable">
+            <div class="flex gap-x-2">
+                <span class="percent">{{ stat().percentageChange }}</span>
+                <span>{{ filterRangeDaysStr() }}</span>
+            </div>
+        </div>
+        }
+        }
+    </div>
+</div>

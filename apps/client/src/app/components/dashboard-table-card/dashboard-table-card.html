@@ -1,0 +1,30 @@
+<div class="flex flex-col gap-y-4">
+    @for (booking of bookingsComputed(); track booking.id) {
+    <div class="dashboard-table-card-container flex flex-col gap-y-4">
+        <div class="card-top flex justify-between">
+            <div class="reference flex gap-x-2">
+                <div class="date flex flex-col justify-center items-center">
+                    <span>{{ booking.date | date: 'd MMM' }}</span>
+                </div>
+                <div class="flex flex-col justify-center">
+                    <span>{{ booking.name | capitalize }}</span>
+                    <span>#{{ booking.reference | capitalize }}</span>
+                </div>
+            </div>
+            <div class="status">
+                <app-status-button [statusObj]="booking.status| status"></app-status-button>
+            </div>
+        </div>
+        <div class="card-content flex justify-between">
+            <div>
+                <p class="title">{{ booking.title | capitalize }}</p>
+                @if (booking.startTime && booking.endTime) {
+                <span>{{ booking.startTime | date:'HH\'h\'' }}-{{ booking.endTime | date:'HH\'h\'' }}</span> /
+                }
+                <span>{{ booking.participants }} pers.</span>
+            </div>
+            <p>{{ booking.totalPrice | currency }}</p>
+        </div>
+    </div>
+    }
+</div>

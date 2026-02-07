@@ -1,0 +1,75 @@
+<div class="dashboard-table-container">
+    <p-table [columns]="columns" [value]="bookingsComputed()" [paginator]="false" [rows]="5">
+        <ng-template #header let-columns>
+            <tr>
+                @for (col of columns; track col) {
+                <th>
+                    {{ col.header }}
+                </th>
+                }
+            </tr>
+        </ng-template>
+        <ng-template #body let-rowData let-columns="columns" let-rowIndex="rowIndex">
+            @if (rowIndex === 0 || bookings()[rowIndex].date !== bookings()[rowIndex - 1].date) {
+            <tr>
+                <th [attr.colspan]="columns.length" class="day">
+                    {{ rowData.date | date:'EEEE dd MMMM yyyy' | capitalize}}
+                </th>
+            </tr>
+            }
+            <tr>
+                @for (col of columns; track col) {
+                <td>
+                    @switch (col.field) {
+                    @case ('reference') {
+                    <span class="col-reference">
+                        #{{rowData[col.field]}}
+                    </span>
+                    }
+                    @case ('name') {
+                    {{rowData[col.field] | capitalize }}
+                    }
+                    @case ('dateAndTime') {
+                    <span class="col-date-and-time">
+                        {{rowData.date | date:'dd MMMM yyyy' }}
+                        @if (rowData.startTime && rowData.endTime) {
+                        <div class="flex hour">
+                            {{ rowData.startTime | date:'HH\'h\'' }}-{{ rowData.endTime | date:'HH\'h\'' }}
+                            <span class="duration ml-1">
+                                ({{ rowData.startTime | duration: rowData.endTime }})
+                            </span>
+                        </div>
+                        }
+                    </span>
+                    }
+                    @case ('title') {
+                    <span class="col-title">
+                        {{rowData[col.field]}}
+                    </span>
+                    }
+                    @case ('totalPrice') {
+                    {{rowData[col.field] | currency}}
+                    }
+                    @case ('status') {
+                    <app-status-button [statusObj]="rowData[col.field] | status"></app-status-button>
+                    }
+                    @default {
+                    {{rowData[col.field]}}
+                    }
+                    }
+                </td>
+                }
+            </tr>
+            @if (rowIndex === bookings().length - 1) {
+            <tr>
+                <td class="see-all gap-x-2 w-full" [attr.colspan]="columns.length">
+                    <div class="content">
+                        <span>Voir tous</span>
+                        <img src="assets/icons/arrow-right.svg" alt="Voir tous les réservations" />
+                    </div>
+                </td>
+            </tr>
+            }
+        </ng-template>
+    </p-table>
+</div>

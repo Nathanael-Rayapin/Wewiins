@@ -12,4 +12,10 @@ export const routes: Routes = [
         component: Dashboard,
         title: 'Tableau de bord'
     },
+    {
+        path: 'activités',
+        loadComponent: () => import('./pages/activity/activity').then(m => m.Activity),
+        loadChildren: () => import('./pages/activity/activity.routes').then(m => m.activityRoutes),
+        title: 'Activités'
+    },
 ];

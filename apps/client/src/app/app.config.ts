@@ -6,9 +6,10 @@ import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/
 import { authInterceptor } from './interceptors/auth.interceptor';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { providePrimeNG } from 'primeng/config';
-import Aura  from '@primeuix/themes/aura';
+import Aura from '@primeuix/themes/aura';
 import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
+import { MessageService } from 'primeng/api';
 
 registerLocaleData(localeFr)
 
@@ -21,17 +22,18 @@ export const appConfig: ApplicationConfig = {
     provideAppInitializer(initializeKeycloak()),
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
+    provideCharts(withDefaultRegisterables()),
+    providePrimeNG({
+      theme: {
+        preset: Aura
+      }
+    }),
     provideHttpClient(
       withFetch(),
       withInterceptors([authInterceptor])
-    ), 
-    provideCharts(withDefaultRegisterables()),
-    providePrimeNG({
-            theme: {
-                preset: Aura 
-            }
-    }),
+    ),
     { provide: LOCALE_ID, useValue: 'fr-FR' },
-    { provide: DEFAULT_CURRENCY_CODE, useValue: 'EUR' }
+    { provide: DEFAULT_CURRENCY_CODE, useValue: 'EUR' },
+    MessageService
   ]
 };

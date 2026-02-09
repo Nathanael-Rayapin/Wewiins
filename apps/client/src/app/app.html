@@ -1,4 +1,7 @@
-<div class="main-container flex flex-row min-h-screen">
-  <app-sidebar></app-sidebar>
-  <router-outlet/>
+<div class="main-container flex flex-row h-screen overflow-hidden">
+  <app-sidebar class="hidden sm:block"></app-sidebar>
+  <main class="flex-1 overflow-y-auto">
+    <router-outlet/>
+  </main>
+  <p-toast position="bottom-right" key="bottom-right" />
 </div>

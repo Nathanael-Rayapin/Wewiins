@@ -1,6 +1,6 @@
 import { formatPrice } from "./currency";
 
-describe('Price', () => {
+describe('Format Price', () => {
   it.concurrent('should return a string if price is less than 1000', () => {
     const result = formatPrice(29.99);
 

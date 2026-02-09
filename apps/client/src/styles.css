@@ -2,23 +2,33 @@
 
 @import "tailwindcss";
 
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
 :root {
     --primary-color: #49a3a3;
     --secondary-color: #c60541;
     --secondary-light-color: #e0074c;
     --tertiary-color: #aca9a2;
+    --quaternary-color: #ffce34;
+
     --primary-text: #242651;
     --secondary-text: #57636c;
     --tertiary-text: #111827;
+
     --primary-background: #fafafa;
     --secondary-background: #ffffff;
     --tertiary-background: #f7f7f8;
+    
     --border-color: #e5e7eb;
+    --filled-color: #e2e2e2;
+}
+
+h1, h2, h3, h4 {
+    font-family: "Signika", sans-serif;
+}
+
+span, .nav-item, button, p, label {
+    font-family: "Rubik", sans-serif;
+}
+
+.error-message {
+    font-size: 14px;
 }

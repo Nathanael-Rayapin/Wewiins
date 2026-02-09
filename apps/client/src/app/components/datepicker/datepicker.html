@@ -1,0 +1,13 @@
+<div class="card flex justify-center">
+    <p-datepicker 
+    [(ngModel)]="statsDateRange" 
+    (onSelect)="onDateSelect($event)" 
+    dateFormat="dd/mm/yy" 
+    [iconDisplay]="'input'" 
+    [showIcon]="true"
+    selectionMode="range"
+    [maxDate]="today"
+    [readonlyInput]="true" 
+    placeholder="Aujourd'hui"
+    />
+</div>

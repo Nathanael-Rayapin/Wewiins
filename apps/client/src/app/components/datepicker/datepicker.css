@@ -1,0 +1,7 @@
+.p-datepicker-input {
+    background: var(--tertiary-background);
+}
+
+.p-motion {
+    inset-inline-start: -155px !important;
+}

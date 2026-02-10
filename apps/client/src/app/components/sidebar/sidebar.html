@@ -1,6 +1,6 @@
 <div class="sidebar-container flex flex-col justify-between h-full">
     <div class="sidebar-pages flex flex-col">
-        <img ngSrc="assets/images/logo_with_text.svg" width="110" height="45" priority />
+        <img ngSrc="assets/images/logo_with_text.svg" width="108" height="41" priority />
         <div class="nav-link flex flex-col">
             @for (item of navItemsData; track item.id) {
             <app-nav-sidebar [item]="item"></app-nav-sidebar>
@@ -14,7 +14,7 @@
             }
         </div>
         <div class="logout flex flex-row items-center">
-                <button class="button flex flex-row items-center">
+                <button class="button flex flex-row items-center" (click)="logout()">
                     <img ngSrc="assets/icons/logout.svg" width="24"  height="24" priority />
                     Se déconnecter
                 </button>

@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {NgOptimizedImage} from '@angular/common';
 import { NavSidebar } from '../nav-sidebar/nav-sidebar';
 import { ISidebarNavItem } from './sidebar.interface';
+import { KeycloakService } from '../../services/keycloak.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -10,6 +11,8 @@ import { ISidebarNavItem } from './sidebar.interface';
   styleUrl: './sidebar.css',
 })
 export class Sidebar {
+  private keycloakService = inject(KeycloakService);
+
   protected navItemsData: ISidebarNavItem[] = [
     {
     id: 1,
@@ -71,4 +74,8 @@ export class Sidebar {
     pagePath: '/support'
   },
 ];
+
+  protected logout(): void {
+    this.keycloakService.logout();
+  }
 }

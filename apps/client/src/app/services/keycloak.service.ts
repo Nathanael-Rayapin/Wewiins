@@ -31,7 +31,6 @@ export class KeycloakService {
 
         this.keycloak.onAuthSuccess = async () => {
             try {
-                console.log("SUCCESS");
                 const profile = await this.keycloak.loadUserProfile();
                 this.userProfile.set(profile);
             } catch (error) {

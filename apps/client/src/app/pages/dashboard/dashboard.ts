@@ -6,14 +6,13 @@ import { OrchestrationService } from '../../services/orchestration.service';
 import { KeycloakService } from '../../services/keycloak.service';
 import { SelectModule } from 'primeng/select';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { IDashboard } from '../../dto/orchestrator';
 import { DashboardCard } from '../../components/dashboard-card/dashboard-card';
-import { dashboardData, emptyDashboardStatsComparison } from './data/dashboard.data';
+import { dashboardStatsData } from './data/dashboard.data';
 import { DashboardTable } from '../../components/dashboard-table/dashboard-table';
 import { IDashboardBooking } from '../../components/dashboard-table/dashboard-table.interface';
 import { Datepicker } from '../../components/datepicker/datepicker';
 import { DashboardTableCard } from '../../components/dashboard-table-card/dashboard-table-card';
-import { IDashboardStatsComparison } from '../../dto/dashboard';
+import { IDashboardDto } from '../../dto/dashboard';
 
 @Component({
   selector: 'app-dashboard',
@@ -38,27 +37,30 @@ export class Dashboard {
 
   isLoading = signal(true);
   hasError = signal(false);
+  warningMessage = signal('');
 
-  dashboardData = dashboardData;
+  dashboardStatsData = dashboardStatsData;
   dashboardTableData: WritableSignal<IDashboardBooking[]> = signal([]);
 
-  stats = signal<IDashboardStatsComparison>(emptyDashboardStatsComparison);
   startDate = signal<Date>(new Date());
+  filterRangeDays = signal<number>(0);
 
   constructor() {
     effect(() => {
       if (this.keycloakService.isReady()) {
         this.initDashboard();
-        this.initDashboardStats();
       }
     });
   }
 
-  private initDashboard(): void {
-    this.orchestrationService.initializeDashboard().subscribe({
+  protected initDashboard(): void {
+    this.orchestrationService.initializeDashboard(this.startDate()).subscribe({
       next: (response) => {
-        this.initDashboardData(response);
-        this.initBookings(response.bookings);
+        this.initDashboardStats(response);
+        this.initDashboardTable(response.bookings);
+        this.initWarningMessage(response.isRevenueCompletelyLoad);
+        
+        this.filterRangeDays.set(response.filterRangeDays);
       },
       error: (error: Error) => {
         this.hasError.set(true);
@@ -71,30 +73,18 @@ export class Dashboard {
     });
   }
 
-  protected initDashboardStats(): void {
-    this.orchestrationService.initializeDashboardStats(this.startDate()).subscribe({
-      next: (response) => {
-        this.stats.set(response);
-      },
-      error: (error) => {
-        this.hasError.set(true);
-        console.error("Erreur lors du chargement des stats comparatives", error);
-      }
-    });
-  }
-
-  private initDashboardData(response: IDashboard): void {
-    this.dashboardData.update((data) => {
+  private initDashboardStats(response: IDashboardDto): void {
+    this.dashboardStatsData.update((data) => {
       return data.map(item => {
         switch (item.key) {
-          case 'revenue':
-            return { ...item, value: response.revenue.revenue.toLocaleString('fr-FR', { maximumFractionDigits: 2 }) };
-          case 'bookingNumber':
-            return { ...item, value: response.bookingNumber };
-          case 'visitNumber':
-            return { ...item, value: response.visitNumber };
+          case 'totalRevenue':
+            return { ...item, value: response.totalRevenue };
+          case 'totalBooking':
+            return { ...item, value: response.totalBooking };
+          case 'totalVisit':
+            return { ...item, value: response.totalVisit };
           case 'averageScore':
-            return { ...item, value: `${response.averageScore.toString()}/5` };
+            return { ...item, value: response.averageScore };
           default:
             return item;
         }
@@ -102,7 +92,16 @@ export class Dashboard {
     });
   }
 
-  private initBookings(bookings: IDashboardBooking[]): void {
+  private initDashboardTable(bookings: IDashboardBooking[]): void {
     this.dashboardTableData.set(bookings);
+  }
+
+  // TODO: Display warning message somewhere when revenue is not completely loaded
+  private initWarningMessage(isRevenueCompletelyLoad: boolean): void {
+    if (isRevenueCompletelyLoad) {
+      this.warningMessage.set('Les données de chiffre d\'affaires sont complètement chargées');
+    } else {
+      this.warningMessage.set('Les données de chiffre d\'affaires ne sont pas complètement chargées');
+    }
   }
 }

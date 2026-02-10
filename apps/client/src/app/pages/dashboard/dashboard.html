@@ -1,5 +1,5 @@
 <div class="dashboard-container flex flex-col min-h-screen w-full h-full">
-  <app-title-section></app-title-section>
+  <app-title-section [title]="'Tableau de bord'"></app-title-section>
   <div class="dashboard-content h-full">
 
     @if (isLoading() === false) {
@@ -10,18 +10,18 @@
           <div class="select flex justify-center">
             <!-- <p-select [options]="dateRangeSelectOptions" [(ngModel)]="selectedRange" class="w-full md:w-56"
                 (onChange)="updateSelectedRevenueRange()" /> -->
-            <app-datepicker [(startDate)]="startDate" (startDateChange)="initDashboardStats()"></app-datepicker>
+            <app-datepicker [(startDate)]="startDate" (startDateChange)="initDashboard()"></app-datepicker>
           </div>
         </div>
         <div class="preview-stats-cards flex justify-between gap-x-4 gap-y-4 lg:gap-y-0">
-          @for(data of dashboardData(); track data.label) {
+          @for(data of dashboardStatsData(); track data.label) {
           <app-dashboard-card 
             class="dashboard-card" 
             [label]="data.label" 
-            [stat]="stats()[data.key]"
+            [stat]="data.value"
             [iconPath]="data.iconPath"
             [key]="data.key"
-            [periodDays]="stats().periodDays"
+            [filterRangeDays]="filterRangeDays()"
             >
           </app-dashboard-card>
           }

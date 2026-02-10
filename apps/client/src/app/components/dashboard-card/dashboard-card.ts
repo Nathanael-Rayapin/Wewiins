@@ -2,7 +2,7 @@ import { Component, computed, effect, input, signal } from '@angular/core';
 import { IStatComparison } from '../../dto/dashboard';
 import { DashboardStatKey } from '../../pages/dashboard/data/dashboard.data';
 import { NgOptimizedImage } from '@angular/common';
-import { getRangeAndFormat } from '../../utils/date';
+import { formatComparisonPeriodLabel } from '../../utils/date';
 
 @Component({
   selector: 'app-dashboard-card',
@@ -22,7 +22,7 @@ export class DashboardCard {
   constructor() {
     effect(() => {
       if (this.stat() && this.filterRangeDays()) {
-        this.filterRangeDaysStr.set(getRangeAndFormat(this.stat(), this.filterRangeDays()));
+        this.filterRangeDaysStr.set(formatComparisonPeriodLabel(this.filterRangeDays()));
       }
     })
   }

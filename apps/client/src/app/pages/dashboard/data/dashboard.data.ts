@@ -1,54 +1,47 @@
 import { signal } from "@angular/core";
-import { IDashboardStatsComparison, IStatComparison } from "../../../dto/dashboard";
+import { IDashboardDto, IStatComparison } from "../../../dto/dashboard";
 
 // We don't want an object but a key, with Exclude on keyof IDashboardStatsComparison instead of Omit.
-export type DashboardStatKey = Exclude<keyof IDashboardStatsComparison, 'periodDays'>;
+export type DashboardStatKey = Exclude<keyof IDashboardDto, ['filterRangeDays','bookings','isCompleted']>;
 
-interface IDashboardData {
+interface IDashboardStatsData {
     label: string;
-    value: string | number | undefined;
+    value: IStatComparison<number>;
     iconPath: string;
     key: DashboardStatKey;
 }
 
-export const dashboardData = signal<IDashboardData[]>([
-    {
-        label: "Chiffre d'affaires",
-        value: undefined,
-        iconPath: "../../../assets/icons/euro.svg",
-        key: "revenue"
-    },
-    {
-        label: "Nombre de réservations",
-        value: undefined,
-        iconPath: "../../../assets/icons/ticket.svg",
-        key: "bookingNumber"
-    },
-    {
-        label: "Nombre de visiteurs",
-        value: undefined,
-        iconPath: "../../../assets/icons/user.svg",
-        key: "visitNumber"
-    },
-    {
-        label: "Note moyenne",
-        value: undefined,
-        iconPath: "../../../assets/icons/star.svg",
-        key: "averageScore"
-    }
-]);
-
-const emptyDashboardStats: IStatComparison<number> = {
+export const defaultStats: IStatComparison<number> = {
   currentValue: 0,
   previousValue: 0,
   percentageChange: 0,
   trend: 'STABLE',
 };
 
-export const emptyDashboardStatsComparison: IDashboardStatsComparison = {
-  revenue: { ...emptyDashboardStats },
-  bookingNumber: { ...emptyDashboardStats },
-  visitNumber: { ...emptyDashboardStats },
-  averageScore: { ...emptyDashboardStats },
-  periodDays: 0,
-};
+export const dashboardStatsData = signal<IDashboardStatsData[]>([
+    {
+        label: "Chiffre d'affaires",
+        value: { ...defaultStats },
+        iconPath: "../../../assets/icons/euro.svg",
+        key: "totalRevenue"
+    },
+    {
+        label: "Nombre de réservations",
+        value:{ ...defaultStats },
+        iconPath: "../../../assets/icons/ticket.svg",
+        key: "totalBooking"
+    },
+    {
+        label: "Nombre de visiteurs",
+        value: { ...defaultStats },
+        iconPath: "../../../assets/icons/user.svg",
+        key: "totalVisit"
+    },
+    {
+        label: "Note moyenne",
+        value: { ...defaultStats },
+        iconPath: "../../../assets/icons/star.svg",
+        key: "averageScore"
+    }
+]);
+

@@ -1,0 +1,82 @@
+<p-dialog 
+  class="new-activity-dialog" 
+  header="Horaire disponibilité de l'activité" 
+  [(visible)]="visible" 
+  [modal]="true">
+  <span class="p-text-secondary block">Jour concernées</span>
+  <div class="day-list flex items-center gap-x-4 my-6">
+    @for (day of availabilityDays; track day.code;) {
+      <p-button 
+        [label]="day.name" 
+        [class.selected]="selectedDays().includes(day.code)" 
+        (click)="addToSelectedDays(day.code)" />
+    }
+  </div>
+  
+  <!-- Availability -->
+  <div class="flex gap-x-4 mb-6">
+    <div class="flex-auto gap-y-2 w-full">
+      <label class="block mb-2">De</label>
+      <p-datepicker 
+        [min]="10" 
+        placeholder="10:00" 
+        inputId="availability-from" 
+        [showIcon]="true" 
+        [(ngModel)]="availabilityFrom" 
+        [timeOnly]="true" />
+    </div>
+    <div class="flex-auto gap-y-2 w-full">
+      <label class="block mb-2">À</label>
+      <p-datepicker 
+        placeholder="18:00" 
+        inputId="availability-to" 
+        [showIcon]="true" 
+        [(ngModel)]="availabilityTo" 
+        [timeOnly]="true"
+        [invalid]="availabilityToError() !== null" />
+      @if (availabilityToError()) {
+        <p class="error-message text-red-400 mt-1">{{ availabilityToError() }}</p>
+      }
+    </div>
+  </div>
+  
+  <!-- Unavailability -->
+  <p>Horaire d'indisponibilité</p>
+  <div class="flex gap-x-4 mb-12">
+    <div class="flex-auto gap-y-2 w-full">
+      <label class="block mb-2">De</label>
+      <p-datepicker 
+        placeholder="12:00" 
+        inputId="unavailability-from" 
+        [showIcon]="true" 
+        [(ngModel)]="unavailabilityFrom" 
+        [timeOnly]="true"
+        [invalid]="unavailabilityFromError() !== null" />
+      @if (unavailabilityFromError()) {
+        <p class="error-message text-red-400 mt-1">{{ unavailabilityFromError() }}</p>
+      }
+    </div>
+    <div class="flex-auto gap-y-2 w-full">
+      <label class="block mb-2">À</label>
+      <p-datepicker 
+        placeholder="13:00" 
+        inputId="unavailability-to" 
+        [showIcon]="true" 
+        [(ngModel)]="unavailabilityTo" 
+        [timeOnly]="true"
+        [invalid]="unavailabilityToError() !== null" />
+      @if (unavailabilityToError()) {
+        <p class="error-message text-red-400 mt-1">{{ unavailabilityToError() }}</p>
+      }
+    </div>
+  </div>
+  
+  <div class="flex justify-end gap-2">
+    <p-button label="Annuler" class="cancel-btn" (click)="onCancel()" />
+    <p-button 
+      [label]="editingScheduleId() !== null ? 'Modifier l\'horaire' : 'Ajouter l\'horaire'" 
+      class="submit-btn" 
+      (click)="onAddSchedule()"
+      [disabled]="!canAddSchedule()" />
+  </div>
+</p-dialog>

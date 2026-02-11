@@ -1,0 +1,80 @@
+.p-dialog {
+    max-width: 500px;
+    width: 100%;
+    max-height: 540px !important;
+    height: 100%;
+    background-color: var(--primary-background);
+}
+
+.new-activity-dialog {
+    .day-list {
+        .p-button {
+            width: 43px;
+            height: 30px;
+            border-radius: 6px;
+            background-color: var(--primary-background);
+            border: 1px solid var(--primary-text);
+            outline: none;
+            transition: all 0.2s ease-in-out;
+
+            &:hover {
+                background-color: var(--primary-color);
+                border: 1px solid var(--primary-color);
+
+                span {
+                    color: var(--primary-background);
+                }
+            }
+
+            span {
+                font-size: 16px;
+                font-weight: 400;
+                color: var(--primary-text);
+                transition: all 0.2s ease-in-out;
+            }
+        }
+
+        .selected .p-button {
+            background-color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+
+            span {
+                color: var(--primary-background);
+            }
+
+            &:hover {
+                background-color: var(--primary-color);
+                border: 1px solid var(--primary-color);
+            }
+        }
+    }
+}
+
+.cancel-btn .p-button {
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    background-color: var(--primary-background);
+    transition: all 0.3s ease-in-out;
+
+    &:hover {
+        color: var(--primary-dark-color);
+        background-color: var(--primary-background);
+        border: 1px solid var(--primary-dark-color);
+    }
+}
+
+.submit-btn .p-button {
+    color: var(--primary-background);
+    background-color: var(--primary-color);
+    transition: all 0.3s ease-in-out;
+
+    &:hover {
+        background-color: var(--primary-dark-color);
+    }
+}
+
+.submit-btn .p-button:disabled {
+    color: var(--primary-background);
+    background-color: var(--filled-color);
+    border: 1px solid var(--filled-color);
+}

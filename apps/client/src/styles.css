@@ -17,19 +17,99 @@
     --primary-background: #fafafa;
     --secondary-background: #ffffff;
     --tertiary-background: #f7f7f8;
-    
+
     --border-color: #e5e7eb;
     --filled-color: #e2e2e2;
+    --placeholder-color: #64748b;
 }
 
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
     font-family: "Signika", sans-serif;
 }
 
-span, .nav-item, button, p, label {
+h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary-text);
+}
+
+span,
+.nav-item,
+button,
+p,
+label {
     font-family: "Rubik", sans-serif;
+}
+
+input:not(#country, .p-inputnumber-input) {
+    background-color: var(--primary-background);
+    height: 48px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    box-shadow: none;
 }
 
 .error-message {
     font-size: 14px;
+}
+
+/* Prime NG */
+.p-inputnumber {
+    width: 140px;
+    height: 48px;
+    border-radius: 8px;
+
+    .p-inputnumber-input {
+        width: 100%;
+        background-color: var(--primary-background);
+        border-left: none;
+        border-right: none;
+        box-shadow: none;
+        text-align: center;
+
+        &:hover {
+            border-top: 1px solid var(--p-form-field-border-color);
+            border-bottom: 1px solid var(--p-form-field-border-color);
+        }
+    }
+
+    .p-inputnumber-increment-button,
+    .p-inputnumber-decrement-button {
+        width: 35px;
+        background-color: var(--primary-background);
+    }
+
+    &.ng-invalid.ng-dirty {
+
+        .p-inputnumber-increment-button,
+        .p-inputnumber-decrement-button {
+            border-color: var(--p-inputtext-invalid-border-color);
+        }
+
+        .p-inputnumber-input {
+            border-color: var(--p-inputtext-invalid-border-color);
+        }
+    }
+}
+
+.p-select {
+    width: 140px;
+    height: 48px;
+    border-radius: 8px;
+    background-color: var(--primary-background) !important;
+    box-shadow: none;
+
+    .p-placeholder {
+        color: var(--placeholder-color);
+        font-weight: 300;
+    }
+}
+
+.p-textarea {
+    background-color: var(--primary-background) !important;
+    resize: none;
+    text-align: left;
 }

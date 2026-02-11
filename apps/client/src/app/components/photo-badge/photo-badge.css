@@ -1,0 +1,18 @@
+.photo-badge-container {
+    width: fit-content;
+    height: 32px;
+    border-radius: 24px;
+    padding: 0 12px;
+    background-color: var(--primary-text);
+
+    p.content {
+        color: var(--secondary-background);
+        font-size: 12px;
+        font-weight: 600;
+        text-align: center;
+    }
+}
+
+.photo-badge-container.main {
+    background-color: var(--primary-color);
+}

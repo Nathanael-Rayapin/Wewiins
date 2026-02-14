@@ -2,7 +2,7 @@
 <div class="dashboard-card-container flex flex-col sm:hidden">
     <div class="content flex gap-x-4 items-center">
         <p class="value">{{ displayValue() }}</p>
-        <img class="icon" [src]="iconPath()" alt="Icône" />
+        <app-icon-svg width="14" height="14" [iconName]="iconName()" color="#242651"></app-icon-svg>
     </div>
     <h2 class="label">{{label()}}</h2>
 </div>
@@ -14,12 +14,12 @@
     <div class="flex flex-col gap-y-2">
         <div class="content flex gap-x-4 items-center">
             <p class="value">{{ displayValue() }}</p>
-            <img class="icon" [src]="iconPath()" alt="Icône" />
+            <app-icon-svg width="24" height="24" [iconName]="iconName()" color="#242651"></app-icon-svg>
         </div>
         @switch (stat().trend) {
         @case ("UP") {
         <div class="trend flex gap-x-2">
-            <img ngSrc="assets/icons/trend-up.svg" width="24" height="24" alt="Tendance haussière">
+            <app-icon-svg width="24" height="24" iconName="trend-up" color="#49a3a3"></app-icon-svg>
             <div class="flex gap-x-2">
                 <span class="percent-up">+{{ stat().percentageChange }}%</span>
                 <span>{{ filterRangeDaysStr() }}</span>
@@ -28,7 +28,7 @@
         }
         @case ("DOWN") {
         <div class="trend flex gap-x-2">
-            <img ngSrc="assets/icons/trend-down.svg" width="24" height="24" alt="Tendance baissière">
+            <app-icon-svg width="24" height="24" iconName="trend-down" color="#c60541"></app-icon-svg>
             <div class="flex gap-x-2">
                 <span class="percent-down">{{ stat().percentageChange }}%</span>
                 <span>{{ filterRangeDaysStr() }}</span>
@@ -37,7 +37,7 @@
         }
         @default {
         <div class="trend flex gap-x-2">
-            <img ngSrc="assets/icons/minus.svg" width="24" height="24" alt="Tendance stable">
+            <app-icon-svg width="24" height="24" iconName="minus" color="#aca9a2"></app-icon-svg>
             <div class="flex gap-x-2">
                 <span class="percent">{{ stat().percentageChange }}</span>
                 <span>{{ filterRangeDaysStr() }}</span>

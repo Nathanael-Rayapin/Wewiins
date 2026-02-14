@@ -1,19 +1,19 @@
 import { Component, computed, effect, input, signal } from '@angular/core';
 import { IStatComparison } from '../../dto/dashboard';
 import { DashboardStatKey } from '../../pages/dashboard/data/dashboard.data';
-import { NgOptimizedImage } from '@angular/common';
 import { formatComparisonPeriodLabel } from '../../utils/date';
+import { IconSvg } from '../icon-svg/icon-svg';
 
 @Component({
   selector: 'app-dashboard-card',
-  imports: [NgOptimizedImage],
+  imports: [IconSvg],
   templateUrl: './dashboard-card.html',
   styleUrl: './dashboard-card.css',
 })
 export class DashboardCard {
   label = input.required<string>();
   stat = input.required<IStatComparison<number>>();
-  iconPath = input.required<string>();
+  iconName = input.required<string>();
   key = input.required<DashboardStatKey>();
 
   filterRangeDays = input.required<number>();

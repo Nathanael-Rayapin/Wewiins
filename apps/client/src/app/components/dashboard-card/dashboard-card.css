@@ -30,16 +30,36 @@
         }
     }
 
+    .trend {
+        min-width: 0;
+        
+        > div {
+            min-width: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        span {
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+    }
+
     .percent-up {
         color: var(--primary-color);
+        flex-shrink: 0;
     }
 
     .percent-down {
         color: var(--secondary-light-color);
+        flex-shrink: 0;
     }
 
     .percent {
         color: var(--secondary-text);
+        flex-shrink: 0;
     }
 }
 

@@ -16,7 +16,7 @@ describe('DashboardCard', () => {
     fixture = TestBed.createComponent(DashboardCard, {
       bindings: [
         inputBinding('label', signal('Chiffre d\'affaires')),
-        inputBinding('iconPath', signal('assets/icons/euro.svg')),
+        inputBinding('iconPath', signal('euro')),
         inputBinding('stat', signal({ currentValue: 1013.7700000000002, previousValue: 20, percentageChange: 10, trend: 'UP' })),
         inputBinding('key', signal('totalRevenue')),
         inputBinding('filterRangeDays', signal(10))
@@ -50,7 +50,7 @@ describe('DashboardCard', () => {
       newFixture = TestBed.createComponent(DashboardCard, {
         bindings: [
           inputBinding('label', signal('Note moyenne')),
-          inputBinding('iconPath', signal('assets/icons/star.svg')),
+          inputBinding('iconName', signal('star')),
           inputBinding('stat', signal({ currentValue: 4.5, previousValue: 4, percentageChange: 10, trend: 'UP' })),
           inputBinding('key', signal('averageScore')),
           inputBinding('filterRangeDays', signal(10))

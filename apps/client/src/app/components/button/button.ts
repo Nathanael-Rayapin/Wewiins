@@ -1,17 +1,18 @@
 import { Component, input, signal } from '@angular/core';
-import {NgOptimizedImage} from '@angular/common';
+import { IconSvg } from '../icon-svg/icon-svg';
 
 @Component({
   selector: 'app-button',
-  imports: [NgOptimizedImage],
+  imports: [IconSvg],
   templateUrl: './button.html',
   styleUrl: './button.css',
 })
 export class Button {
   textContent = input.required<string>();
-  iconPath = input.required<string>();
+  iconName = input.required<string>();
+  colorIcon = input.required<string>();
   colorButton = input.required<string>();
-  darkColorButon = input.required<string>();
+  hoverColorButton = input.required<string>();
   buttonType = input<'submit' | 'reset' | 'button'>('button');
 
   isHovered = signal(false);

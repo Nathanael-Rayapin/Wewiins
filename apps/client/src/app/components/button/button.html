@@ -1,9 +1,9 @@
 <button 
 [type]="buttonType()" 
-class="button-container flex" 
-[style.background-color]="isHovered() ? darkColorButon() : colorButton()"
+class="button-container flex items-center" 
+[style.background-color]="isHovered() ? hoverColorButton() : colorButton()"
 (mouseenter)="isHovered.set(true)" 
 (mouseleave)="isHovered.set(false)">
     <span>{{textContent()}}</span>
-    <img [ngSrc]="iconPath()" width="18" height="18" alt="Icône">
+    <app-icon-svg width="18" height="18" [iconName]="iconName()" [color]="colorIcon()"></app-icon-svg>
 </button>

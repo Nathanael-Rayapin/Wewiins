@@ -1,0 +1,313 @@
+<div class="step-content-container">
+    <form [formGroup]="stepForm" class="flex flex-col gap-y-4">
+        <div class="card w-full flex flex-col gap-y-4">
+            <h2>Paramètres de l'activité</h2>
+            <hr>
+            <!-- Client Infos -->
+            <div class="client-infos flex flex-row flex-wrap gap-4">
+                <div class="minCapacity">
+                    <div class="flex flex-row-reverse items-center gap-x-2">
+                        <label>Nombre min. de personnes</label>
+                        <p-inputnumber 
+                        [showButtons]="true" 
+                        buttonLayout="horizontal" 
+                        inputId="minCapacity" 
+                        spinnerMode="horizontal" 
+                        [step]="1" 
+                        placeholder="2"
+                        formControlName="minCapacity"
+                        [min]="1"
+                        [max]="98">
+                            <ng-template #incrementbuttonicon>
+                                <app-icon-svg width="14" height="14" iconName="plus" color="#111827"></app-icon-svg>
+                            </ng-template>
+                            <ng-template #decrementbuttonicon>
+                                <app-icon-svg width="14" height="14" iconName="minus" color="#111827"></app-icon-svg>
+                            </ng-template>
+                        </p-inputnumber>
+                    </div>
+                    @if (stepForm.controls.minCapacity.touched && stepForm.controls.minCapacity.invalid) {
+                    <p class="error-message text-red-400">
+                        {{ getErrorMessage('minCapacity') }}
+                    </p>
+                    }
+                </div>
+                <div class="maxCapacity">
+                    <div class="flex flex-row-reverse items-center gap-x-2">
+                        <label>Nombre max. de personnes</label>
+                        <p-inputnumber 
+                        [showButtons]="true" 
+                        buttonLayout="horizontal" 
+                        inputId="maxCapacity" 
+                        spinnerMode="horizontal" 
+                        [step]="1" 
+                        placeholder="12"
+                        formControlName="maxCapacity"
+                        [min]="minForMax1()"
+                        [max]="99">
+                            <ng-template #incrementbuttonicon>
+                                <app-icon-svg width="14" height="14" iconName="plus" color="#111827"></app-icon-svg>
+                            </ng-template>
+                            <ng-template #decrementbuttonicon>
+                                <app-icon-svg width="14" height="14" iconName="minus" color="#111827"></app-icon-svg>
+                            </ng-template>
+                        </p-inputnumber>
+                    </div>
+                    @if (stepForm.controls.maxCapacity.touched && stepForm.controls.maxCapacity.invalid) {
+                    <p class="error-message text-red-400">
+                        {{ getErrorMessage('maxCapacity') }}
+                    </p>
+                    }
+                </div>
+                <div class="slotDuration">
+                    <div class="flex flex-row-reverse items-center gap-x-2">
+                        <label>Durée de l'activité en minute</label>
+                        <p-inputnumber 
+                        [showButtons]="true" 
+                        buttonLayout="horizontal" 
+                        inputId="slotDuration" 
+                        spinnerMode="horizontal" 
+                        [step]="1" 
+                        placeholder="60"
+                        formControlName="slotDuration"
+                        [min]="30"
+                        [max]="1440">
+                            <ng-template #incrementbuttonicon>
+                                <app-icon-svg width="14" height="14" iconName="plus" color="#111827"></app-icon-svg>
+                            </ng-template>
+                            <ng-template #decrementbuttonicon>
+                                <app-icon-svg width="14" height="14" iconName="minus" color="#111827"></app-icon-svg>
+                            </ng-template>
+                        </p-inputnumber>
+                    </div>
+                    @if (stepForm.controls.slotDuration.touched && stepForm.controls.slotDuration.invalid) {
+                    <p class="error-message text-red-400">
+                        {{ getErrorMessage('slotDuration') }}
+                    </p>
+                    }
+                </div>
+                <div class="minAge">
+                    <div class="flex flex-row-reverse items-center gap-x-2">
+                        <label>Age minimum</label>
+                        <p-inputnumber 
+                        [showButtons]="true" 
+                        buttonLayout="horizontal" 
+                        inputId="minAge" 
+                        spinnerMode="horizontal" 
+                        [step]="1" 
+                        placeholder="7"
+                        formControlName="minAge"
+                        [min]="1"
+                        [max]="98"
+                        >
+                            <ng-template #incrementbuttonicon>
+                                <app-icon-svg width="14" height="14" iconName="plus" color="#111827"></app-icon-svg>
+                            </ng-template>
+                            <ng-template #decrementbuttonicon>
+                                <app-icon-svg width="14" height="14" iconName="minus" color="#111827"></app-icon-svg>
+                            </ng-template>
+                        </p-inputnumber>
+                    </div>
+                    @if (stepForm.controls.minAge.touched && stepForm.controls.minAge.invalid) {
+                    <p class="error-message text-red-400">
+                        {{ getErrorMessage('minAge') }}
+                    </p>
+                    }
+                </div>
+                <div class="maxAge">
+                    <div class="flex flex-row-reverse items-center gap-x-2">
+                        <label>Age maximum</label>
+                        <p-inputnumber 
+                        [showButtons]="true" 
+                        buttonLayout="horizontal" 
+                        inputId="maxAge" 
+                        spinnerMode="horizontal" 
+                        [step]="1" 
+                        placeholder="99"
+                        formControlName="maxAge"
+                        [min]="minForMax2()"
+                        [max]="99">
+                            <ng-template #incrementbuttonicon>
+                                <app-icon-svg width="14" height="14" iconName="plus" color="#111827"></app-icon-svg>
+                            </ng-template>
+                            <ng-template #decrementbuttonicon>
+                                <app-icon-svg width="14" height="14" iconName="minus" color="#111827"></app-icon-svg>
+                            </ng-template>
+                        </p-inputnumber>
+                    </div>
+                    @if (stepForm.controls.maxAge.touched && stepForm.controls.maxAge.invalid) {
+                    <p class="error-message text-red-400">
+                        {{ getErrorMessage('maxAge') }}
+                    </p>
+                    }
+                </div>
+                <div class="maxAgeChild">
+                    <div class="flex flex-row-reverse items-center gap-x-2">
+                        <label>Age max. des enfants</label>
+                        <p-inputnumber 
+                        [showButtons]="true" 
+                        buttonLayout="horizontal" 
+                        inputId="maxAgeChild" 
+                        spinnerMode="horizontal" 
+                        [step]="1" 
+                        placeholder="12"
+                        formControlName="maxAgeChild"
+                        [min]="3"
+                        [max]="17"
+                        >
+                            <ng-template #incrementbuttonicon>
+                               <app-icon-svg width="14" height="14" iconName="plus" color="#111827"></app-icon-svg>
+                            </ng-template>
+                            <ng-template #decrementbuttonicon>
+                                <app-icon-svg width="14" height="14" iconName="minus" color="#111827"></app-icon-svg>
+                            </ng-template>
+                        </p-inputnumber>
+                    </div>
+                    @if (stepForm.controls.maxAgeChild.touched && stepForm.controls.maxAgeChild.invalid) {
+                    <p class="error-message text-red-400">
+                        {{ getErrorMessage('maxAgeChild') }}
+                    </p>
+                    }
+                </div>
+                <div class="automaticValidation">
+                    <div class="flex flex-row-reverse items-center gap-x-2">
+                        <label>Confirmation des réservations </label>
+                        <p-select 
+                        [options]="autoValidationOpts" 
+                        id="automaticValidation" 
+                        class="flex items-center"
+                        optionLabel="name" 
+                        placeholder="Automatique"
+                        formControlName="automaticValidation"
+                        [invalid]="stepForm.controls.automaticValidation.touched && stepForm.controls.automaticValidation.invalid"
+                        (onBlur)="stepForm.controls.automaticValidation.markAsTouched()"
+                        appendTo="body" />
+                    </div>
+                    @if (stepForm.controls.automaticValidation.touched && stepForm.controls.automaticValidation.invalid) {
+                    <p class="error-message text-red-400">
+                        {{ getErrorMessage('automaticValidation') }}
+                    </p>
+                    }
+                </div>
+                <div class="childAllowedWithAdult">
+                    <div class="flex flex-row-reverse items-center gap-x-2">
+                        <label>Enfants autorisés si accompagné d'un adulte</label>
+                        <p-select 
+                        class="flex items-center"
+                        [options]="childWithAdultOpts" 
+                        id="childAllowedWithAdult" 
+                        optionLabel="name" 
+                        placeholder="Oui"
+                        formControlName="childAllowedWithAdult"
+                        [invalid]="stepForm.controls.childAllowedWithAdult.touched && stepForm.controls.childAllowedWithAdult.invalid"
+                        (onBlur)="stepForm.controls.childAllowedWithAdult.markAsTouched()"
+                        appendTo="body" />
+                    </div>
+                    @if (stepForm.controls.childAllowedWithAdult.touched && stepForm.controls.childAllowedWithAdult.invalid) {
+                    <p class="error-message text-red-400">
+                        {{ getErrorMessage('childAllowedWithAdult') }}
+                    </p>
+                    }
+                </div>
+            </div>
+        </div>
+        <!-- Schedule -->
+        <div class="card w-full flex flex-col gap-y-4">
+            <h2>Horaire</h2>
+            <hr>
+            <div class="schedule-infos flex items-center justify-between gap-x-4">
+                <p class="availability">Disponibilités</p>
+                <div class="add-schedule flex items-center gap-x-2" (click)="openDialogForCreation()">
+                    <p>Ajouter une horaire</p>
+                    <app-icon-svg width="24" height="24" iconName="plus" color="#111827"></app-icon-svg>
+                </div>
+            </div>
+            <div class="schedule-activities flex items-center gap-2">
+                @for (schedule of scheduledActivities; track schedule.id) {
+                    <div class="schedule-date flex flex-col" (click)="openDialogForEdit(schedule.id!)">
+                        <p class="day mb-0">{{ schedule.selectedDays.join(' - ') }}</p>
+                        <p class="hour mb-0">
+                            {{ schedule.availabilityFrom | date:'shortTime' }} - {{ schedule.availabilityTo | date:'shortTime' }}
+                            @if (schedule.unavailabilityFrom && schedule.unavailabilityTo) {
+                                <span>· Pause ({{ schedule.unavailabilityFrom | date:'shortTime' }} - {{ schedule.unavailabilityTo | date:'shortTime' }})</span>
+                            }
+                        </p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Localisation -->
+        <div class="card w-full flex flex-col gap-y-4">
+            <h2>Localisation</h2>
+            <hr>
+            <div class="schedule-location flex flex-col gap-y-6">
+                <div class="country-region w-full">
+                    <p-iftalabel>
+                        <input [fluid]="true" pInputText id="country" readonly value="France" autocomplete="off" />
+                        <label for="country">Pays/région</label>
+                    </p-iftalabel>
+                    <app-icon-svg class="lock" width="24" height="24" iconName="lock" color="#111827"></app-icon-svg>
+                </div>
+                <div class="address flex flex-col gap-y-2 w-full">
+                    <label>Adresse</label>
+                    <input 
+                    [fluid]="true" 
+                    id="address" 
+                    type="text" 
+                    placeholder="12 avenue des Pins, 06210 Mandelieu-La Napoule" 
+                    pInputText
+                    formControlName="address" />
+                </div>
+                <div class="zipcode-city flex flex-col gap-y-4 w-full lg:flex-row lg:gap-x-4 lg:gap-y-0 lg:w-1/2">
+                    <div class="zipcode flex flex-col gap-y-2 w-full">
+                         <label>Code postal</label>
+                        <input 
+                        [fluid]="true" 
+                        id="zipcode" 
+                        type="text"
+                        placeholder="06210" 
+                        pInputText
+                        formControlName="zipcode" />
+                    </div>
+                    <div class="city flex flex-col gap-y-2 w-full">
+                         <label>Ville</label>
+                        <input 
+                        [fluid]="true" 
+                        id="city" 
+                        type="text" 
+                        placeholder="Mandelieu" 
+                        pInputText
+                        formControlName="city" />
+                    </div>
+                </div>
+                <div class="access-info flex flex-col gap-y-2">
+                    <label>Information d'accès</label>
+                    <textarea 
+                    id="access-info" 
+                    rows="5" 
+                    cols="30" 
+                    pTextarea 
+                    fluid 
+                    [autoResize]="false" 
+                    maxlength="500"
+                    placeholder="Transport en commun (arrêt de bus, train, tram...) + distance à pied &#13;Parking à proximité + distance à pied"
+                    formControlName="accessInfo"
+                    ></textarea>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <app-add-activity-dialog 
+        [(visible)]="isNewActivityDialogVisible"
+        [editingScheduleId]="editingScheduleId()"
+        [initialAvailabilityFrom]="getScheduleData(editingScheduleId())?.availabilityFrom"
+        [initialAvailabilityTo]="getScheduleData(editingScheduleId())?.availabilityTo"
+        [initialUnavailabilityFrom]="getScheduleData(editingScheduleId())?.unavailabilityFrom"
+        [initialUnavailabilityTo]="getScheduleData(editingScheduleId())?.unavailabilityTo"
+        [initialSelectedDays]="getScheduleData(editingScheduleId())?.selectedDays ?? []"
+        (scheduleAdded)="onScheduleAdded($event)"
+        (cancelled)="isNewActivityDialogVisible = false" 
+    />
+</div>

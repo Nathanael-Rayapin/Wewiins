@@ -6,10 +6,9 @@ import { RouterOutlet } from '@angular/router';
   selector: 'app-activity',
   imports: [
     TitleSection,
-    
     RouterOutlet
-],
+  ],
   templateUrl: './activity.html',
   styleUrl: './activity.css',
 })
-export class Activity {}
+export class Activity { }

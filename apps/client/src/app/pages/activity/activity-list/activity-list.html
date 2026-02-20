@@ -4,14 +4,12 @@
         <div class="flex flex-col gap-4 w-full">
             <div class="search-bar">
                 <p-autocomplete [(ngModel)]="value" [suggestions]="items" (completeMethod)="search($event)" />
-                <img class="icon-search" [ngSrc]="'assets/icons/input-search.svg'" alt="Icône de recherche" width="16"
-                    height="16" />
+                <app-icon-svg class="icon-search" width="16" height="16" iconName="search" color="#111827"></app-icon-svg>
             </div>
             <div class="activity-list flex gap-4">
                 <div class="add-card flex flex-col justify-center items-center gap-y-2" (click)="addNewActivity()">
                     <button class="add-btn flex justify-center items-center">
-                        <img [ngSrc]="'assets/icons/alternate-add-activity.svg'" width="36" height="36"
-                            alt="Icône Ajouter" />
+                        <app-icon-svg width="36" height="36" iconName="plus" color="#fafafa"></app-icon-svg>
                     </button>
                     <p class="mt-4">Ajouter une activité</p>
                     <p>Créez une nouvelle activité pour diversifier votre offre</p>

@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { FormsModule } from '@angular/forms';
 import { AutoCompleteModule } from 'primeng/autocomplete';
-import { NgOptimizedImage } from '@angular/common';
+import { IconSvg } from '../../../components/icon-svg/icon-svg';
 
 interface AutoCompleteCompleteEvent {
   originalEvent: Event;
@@ -16,7 +16,7 @@ interface AutoCompleteCompleteEvent {
     ProgressSpinnerModule,
     FormsModule,
     AutoCompleteModule,
-    NgOptimizedImage,
+    IconSvg
   ],
   templateUrl: './activity-list.html',
   styleUrl: './activity-list.css',

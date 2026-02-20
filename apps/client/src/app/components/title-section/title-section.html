@@ -1,26 +1,46 @@
 <div class="title-section-container flex flex-col">
-    <div class="header-section flex flex-row justify-between items-center">
-        @if (keycloakService.userProfile()?.firstName; as firstName) {
-            <h1 class="title">Bonjour {{ firstName }},</h1>
-        } @else {
-            <h1 class="title">Tableau de bord</h1>
-        }
-        <div class="buttons-section flex flex-row items-center">
-            <app-button 
-                textContent="Créer une activité" 
-                iconPath="assets/icons/add-activity.svg"
-                colorButton="var(--secondary-light-color)"
-                darkColorButon="var(--secondary-color)">
-            </app-button>
-            <img 
-            (mouseenter)="isHovered.set(true)"
-            (mouseleave)="isHovered.set(false)"
-            [ngSrc]="isHovered() 
-            ? 'assets/icons/active-notification-dashboard.svg' 
-            : 'assets/icons/notification-dashboard.svg'" 
-            width="32" 
-            height="32" 
-            alt="Icône Notification">
+    <div class="header-section flex flex-col lg:flex-row justify-between items-center">
+        <div class="flex flex-row items-center justify-between w-full">
+            <h1 class="title">{{ title() }}</h1>
+            <div class="flex gap-x-4">
+                <!-- Create Activity -->
+                <app-button textContent="Créer une activité" iconName="plus" colorIcon="#fafafa"
+                    colorButton="var(--secondary-light-color)" hoverColorButton="var(--secondary-color)"
+                    class="hidden lg:block">
+                </app-button>
+
+                <div class="icon add-activity flex justify-center items-center lg:hidden">
+                    <app-icon-svg width="32" height="32" iconName="plus" color="#fafafa"></app-icon-svg>
+                </div>
+
+                <!-- Notification -->
+                <div class="icon flex justify-center items-center">
+                    <app-icon-svg 
+                    (mouseenter)="isNotificationHovered.set(true)"
+                    (mouseleave)="isNotificationHovered.set(false)"
+                    width="32" 
+                    height="32" 
+                    iconName="notification"
+                    [color]="isNotificationHovered() ? '#ffce34': '#242651'">
+                    </app-icon-svg>
+                </div>
+
+                <!-- Burger Menu -->
+                <div class="icon burger-menu flex justify-center items-center sm:hidden"
+                    (click)="isMenuDisplayed.set(!isMenuDisplayed())">
+                    <app-icon-svg 
+                    (mouseenter)="isMenuHovered.set(true)" 
+                    (mouseleave)="isMenuHovered.set(false)"
+                    width="32" 
+                    height="32" 
+                    iconName="menu"
+                    [color]="isMenuHovered() ? '#ffce34': '#242651'">
+                    </app-icon-svg>
+                    @if (isMenuDisplayed()) {
+                    <app-burger-menu></app-burger-menu>
+                    }
+                </div>
+            </div>
         </div>
     </div>
 </div>

@@ -2,17 +2,47 @@
     gap: 16px;
 
     h1.title {
-        font-family: "Signika", sans-serif;
         font-size: 56px;
         font-weight: 500;
         color: var(--primary-text);
     }
 
-    .buttons-section {
-        gap: 24px;
+    .icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: var(--primary-background);
+        box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px 0px;
+        cursor: pointer;
+    }
 
-        img {
-            cursor: pointer;
+    .icon.add-activity {
+        background-color: var(--secondary-light-color);
+
+        &:hover {
+            background-color: var(--secondary-color);
+        }
+    }
+
+    .burger-menu {
+        position: relative;
+    }
+}
+
+@media screen and (max-width: 1024px) {
+    .title-section-container {
+
+        h1.title {
+            font-size: 36px;
+        }
+    }
+}
+
+@media screen and (max-width: 640px) {
+    .title-section-container {
+
+        h1.title {
+            font-size: 32px;
         }
     }
 }

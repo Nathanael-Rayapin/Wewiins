@@ -6,6 +6,7 @@
     background-color: var(--primary-text);
 
     p.content {
+        display: contents;
         color: var(--secondary-background);
         font-size: 12px;
         font-weight: 600;

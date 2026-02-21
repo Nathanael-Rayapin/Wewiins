@@ -62,10 +62,10 @@
             </tr>
             @if (rowIndex === bookings().length - 1) {
             <tr>
-                <td class="see-all gap-x-2 w-full" [attr.colspan]="columns.length">
+                <td class="see-all w-full" [attr.colspan]="columns.length">
                     <div class="content">
-                        <span>Voir tous</span>
-                        <img src="assets/icons/arrow-right.svg" alt="Voir tous les réservations" />
+                        <span class="mr-2">Voir tous</span>
+                        <app-icon-svg width="19.5" height="15.5" iconName="arrow-right" color="--primary-text"></app-icon-svg>
                     </div>
                 </td>
             </tr>

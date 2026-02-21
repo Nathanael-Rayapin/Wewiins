@@ -8,10 +8,21 @@ import { StatusButton } from '../status-button/status-button';
 import { BookingStatusPipe } from '../../pipes/status.pipe';
 import { DatePickerModule } from 'primeng/datepicker';
 import { DurationPipe } from '../../pipes/duration.pipe';
+import { IconSvg } from '../icon-svg/icon-svg';
 
 @Component({
   selector: 'app-dashboard-table',
-  imports: [TableModule, DatePickerModule, StatusButton, CapitalizePipe, DatePipe, CurrencyPipe, BookingStatusPipe, DurationPipe],
+  imports: [
+    TableModule,
+    DatePickerModule,
+    StatusButton,
+    CapitalizePipe,
+    DatePipe,
+    CurrencyPipe,
+    BookingStatusPipe,
+    DurationPipe,
+    IconSvg
+  ],
   templateUrl: './dashboard-table.html',
   styleUrl: './dashboard-table.css',
   encapsulation: ViewEncapsulation.None,

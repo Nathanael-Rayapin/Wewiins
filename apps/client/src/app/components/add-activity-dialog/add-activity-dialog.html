@@ -5,11 +5,11 @@
   [modal]="true">
   <span class="p-text-secondary block">Jour concernées</span>
   <div class="day-list flex items-center gap-x-4 my-6">
-    @for (day of availabilityDays; track day.code;) {
+    @for (day of availabilityDays; track day.fullname;) {
       <p-button 
         [label]="day.name" 
-        [class.selected]="selectedDays().includes(day.code)" 
-        (click)="addToSelectedDays(day.code)" />
+        [class.selected]="selectedDays().includes(day.fullname)" 
+        (click)="addToSelectedDays(day.fullname)" />
     }
   </div>
   

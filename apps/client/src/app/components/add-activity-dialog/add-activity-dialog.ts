@@ -3,7 +3,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
 import { DialogModule } from 'primeng/dialog';
-import { AvailabilityDayCode, availabilityDays } from '../../pages/activity/steps/step-2/data/step-2.data';
+import { AvailabilityDayFullName, availabilityDays } from '../../pages/activity/steps/step-2/data/step-2.data';
 import { getMinutesFromDate, isTimeRangeWithin, validateTimeRange } from '../../utils/date';
 import { IScheduledActivity } from '../../pages/activity/steps/step-2/step-2.interface';
 
@@ -31,7 +31,7 @@ export class AddActivityDialog {
   initialAvailabilityTo = input<Date | undefined>(undefined);
   initialUnavailabilityFrom = input<Date | undefined>(undefined);
   initialUnavailabilityTo = input<Date | undefined>(undefined);
-  initialSelectedDays = input<AvailabilityDayCode[]>([]);
+  initialSelectedDays = input<AvailabilityDayFullName[]>([]);
 
   // [Outputs Events]
   scheduleAdded = output<IScheduledActivity>();
@@ -43,7 +43,7 @@ export class AddActivityDialog {
   availabilityTo = signal<Date | undefined>(undefined);
   unavailabilityFrom = signal<Date | undefined>(undefined);
   unavailabilityTo = signal<Date | undefined>(undefined);
-  selectedDays = signal<AvailabilityDayCode[]>([]);
+  selectedDays = signal<AvailabilityDayFullName[]>([]);
 
   // [Errors State]
   availabilityToError = signal<string | null>(null);
@@ -77,7 +77,7 @@ export class AddActivityDialog {
     });
   }
 
-  protected addToSelectedDays(code: AvailabilityDayCode): void {
+  protected addToSelectedDays(code: AvailabilityDayFullName): void {
     const currentDays = [...this.selectedDays()];
     const existingIndex = currentDays.findIndex(c => c === code);
 

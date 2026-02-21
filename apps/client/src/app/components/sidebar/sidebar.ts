@@ -1,12 +1,12 @@
 import { Component, inject } from '@angular/core';
-import {NgOptimizedImage} from '@angular/common';
 import { NavSidebar } from '../nav-sidebar/nav-sidebar';
 import { ISidebarNavItem } from './sidebar.interface';
 import { KeycloakService } from '../../services/keycloak.service';
+import { IconSvg } from '../icon-svg/icon-svg';
 
 @Component({
   selector: 'app-sidebar',
-  imports: [NgOptimizedImage, NavSidebar],
+  imports: [NavSidebar, IconSvg],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css',
 })
@@ -17,44 +17,37 @@ export class Sidebar {
     {
     id: 1,
     name: 'Tableau de bord',
-    iconPath: 'assets/icons/dashboard.svg',
-    iconActivePath: 'assets/icons/active-dashboard.svg',
+    iconName: 'dashboard',
     pagePath: '/tableau-de-bord'
   },{
     id: 2,
     name: 'Statistiques',
-    iconPath: 'assets/icons/statistic.svg',
-    iconActivePath: 'assets/icons/active-statistic.svg',
+    iconName: 'statistic',
     pagePath: '/statistiques'
   },{
     id: 3,
     name: 'Réservations',
-    iconPath: 'assets/icons/booking.svg',
-    iconActivePath: 'assets/icons/active-booking.svg',
+    iconName: 'booking',
     pagePath: '/réservations'
   },{
     id: 4,
     name: 'Activités',
-    iconPath: 'assets/icons/activity.svg',
-    iconActivePath: 'assets/icons/active-activity.svg',
+    iconName: 'activity',
     pagePath: '/activités'
   },{
     id: 5,
     name: 'Promotions',
-    iconPath: 'assets/icons/discount.svg',
-    iconActivePath: 'assets/icons/active-discount.svg',
+    iconName: 'discount',
     pagePath: '/promotions'
   },{
     id: 6,
     name: 'Avis',
-    iconPath: 'assets/icons/review.svg',
-    iconActivePath: 'assets/icons/active-review.svg',
+    iconName: 'star',
     pagePath: '/avis'
   },{
     id: 7,
     name: 'Notification',
-    iconPath: 'assets/icons/notification.svg',
-    iconActivePath: 'assets/icons/active-notification.svg',
+    iconName: 'notification',
     pagePath: '/notifications'
   },
 ];
@@ -63,14 +56,12 @@ export class Sidebar {
   {
     id: 8,
     name: 'Paramètres',
-    iconPath: 'assets/icons/parameter.svg',
-    iconActivePath: 'assets/icons/active-parameter.svg',
+    iconName: 'parameter',
     pagePath: '/paramètres'
   },{
     id: 9,
     name: 'Support',
-    iconPath: 'assets/icons/support.svg',
-    iconActivePath: 'assets/icons/active-support.svg',
+    iconName: 'support',
     pagePath: '/support'
   },
 ];

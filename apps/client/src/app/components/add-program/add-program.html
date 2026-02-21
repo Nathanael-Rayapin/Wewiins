@@ -1,0 +1,82 @@
+<div [formGroup]="programForm()" class="add-program-container flex flex-col gap-y-4 lg:gap-x-4 lg:gap-y-0 lg:flex-row ">
+    <div class="add-program-title">
+        <label class="block mb-3">Titre de l'étape n°{{ index() + 1 }}</label>
+        <textarea 
+        id="program-title" 
+        rows="2" [cols]="isDesktop$() ? 30 : undefined"
+        pTextarea fluid
+        formControlName="title"
+        [autoResize]="false"
+        maxlength="80"
+        placeholder="Ex: Immersion forestière"
+        required="true"
+        [invalid]="showTitleError"
+        >
+        </textarea>
+        <div class="char-counter mr-1">
+            {{ title.length }} / 80
+        </div>
+        @if (showTitleError) {
+            <p class="error-message text-red-400">
+                @if (titleControl.hasError('required')) {
+                    Le titre est obligatoire
+                }
+            </p>
+        }
+    </div>
+    <div class="add-program-description flex-1 min-w-[262px]">
+        <label class="block mb-3">Petite description de l'étape</label>
+        <textarea 
+        id="program-description" 
+        rows="2"
+        pTextarea fluid
+        formControlName="description"
+        [autoResize]="false" 
+        maxlength="180"
+        placeholder="Ex: Marche progressive en forêt pour s'échauffer tout en découvrant la faune, la flore et l'ambiance du Vercors."
+        required="true"
+        [invalid]="showDescriptionError"
+        >
+        </textarea>
+        <div class="char-counter mr-1">
+            {{ description.length }} / 180
+        </div>
+        @if (showDescriptionError) {
+            <p class="error-message text-red-400">
+                @if (descriptionControl.hasError('required')) {
+                    La description est obligatoire
+                }
+            </p>
+        }
+    </div>
+    <div
+    class="w-[120px] flex-none flex flex-col relative">
+        @if (index() !== 0) {
+            <p class="delete-program mb-2" (click)="removeProgram()">Supprimer l'étape</p>
+        }
+        <div class="card-img flex items-center justify-center relative mt-auto mb-4" [class.has-image]="imagePreviewUrl">
+            <p-fileupload 
+                #fileUpload
+                id="program-photo"
+                mode="basic"
+                name="programImage[]"
+                accept="image/*" 
+                [fileLimit]="1"
+                [multiple]="false"
+                (onSelect)="onImageUpload($event)"
+            />
+            @if (imagePreviewUrl) {
+                <img [src]="imagePreviewUrl" alt="Preview" class="uploaded-image-preview" />
+            } @else {
+                <app-icon-svg width="24" height="24" iconName="image-placeholder" color="#111827"></app-icon-svg>
+            }
+        </div>
+        @if (showImageError) {
+            <p class="error-message text-red-400">
+                @if (imageControl.hasError('required')) {
+                    L'image est obligatoire
+                }
+            </p>
+        }
+    </div>
+</div>

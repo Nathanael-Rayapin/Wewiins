@@ -1,0 +1,10 @@
+<div class="flex flex-col items-center gap-y-3">
+    <div class="good-to-known-card-container flex flex-col gap-y-2">
+        <div class="header flex gap-x-3">
+            <app-icon-svg width="20" height="20" [iconName]="iconName()" color="#111827"></app-icon-svg>
+            <p>{{ name() }}</p>
+        </div>
+        <p class="content">{{ description() }}</p>
+    </div>
+    <p-checkbox class="checkbox" (onChange)="onCheckboxChange($event)" [(ngModel)]="checked" [binary]="true" />
+</div>

@@ -48,7 +48,6 @@ input:not(#country, .p-inputnumber-input) {
     background-color: var(--primary-background);
     height: 48px;
     border-radius: 8px;
-    border: 1px solid var(--border-color);
     box-shadow: none;
 }
 
@@ -56,60 +55,138 @@ input:not(#country, .p-inputnumber-input) {
     font-size: 14px;
 }
 
-/* Prime NG */
-.p-inputnumber {
-    width: 140px;
-    height: 48px;
-    border-radius: 8px;
+/* 
+─────────────────────────────────────────────────────────────────────────
+    Prime NG Overrides
+─────────────────────────────────────────────────────────────────────────
+*/
 
-    .p-inputnumber-input {
-        width: 100%;
-        background-color: var(--primary-background);
-        border-left: none;
-        border-right: none;
-        box-shadow: none;
-        text-align: center;
+/*
+ * InputNumber
+ */
+:root {
+    .p-inputnumber {
+        width: 140px;
+        height: 48px;
+        border-radius: 8px;
 
-        &:hover {
-            border-top: 1px solid var(--p-form-field-border-color);
-            border-bottom: 1px solid var(--p-form-field-border-color);
+        .p-inputnumber-input {
+            width: 100%;
+            background-color: var(--primary-background);
+            border-left: none;
+            border-right: none;
+            box-shadow: none;
+            text-align: center;
+
+            &:hover {
+                border-top: 1px solid var(--p-form-field-border-color);
+                border-bottom: 1px solid var(--p-form-field-border-color);
+            }
+
+            &:disabled {
+                background-color: var(--p-inputtext-disabled-background);
+            }
         }
-    }
-
-    .p-inputnumber-increment-button,
-    .p-inputnumber-decrement-button {
-        width: 35px;
-        background-color: var(--primary-background);
-    }
-
-    &.ng-invalid.ng-dirty {
 
         .p-inputnumber-increment-button,
         .p-inputnumber-decrement-button {
-            border-color: var(--p-inputtext-invalid-border-color);
+            width: 35px;
+            background-color: var(--primary-background);
         }
 
-        .p-inputnumber-input {
-            border-color: var(--p-inputtext-invalid-border-color);
+        &.ng-invalid.ng-dirty {
+
+            .p-inputnumber-increment-button,
+            .p-inputnumber-decrement-button {
+                border-color: var(--p-inputtext-invalid-border-color);
+            }
+
+            .p-inputnumber-input {
+                border-color: var(--p-inputtext-invalid-border-color);
+            }
         }
     }
-}
 
-.p-select {
-    width: 140px;
-    height: 48px;
-    border-radius: 8px;
-    background-color: var(--primary-background) !important;
-    box-shadow: none;
+    /*
+ * Select
+ */
+    .p-select {
+        width: 140px;
+        height: 48px;
+        border-radius: 8px;
+        background-color: var(--primary-background) !important;
+        box-shadow: none;
 
-    .p-placeholder {
-        color: var(--placeholder-color);
-        font-weight: 300;
+        .p-placeholder {
+            color: var(--placeholder-color);
+            font-weight: 300;
+        }
     }
-}
 
-.p-textarea {
-    background-color: var(--primary-background) !important;
-    resize: none;
-    text-align: left;
+    /*
+ * SelectButton
+ */
+    .p-selectbutton {
+        height: 44px;
+
+        .p-togglebutton {
+            color: var(--primary-text);
+        }
+
+        .p-togglebutton-checked {
+            color: var(--primary-background);
+
+            .p-togglebutton-content {
+                background-color: var(--primary-color);
+            }
+        }
+    }
+
+    /*
+ * Textarea
+ */
+    .p-textarea {
+        background-color: var(--primary-background) !important;
+        resize: none;
+        text-align: left;
+    }
+
+    /*
+ * FileUpload
+ */
+    p-fileupload .p-message,
+    p-fileupload .p-message-text {
+        display: none;
+    }
+
+    .p-fileupload-basic-content {
+
+        .p-button-label,
+        .p-icon {
+            display: none;
+        }
+    }
+
+    .p-fileupload-basic-content>span {
+        display: none;
+    }
+
+    /*
+ * ToggleSwitch
+ */
+    .p-toggleswitch-slider {
+        background-color: var(--secondary-light-color);
+    }
+
+    .p-toggleswitch.p-toggleswitch-checked .p-toggleswitch-slider {
+        background: var(--primary-color);
+    }
+
+    .p-toggleswitch:not(.p-disabled):has(.p-toggleswitch-input:hover).p-toggleswitch-checked .p-toggleswitch-slider {
+        background: var(--primary-dark-color);
+    }
+
+    .p-toggleswitch:not(.p-disabled):has(.p-toggleswitch-input:hover) .p-toggleswitch-slider {
+        background: var(--secondary-color);
+    }
 }

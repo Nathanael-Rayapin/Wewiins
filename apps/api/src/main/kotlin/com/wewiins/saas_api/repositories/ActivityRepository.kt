@@ -2,6 +2,7 @@ package com.wewiins.saas_api.repositories
 
 import com.stripe.StripeClient
 import com.stripe.param.BalanceTransactionListParams
+import com.wewiins.saas_api.dto.ImageType
 import com.wewiins.saas_api.dto.activity.AverageScore
 import com.wewiins.saas_api.dto.user.ProviderDto
 import com.wewiins.saas_api.dto.VisitsCountDto
@@ -13,8 +14,12 @@ import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Count
+import io.github.jan.supabase.storage.storage
+import io.ktor.http.ContentType
 import org.springframework.stereotype.Repository
 import org.slf4j.LoggerFactory
+import org.springframework.web.multipart.MultipartFile
+import java.util.UUID
 import kotlin.math.roundToInt
 
 @Repository
@@ -24,6 +29,10 @@ class ActivityRepository(
 ) {
 
     private val logger = LoggerFactory.getLogger(ActivityRepository::class.java)
+
+    object StorageConstants {
+        const val BUCKET_ID = "activities"
+    }
 
     suspend fun getRevenueByPeriod(
         connectedAccountId: String,
@@ -303,5 +312,54 @@ class ActivityRepository(
         }
 
         return bookings
+    }
+
+    suspend fun uploadImages(
+        files: List<MultipartFile>,
+        email: String,
+        imageType: ImageType,
+        activityName: String? = null
+    ): List<String> {
+        logger.info("Upload Images on Supabase Storage")
+
+        val name = activityName ?: UUID.randomUUID().toString()
+
+        val bucketPath = "$email/$name/${imageType.name.lowercase()}"
+
+        try {
+            supabaseClient.storage.getBucket(StorageConstants.BUCKET_ID)
+        } catch (e: Exception) {
+            logger.info("Bucket '${StorageConstants.BUCKET_ID}' not found, creating a new one")
+            supabaseClient.storage.createBucket(StorageConstants.BUCKET_ID) {
+                public = true
+                allowedMimeTypes(ContentType.Image.WEBP)
+            }
+        }
+
+        return files.map { file ->
+            val fileName = "${UUID.randomUUID()}_${file.originalFilename}"
+            val bucketFile = "${bucketPath}/${fileName}"
+            val contentType = file.contentType ?: "application/octet-stream"
+
+            try {
+                supabaseClient.storage
+                    .from(StorageConstants.BUCKET_ID)
+                    .upload(
+                        path = bucketFile,
+                        data = file.bytes,
+                    ) {
+                        upsert = true
+                        this.contentType = ContentType.parse(contentType)
+                    }
+
+                supabaseClient.storage
+                    .from(StorageConstants.BUCKET_ID)
+                    .publicUrl(bucketFile)
+
+            } catch (e: Exception) {
+                logger.error("Failed to upload file ${file.originalFilename}: ${e.message}")
+                throw RuntimeException("Upload failed for file ${file.originalFilename}", e)
+            }
+        }
     }
 }

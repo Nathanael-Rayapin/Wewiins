@@ -8,6 +8,7 @@ import com.wewiins.saas_api.dto.user.ProviderDto
 import com.wewiins.saas_api.dto.VisitsCountDto
 import com.wewiins.saas_api.dto.activity.ActivityBooking
 import com.wewiins.saas_api.dto.activity.ActivityBookingRaw
+import com.wewiins.saas_api.dto.activity.ActivityDraftDto
 import com.wewiins.saas_api.interfaces.Revenue
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
@@ -315,16 +316,14 @@ class ActivityRepository(
     }
 
     suspend fun uploadImages(
-        files: List<MultipartFile>,
         email: String,
+        files: List<MultipartFile>,
         imageType: ImageType,
-        activityName: String? = null
+        activityName: String
     ): List<String> {
         logger.info("Upload Images on Supabase Storage")
 
-        val name = activityName ?: UUID.randomUUID().toString()
-
-        val bucketPath = "$email/$name/${imageType.name.lowercase()}"
+        val bucketPath = "$email/$activityName/${imageType.name.lowercase()}"
 
         try {
             supabaseClient.storage.getBucket(StorageConstants.BUCKET_ID)
@@ -360,6 +359,35 @@ class ActivityRepository(
                 logger.error("Failed to upload file ${file.originalFilename}: ${e.message}")
                 throw RuntimeException("Upload failed for file ${file.originalFilename}", e)
             }
+        }
+    }
+
+    suspend fun saveDraft(
+        connectedAccountId: String,
+        activityDraft: ActivityDraftDto,
+        previewUrls: List<String>?,
+        programUrls: List<String>?
+    ) {
+        
+    }
+
+    suspend fun selectImages(
+        email: String,
+        imageType: ImageType,
+        activityName: String
+    ): List<String> {
+        logger.info("Select Images on Supabase Storage")
+
+        val folderPath = "$email/$activityName/${imageType.name.lowercase()}"
+
+        val files = supabaseClient.storage
+            .from(StorageConstants.BUCKET_ID)
+            .list(folderPath)
+
+        return files.map {
+            supabaseClient.storage
+                .from(StorageConstants.BUCKET_ID)
+                .publicUrl("$folderPath/${it.name}")
         }
     }
 }

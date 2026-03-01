@@ -78,15 +78,28 @@ class ActivityService(
 
     fun saveDraft(
         verifiedAccountDto: VerifiedAccountDto,
-        activityDraft: ActivityDraftDto,
-        previewUrls: List<String>?,
-        programUrls: List<String>?
-    ): ResponseEntity<Void> {
+        activityDraft: ActivityDraftDto
+    ) {
         logger.info("Save Draft")
         return runBlocking {
             activityRepository.saveDraft(
                 verifiedAccountDto.stripeConnectedAccountId!!,
-                activityDraft,
+                activityDraft
+            )
+        }
+    }
+
+    fun saveDraftImages(
+        verifiedAccountDto: VerifiedAccountDto,
+        activityName: String,
+        previewUrls: List<String>?,
+        programUrls: List<String>?
+    ) {
+        logger.info("Save Draft Images")
+        runBlocking {
+            activityRepository.saveDraftImages(
+                verifiedAccountDto.stripeConnectedAccountId!!,
+                activityName,
                 previewUrls,
                 programUrls
             )

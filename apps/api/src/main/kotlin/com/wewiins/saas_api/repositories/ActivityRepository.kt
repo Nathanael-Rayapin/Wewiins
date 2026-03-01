@@ -1,5 +1,7 @@
 package com.wewiins.saas_api.repositories
 
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.stripe.StripeClient
 import com.stripe.param.BalanceTransactionListParams
 import com.wewiins.saas_api.dto.ImageType
@@ -9,6 +11,8 @@ import com.wewiins.saas_api.dto.VisitsCountDto
 import com.wewiins.saas_api.dto.activity.ActivityBooking
 import com.wewiins.saas_api.dto.activity.ActivityBookingRaw
 import com.wewiins.saas_api.dto.activity.ActivityDraftDto
+import com.wewiins.saas_api.dto.activity.ActivityUpsertDto
+import com.wewiins.saas_api.enums.Categories
 import com.wewiins.saas_api.interfaces.Revenue
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
@@ -17,6 +21,8 @@ import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Count
 import io.github.jan.supabase.storage.storage
 import io.ktor.http.ContentType
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
 import org.springframework.stereotype.Repository
 import org.slf4j.LoggerFactory
 import org.springframework.web.multipart.MultipartFile
@@ -364,11 +370,142 @@ class ActivityRepository(
 
     suspend fun saveDraft(
         connectedAccountId: String,
-        activityDraft: ActivityDraftDto,
+        activityDraft: ActivityDraftDto
+    ) {
+        val activityId = saveStep1(connectedAccountId, activityDraft)
+        logger.info("Activity saved with id: $activityId")
+    }
+
+    private suspend fun saveStep1(
+        connectedAccountId: String,
+        activityDraft: ActivityDraftDto
+    ): String {
+        val existingActivity = supabaseClient
+            .from("activities")
+            .select {
+                filter {
+                    eq("title", activityDraft.name!!)
+                    eq("provider_id", connectedAccountId)
+                }
+            }
+            .decodeSingleOrNull<Map<String, Any>>()
+
+        val dto = ActivityUpsertDto(
+            id           = existingActivity?.get("id") as String?,
+            title        = activityDraft.name,
+            description  = activityDraft.description,
+            providerId   = connectedAccountId,
+            isPublished  = false,
+            mainPhotoUrl = null,
+            galleryUrls  = null,
+        )
+
+        val activityId: String
+
+        if (existingActivity != null) {
+            supabaseClient
+                .from("activities")
+                .update(dto) {
+                    filter { eq("id", dto.id!!) }
+                }
+            activityId = dto.id!!
+        } else {
+            val inserted = supabaseClient
+                .from("activities")
+                .insert(dto) {
+                    select()
+                    single()
+                }
+                .decodeSingle<Map<String, Any>>()
+            activityId = inserted["id"] as String
+        }
+
+        activityDraft.categories?.let { upsertCategories(activityId, it) }
+
+        return activityId
+    }
+
+    private suspend fun upsertCategories(
+        activityId: String,
+        categories: List<Categories>
+    ) {
+        val categoryIds = supabaseClient
+            .from("activities_categories")
+            .select {
+                filter { isIn("name", categories.map { it.name }) }
+            }
+            .decodeList<Map<String, Any>>()
+            .map { it["id"] as String }
+
+        supabaseClient
+            .from("activities_to_categories")
+            .delete {
+                filter {
+                    eq("activity_id", activityId)
+                }
+            }
+
+        if (categoryIds.isNotEmpty()) {
+            supabaseClient
+                .from("activities_to_categories")
+                .insert(categoryIds.map { categoryId ->
+                    mapOf(
+                        "activity_id" to activityId,
+                        "category_id" to categoryId
+                    )
+                })
+        }
+    }
+
+    suspend fun saveDraftImages(
+        connectedAccountId: String,
+        activityName: String,
         previewUrls: List<String>?,
         programUrls: List<String>?
     ) {
-        
+        // --- Récupérer l'activité existante par nom + provider ---
+        val existingActivity = supabaseClient
+            .from("activities")
+            .select {
+                filter {
+                    eq("title", activityName)
+                    eq("provider_id", connectedAccountId)
+                }
+            }
+            .decodeSingleOrNull<Map<String, Any>>()
+            ?: throw IllegalArgumentException("Activité '$activityName' introuvable pour ce prestataire")
+
+        val activityId = existingActivity["id"] as String
+
+        // --- Mettre à jour les photos si des previews sont fournies ---
+        previewUrls?.let {
+            val mainPhotoUrl = it.firstOrNull()
+
+            supabaseClient
+                .from("activities")
+                .update(
+                    mapOf(
+                        "main_photo_url" to mainPhotoUrl,
+                        "gallery_urls" to it
+                    )
+                ) {
+                    filter { eq("id", activityId) }
+                }
+        }
+
+        // --- Mettre à jour les images de programme si fournies ---
+        programUrls?.let { urls ->
+            urls.forEachIndexed { index, url ->
+                supabaseClient
+                    .from("activities_programs")
+                    .update(mapOf("photo_url" to url)) {
+                        filter {
+                            eq("activity_id", activityId)
+                            eq("position", index)
+                        }
+                    }
+            }
+        }
     }
 
     suspend fun selectImages(
@@ -389,5 +526,9 @@ class ActivityRepository(
                 .from(StorageConstants.BUCKET_ID)
                 .publicUrl("$folderPath/${it.name}")
         }
+    }
+
+    private val objectMapper = jacksonObjectMapper().apply {
+        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     }
 }

@@ -24,12 +24,20 @@ data class ActivityBookingRaw(
     val participants: Int,
 
     @field:JsonProperty("activity_offers")
-    val activityOffers: ActivityOfferDto,
+    val activityOffers: ActivityTitleWrapper,
 
     @field:JsonProperty("total_price")
     val totalPrice: Double,
 
     val status: BookingStatus,
+)
+
+data class ActivityTitleWrapper(
+    val activities: ActivityTitle
+)
+
+data class ActivityTitle(
+    val title: String
 )
 
 data class ActivityBooking(

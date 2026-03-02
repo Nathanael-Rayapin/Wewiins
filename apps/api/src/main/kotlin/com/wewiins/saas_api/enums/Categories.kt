@@ -1,14 +1,14 @@
 package com.wewiins.saas_api.enums
 
-enum class Categories {
-    ATELIERS_CREATIFS,
-    LOISIRS_EXTREMES,
-    GASTRONOMIE,
-    TOURISME,
-    NAUTIQUES,
-    FAMILLE,
-    BIEN_ETRE,
-    SPORTIF,
-    CULTURE,
-    AVEC_ANIMAUX
+enum class Categories(val supabaseValue: String) {
+    ATELIERS_CREATIFS("Ateliers créatifs"),
+    LOISIRS_EXTREMES("Loisirs extremes"),
+    GASTRONOMIE("Gastronomie"),
+    TOURISME("Tourisme"),
+    NAUTIQUES("Nautiques"),
+    FAMILLE("Famille"),
+    BIEN_ETRE("Bien-être"),
+    SPORTIF("Sportif"),
+    CULTURE("Culture"),
+    AVEC_ANIMAUX("Avec animaux")
 }

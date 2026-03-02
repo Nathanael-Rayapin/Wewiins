@@ -1,14 +1,13 @@
 package com.wewiins.saas_api.services
 
-import com.wewiins.saas_api.dto.ImageType
+import com.wewiins.saas_api.enums.ImageType
 import com.wewiins.saas_api.dto.VerifiedAccountDto
 import com.wewiins.saas_api.dto.activity.ActivityBooking
-import com.wewiins.saas_api.dto.activity.ActivityDraftDto
+import com.wewiins.saas_api.interfaces.ActivityDraft
 import com.wewiins.saas_api.interfaces.Revenue
 import com.wewiins.saas_api.repositories.ActivityRepository
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
-import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 
@@ -77,43 +76,52 @@ class ActivityService(
     }
 
     fun saveDraft(
+        existingActivityId: String?,
         verifiedAccountDto: VerifiedAccountDto,
-        activityDraft: ActivityDraftDto
-    ) {
-        logger.info("Save Draft")
-        return runBlocking {
-            activityRepository.saveDraft(
-                verifiedAccountDto.stripeConnectedAccountId!!,
-                activityDraft
-            )
-        }
-    }
-
-    fun saveDraftImages(
-        verifiedAccountDto: VerifiedAccountDto,
-        activityName: String,
+        activityDraft: ActivityDraft,
         previewUrls: List<String>?,
         programUrls: List<String>?
-    ) {
-        logger.info("Save Draft Images")
-        runBlocking {
-            activityRepository.saveDraftImages(
-                verifiedAccountDto.stripeConnectedAccountId!!,
-                activityName,
+    ): String {
+        logger.info("Save Draft")
+
+        return runBlocking {
+            val providerId = activityRepository.getProviderIdByStripeAccountId(
+                verifiedAccountDto.stripeConnectedAccountId!!
+            )
+
+            activityRepository.saveDraft(
+                existingActivityId,
+                providerId,
+                activityDraft,
                 previewUrls,
                 programUrls
             )
         }
     }
 
-    fun selectImages(
+    fun getImages(
         email: String,
         imageType: ImageType,
         activityName: String
     ): List<String> {
         logger.info("Select Images")
         return runBlocking {
-            activityRepository.selectImages(
+            activityRepository.getImages(
+                email,
+                imageType,
+                activityName
+            )
+        }
+    }
+
+    fun canStoreImages(
+        email: String,
+        imageType: ImageType,
+        activityName: String
+    ): Int {
+        logger.info("Store Images")
+        return runBlocking {
+            activityRepository.canStoreImages(
                 email,
                 imageType,
                 activityName

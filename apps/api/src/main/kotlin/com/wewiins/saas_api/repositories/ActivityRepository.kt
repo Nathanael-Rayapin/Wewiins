@@ -1,19 +1,19 @@
 package com.wewiins.saas_api.repositories
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.stripe.StripeClient
 import com.stripe.param.BalanceTransactionListParams
-import com.wewiins.saas_api.dto.ImageType
+import com.wewiins.saas_api.enums.ImageType
 import com.wewiins.saas_api.dto.activity.AverageScore
 import com.wewiins.saas_api.dto.user.ProviderDto
 import com.wewiins.saas_api.dto.VisitsCountDto
 import com.wewiins.saas_api.dto.activity.ActivityBooking
 import com.wewiins.saas_api.dto.activity.ActivityBookingRaw
-import com.wewiins.saas_api.dto.activity.ActivityDraftDto
-import com.wewiins.saas_api.dto.activity.ActivityUpsertDto
+import com.wewiins.saas_api.interfaces.ActivityDraft
+import com.wewiins.saas_api.dto.activity.ActivityDto
+import com.wewiins.saas_api.interfaces.StepOne
 import com.wewiins.saas_api.enums.Categories
 import com.wewiins.saas_api.interfaces.Revenue
+import com.wewiins.saas_api.utils.Sanitize
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
@@ -21,8 +21,6 @@ import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Count
 import io.github.jan.supabase.storage.storage
 import io.ktor.http.ContentType
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
 import org.springframework.stereotype.Repository
 import org.slf4j.LoggerFactory
 import org.springframework.web.multipart.MultipartFile
@@ -329,7 +327,9 @@ class ActivityRepository(
     ): List<String> {
         logger.info("Upload Images on Supabase Storage")
 
-        val bucketPath = "$email/$activityName/${imageType.name.lowercase()}"
+        val sanitizedTitle = Sanitize.text(activityName)
+
+        val bucketPath = "$email/$sanitizedTitle/${imageType.name.lowercase()}"
 
         try {
             supabaseClient.storage.getBucket(StorageConstants.BUCKET_ID)
@@ -369,58 +369,66 @@ class ActivityRepository(
     }
 
     suspend fun saveDraft(
-        connectedAccountId: String,
-        activityDraft: ActivityDraftDto
-    ) {
-        val activityId = saveStep1(connectedAccountId, activityDraft)
-        logger.info("Activity saved with id: $activityId")
+        existingActivityId: String?,
+        providerId: String,
+        activityDraft: ActivityDraft,
+        previewUrls: List<String>?,
+        programUrls: List<String>?
+    ): String {
+        val step1 = activityDraft.step1
+        val existingActivity = existingActivity(existingActivityId,step1.name, providerId)
+
+        return saveStep1(
+            providerId,
+            existingActivity,
+            currentActivity = step1,
+            previewUrls
+        )
     }
 
     private suspend fun saveStep1(
-        connectedAccountId: String,
-        activityDraft: ActivityDraftDto
+        providerId: String,
+        existingActivity: ActivityDto?,
+        currentActivity: StepOne,
+        previewUrls: List<String>?
     ): String {
-        val existingActivity = supabaseClient
-            .from("activities")
-            .select {
-                filter {
-                    eq("title", activityDraft.name!!)
-                    eq("provider_id", connectedAccountId)
-                }
-            }
-            .decodeSingleOrNull<Map<String, Any>>()
-
-        val dto = ActivityUpsertDto(
-            id           = existingActivity?.get("id") as String?,
-            title        = activityDraft.name,
-            description  = activityDraft.description,
-            providerId   = connectedAccountId,
-            isPublished  = false,
-            mainPhotoUrl = null,
-            galleryUrls  = null,
-        )
-
         val activityId: String
 
         if (existingActivity != null) {
-            supabaseClient
-                .from("activities")
-                .update(dto) {
-                    filter { eq("id", dto.id!!) }
+            activityId = existingActivity.id
+
+            supabaseClient.from("activities").update(
+                    mapOf(
+                        "title" to currentActivity.name,
+                        "description" to (currentActivity.description ?: existingActivity.title),
+                        "main_photo_url" to (previewUrls?.firstOrNull() ?: existingActivity.mainPhotoUrl),
+                        "gallery_urls" to (previewUrls ?: existingActivity.galleryUrls),
+                    )
+                ) {
+                    filter {
+                        eq("id", activityId)
+                    }
                 }
-            activityId = dto.id!!
         } else {
-            val inserted = supabaseClient
-                .from("activities")
-                .insert(dto) {
+            val inserted = supabaseClient.from("activities").insert(
+                    mapOf(
+                        "title" to currentActivity.name,
+                        "description" to currentActivity.description,
+                        "provider_id" to providerId,
+                        "main_photo_url" to previewUrls?.firstOrNull(),
+                        "gallery_urls" to previewUrls,
+                    )
+                ) {
                     select()
                     single()
-                }
-                .decodeSingle<Map<String, Any>>()
+                }.decodeSingle<Map<String, Any>>()
+
             activityId = inserted["id"] as String
         }
 
-        activityDraft.categories?.let { upsertCategories(activityId, it) }
+        currentActivity.categories?.let { categories ->
+            upsertCategories(activityId, categories)
+        }
 
         return activityId
     }
@@ -429,13 +437,16 @@ class ActivityRepository(
         activityId: String,
         categories: List<Categories>
     ) {
-        val categoryIds = supabaseClient
+        val categoryRows = supabaseClient
             .from("activities_categories")
             .select {
-                filter { isIn("name", categories.map { it.name }) }
+                filter {
+                    isIn("name", categories.map { it.supabaseValue })
+                }
             }
             .decodeList<Map<String, Any>>()
-            .map { it["id"] as String }
+
+        val categoryIds = categoryRows.map { it["id"] as String }
 
         supabaseClient
             .from("activities_to_categories")
@@ -445,75 +456,57 @@ class ActivityRepository(
                 }
             }
 
-        if (categoryIds.isNotEmpty()) {
-            supabaseClient
-                .from("activities_to_categories")
-                .insert(categoryIds.map { categoryId ->
-                    mapOf(
-                        "activity_id" to activityId,
-                        "category_id" to categoryId
-                    )
-                })
+        val rows = categoryIds.map { categoryId ->
+            mapOf(
+                "activity_id" to activityId,
+                "category_id" to categoryId
+            )
         }
+
+        supabaseClient
+            .from("activities_to_categories")
+            .insert(rows)
     }
 
-    suspend fun saveDraftImages(
-        connectedAccountId: String,
-        activityName: String,
-        previewUrls: List<String>?,
-        programUrls: List<String>?
-    ) {
-        // --- Récupérer l'activité existante par nom + provider ---
-        val existingActivity = supabaseClient
-            .from("activities")
+    suspend fun existingActivity(
+        existingActivityId: String?,
+        name: String,
+        providerId: String
+    ): ActivityDto? {
+        return supabaseClient.from("activities")
             .select {
                 filter {
-                    eq("title", activityName)
-                    eq("provider_id", connectedAccountId)
-                }
-            }
-            .decodeSingleOrNull<Map<String, Any>>()
-            ?: throw IllegalArgumentException("Activité '$activityName' introuvable pour ce prestataire")
-
-        val activityId = existingActivity["id"] as String
-
-        // --- Mettre à jour les photos si des previews sont fournies ---
-        previewUrls?.let {
-            val mainPhotoUrl = it.firstOrNull()
-
-            supabaseClient
-                .from("activities")
-                .update(
-                    mapOf(
-                        "main_photo_url" to mainPhotoUrl,
-                        "gallery_urls" to it
-                    )
-                ) {
-                    filter { eq("id", activityId) }
-                }
-        }
-
-        // --- Mettre à jour les images de programme si fournies ---
-        programUrls?.let { urls ->
-            urls.forEachIndexed { index, url ->
-                supabaseClient
-                    .from("activities_programs")
-                    .update(mapOf("photo_url" to url)) {
-                        filter {
-                            eq("activity_id", activityId)
-                            eq("position", index)
-                        }
+                    if (!existingActivityId.isNullOrBlank()) {
+                        eq("id", existingActivityId)
+                    } else {
+                        eq("title", name)
+                        eq("provider_id", providerId)
                     }
+                }
             }
-        }
+            .decodeSingleOrNull<ActivityDto>()
     }
 
-    suspend fun selectImages(
+    suspend fun getProviderIdByStripeAccountId(stripeConnectedAccountId: String): String {
+        return supabaseClient
+            .from("providers")
+            .select(columns = Columns.list("id")) {
+                filter {
+                    eq("stripe_connected_account_id", stripeConnectedAccountId)
+                }
+            }
+            .decodeList<Map<String, Any>>()
+            .firstOrNull()
+            ?.get("id") as String?
+            ?: throw IllegalArgumentException("Provider introuvable pour le compte Stripe : $stripeConnectedAccountId")
+    }
+
+    suspend fun getImages(
         email: String,
         imageType: ImageType,
         activityName: String
     ): List<String> {
-        logger.info("Select Images on Supabase Storage")
+        logger.info("Get Images on Supabase Storage")
 
         val folderPath = "$email/$activityName/${imageType.name.lowercase()}"
 
@@ -528,7 +521,18 @@ class ActivityRepository(
         }
     }
 
-    private val objectMapper = jacksonObjectMapper().apply {
-        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    suspend fun canStoreImages(
+        email: String,
+        imageType: ImageType,
+        activityName: String
+    ): Int {
+        logger.info("Can Store Images on Supabase Storage ?")
+
+        val folderPath = "$email/$activityName/${imageType.name.lowercase()}"
+
+        return supabaseClient.storage
+            .from(StorageConstants.BUCKET_ID)
+            .list(folderPath)
+            .size
     }
 }

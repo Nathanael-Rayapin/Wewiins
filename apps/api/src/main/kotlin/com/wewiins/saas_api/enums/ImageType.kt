@@ -1,4 +1,4 @@
-package com.wewiins.saas_api.dto
+package com.wewiins.saas_api.enums
 
 enum class ImageType {
     PREVIEW,

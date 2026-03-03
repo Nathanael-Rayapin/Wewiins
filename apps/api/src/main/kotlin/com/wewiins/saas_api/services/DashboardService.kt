@@ -1,7 +1,13 @@
 package com.wewiins.saas_api.services
 
 import com.wewiins.saas_api.dto.VerifiedAccountDto
+import com.wewiins.saas_api.interfaces.ActivityBooking
 import com.wewiins.saas_api.interfaces.Dashboard
+import com.wewiins.saas_api.interfaces.Revenue
+import com.wewiins.saas_api.repositories.ActivityRepository
+import com.wewiins.saas_api.repositories.BookingRepository
+import com.wewiins.saas_api.repositories.StatisticRepository
+import com.wewiins.saas_api.repositories.StripeRepository
 import com.wewiins.saas_api.utils.ComparisonCalculator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -10,10 +16,13 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
-class OrchestrationService(
-    private val activityService: ActivityService
+class DashboardService(
+    private val activityRepository: ActivityRepository,
+    private val stripeRepository: StripeRepository,
+    private val statisticRepository: StatisticRepository,
+    private val bookingRepository: BookingRepository,
 ) {
-    private val logger = LoggerFactory.getLogger(OrchestrationService::class.java)
+    private val logger = LoggerFactory.getLogger(DashboardService::class.java)
 
     fun initializeDashboard(
         verifiedAccountDto: VerifiedAccountDto,
@@ -31,7 +40,7 @@ class OrchestrationService(
         return runBlocking {
             // Retrieve statistics for the current period
             val currentTotalRevenueDeferred = async(Dispatchers.IO) {
-                activityService.getTotalRevenueByPeriod(
+                getTotalRevenueByPeriod(
                     verifiedAccountDto.stripeConnectedAccountId!!,
                     startDate,
                     endDate
@@ -39,7 +48,7 @@ class OrchestrationService(
             }
 
             val currentTotalBookingDeferred = async(Dispatchers.IO) {
-                activityService.getTotalBookingByPeriod(
+                getTotalBookingByPeriod(
                     verifiedAccountDto.stripeConnectedAccountId!!,
                     startDate,
                     endDate
@@ -47,7 +56,7 @@ class OrchestrationService(
             }
 
             val currentTotalVisitDeferred = async(Dispatchers.IO) {
-                activityService.getTotalVisitByPeriod(
+                getTotalVisitByPeriod(
                     verifiedAccountDto.stripeConnectedAccountId!!,
                     startDate,
                     endDate
@@ -55,7 +64,7 @@ class OrchestrationService(
             }
 
             val currentAverageScoreDeferred = async(Dispatchers.IO) {
-                activityService.getAverageScoreByPeriod(
+                getAverageScoreByPeriod(
                     verifiedAccountDto.stripeConnectedAccountId!!,
                     startDate,
                     endDate
@@ -64,7 +73,7 @@ class OrchestrationService(
 
             // Retrieve statistics from the previous period
             val previousTotalRevenueDeferred = async(Dispatchers.IO) {
-                activityService.getTotalRevenueByPeriod(
+                getTotalRevenueByPeriod(
                     verifiedAccountDto.stripeConnectedAccountId!!,
                     previousStartDate,
                     previousEndDate
@@ -72,7 +81,7 @@ class OrchestrationService(
             }
 
             val previousTotalBookingDeferred = async(Dispatchers.IO) {
-                activityService.getTotalBookingByPeriod(
+                getTotalBookingByPeriod(
                     verifiedAccountDto.stripeConnectedAccountId!!,
                     previousStartDate,
                     previousEndDate
@@ -80,7 +89,7 @@ class OrchestrationService(
             }
 
             val previousTotalVisitDeferred = async(Dispatchers.IO) {
-                activityService.getTotalVisitByPeriod(
+                getTotalVisitByPeriod(
                     verifiedAccountDto.stripeConnectedAccountId!!,
                     previousStartDate,
                     previousEndDate
@@ -88,7 +97,7 @@ class OrchestrationService(
             }
 
             val previousAverageScoreDeferred = async(Dispatchers.IO) {
-                activityService.getAverageScoreByPeriod(
+                getAverageScoreByPeriod(
                     verifiedAccountDto.stripeConnectedAccountId!!,
                     previousStartDate,
                     previousEndDate
@@ -97,7 +106,7 @@ class OrchestrationService(
 
             // Retrieve the first 2 reservations
             val bookingsDeferred = async(Dispatchers.IO) {
-                activityService.getBookingsByPeriod(
+                getBookingsByPeriod(
                     verifiedAccountDto.stripeConnectedAccountId!!,
                     startDate,
                 )
@@ -146,6 +155,52 @@ class OrchestrationService(
                 bookings = bookings,
                 isRevenueCompletelyLoad = currentTotalRevenue.isComplete
             )
+        }
+    }
+
+    fun getTotalRevenueByPeriod(
+        connectedAccountId: String, startDate: Long, endDate: Long
+    ): Revenue {
+        logger.info("Get TotalRevenueByPeriod")
+        return runBlocking {
+            stripeRepository.getRevenueByPeriod(connectedAccountId, startDate, endDate)
+        }
+    }
+
+    fun getTotalBookingByPeriod(
+        connectedAccountId: String, startDate: Long, endDate: Long
+    ): Int {
+        logger.info("Get TotalBookingByPeriod")
+        return runBlocking {
+            bookingRepository.getBookingNumberByPeriod(connectedAccountId, startDate, endDate)
+        }
+    }
+
+    fun getTotalVisitByPeriod(
+        connectedAccountId: String, startDate: Long, endDate: Long
+    ): Int {
+        logger.info("Get TotalVisitByPeriod")
+        return runBlocking {
+            statisticRepository.getVisitNumberByPeriod(connectedAccountId, startDate, endDate)
+        }
+    }
+
+    fun getAverageScoreByPeriod(
+        connectedAccountId: String, startDate: Long, endDate: Long
+    ): Double {
+        logger.info("Get AverageScoreByPeriod")
+        return runBlocking {
+            activityRepository.getAverageScoreByPeriod(connectedAccountId, startDate, endDate)
+        }
+    }
+
+    fun getBookingsByPeriod(
+        connectedAccountId: String,
+        startDate: Long,
+    ): List<ActivityBooking> {
+        logger.info("Get BookingsByPeriod")
+        return runBlocking {
+            bookingRepository.getBookingsByPeriod(connectedAccountId, startDate)
         }
     }
 }

@@ -2,10 +2,12 @@ package com.wewiins.saas_api.controllers
 
 import com.wewiins.saas_api.enums.ImageType
 import com.wewiins.saas_api.dto.VerifiedAccountDto
+import com.wewiins.saas_api.dto.activity.ActivityDraftDto
 import com.wewiins.saas_api.interfaces.ActivityDraft
 import com.wewiins.saas_api.services.ActivityService
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -29,23 +31,58 @@ class ActivityController(
         @RequestParam("preview", required = false) preview: List<MultipartFile>?,
         @RequestParam("program", required = false) program: List<MultipartFile>?,
         request: HttpServletRequest
-    ): String {
+    ): ResponseEntity<Map<String, String>> {
+        require(!existingActivityId.isNullOrBlank() || !activityDraft.step1?.name.isNullOrBlank()) {
+            "Un identifiant d'activité ou un nom est requis"
+        }
+
         val verifiedAccountDto = request.getAttribute("verifiedAccount") as VerifiedAccountDto
 
-        val previewUrls = preview?.let { activityService.uploadImages(
-            email, it, ImageType.PREVIEW, activityDraft.step1.name)
-        }
-        val programUrls = program?.let { activityService.uploadImages(
-            email,it, ImageType.PROGRAM, activityDraft.step1.name)
+        val activityName = activityDraft.step1?.name
+            ?: existingActivityId?.let { id ->
+                activityService.getActivityNameById(id)
+            }
+
+        val previewUrls = preview?.let {
+            requireNotNull(activityName) { "Le nom de l'activité est requis pour uploader des images" }
+            activityService.uploadImages(email, it, ImageType.PREVIEW, activityName)
         }
 
-        return activityService.saveDraft(
+        val programUrls = program?.let {
+            requireNotNull(activityName) { "Le nom de l'activité est requis pour uploader des images de programme" }
+            activityService.uploadImages(email, it, ImageType.PROGRAM, activityName)
+        }
+
+        val activityId = activityService.saveDraft(
             existingActivityId,
             verifiedAccountDto,
             activityDraft,
             previewUrls,
             programUrls
         )
+
+        return ResponseEntity.ok(mapOf("activityId" to activityId))
+    }
+
+    @GetMapping("/draft/load")
+    fun loadDraft(
+        @RequestParam existingActivityId: String?,
+        @RequestParam existingActivityName: String?,
+        request: HttpServletRequest
+    ): ResponseEntity<ActivityDraftDto> {
+        require(!existingActivityId.isNullOrBlank() || !existingActivityName.isNullOrBlank()) {
+            "Un identifiant ou un nom d'activité est requis"
+        }
+
+        val verifiedAccountDto = request.getAttribute("verifiedAccount") as VerifiedAccountDto
+
+        val draft = activityService.loadDraft(
+            verifiedAccountDto,
+            existingActivityId,
+            existingActivityName
+        )
+
+        return ResponseEntity.ok(draft)
     }
 
     @GetMapping("{activityName}/{imageType}/images")

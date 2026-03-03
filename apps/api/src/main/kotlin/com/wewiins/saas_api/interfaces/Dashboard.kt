@@ -1,7 +1,5 @@
 package com.wewiins.saas_api.interfaces
 
-import com.wewiins.saas_api.dto.activity.ActivityBooking
-
 /**
  * Represents a statistic with its comparison to the previous period
  * @property currentValue Value for the current period

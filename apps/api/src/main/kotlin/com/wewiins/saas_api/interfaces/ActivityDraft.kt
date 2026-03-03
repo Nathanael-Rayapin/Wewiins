@@ -6,7 +6,7 @@ import com.wewiins.saas_api.enums.Moment
 import java.time.LocalTime
 
 data class ActivityDraft(
-    val step1: StepOne,
+    val step1: StepOne? = null,
     val step2: StepTwo? = null,
     val step3: StepThree? = null,
     val step4: StepFour? = null,

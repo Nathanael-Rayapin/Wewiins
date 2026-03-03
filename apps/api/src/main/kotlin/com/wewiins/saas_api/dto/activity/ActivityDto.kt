@@ -20,7 +20,7 @@ data class ActivityDto(
     val mainPhotoUrl: String?,
 
     @field:JsonProperty("is_published")
-    val isPublished: Boolean,
+    val isPublished: Boolean = false,
 
     @field:JsonProperty("average_score")
     val averageScore: Double?,

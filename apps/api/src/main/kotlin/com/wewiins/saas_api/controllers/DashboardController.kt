@@ -2,7 +2,7 @@ package com.wewiins.saas_api.controllers
 
 import com.wewiins.saas_api.dto.VerifiedAccountDto
 import com.wewiins.saas_api.interfaces.Dashboard
-import com.wewiins.saas_api.services.OrchestrationService
+import com.wewiins.saas_api.services.DashboardService
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/orchestration")
-class OrchestrationController(
-    private val orchestrationService: OrchestrationService,
+@RequestMapping("/dashboard")
+class DashboardController(
+    private val dashboardService: DashboardService,
 ) {
     @GetMapping("/initialize")
     fun initializeDashboard(
@@ -24,7 +24,7 @@ class OrchestrationController(
     ): ResponseEntity<Dashboard> {
         val verifiedAccountDto = request.getAttribute("verifiedAccount") as VerifiedAccountDto
 
-        val dashboardData = orchestrationService.initializeDashboard(
+        val dashboardData = dashboardService.initializeDashboard(
             verifiedAccountDto = verifiedAccountDto,
             startDate = startDate,
             endDate = endDate

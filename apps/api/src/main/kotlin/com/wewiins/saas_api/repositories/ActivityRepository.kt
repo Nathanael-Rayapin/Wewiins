@@ -1,13 +1,18 @@
 package com.wewiins.saas_api.repositories
 
+import com.wewiins.saas_api.dto.activity.ActivityCategoryJoinDto
 import com.wewiins.saas_api.dto.activity.ActivityDraftDto
 import com.wewiins.saas_api.dto.activity.AverageScore
 import com.wewiins.saas_api.interfaces.ActivityDraft
 import com.wewiins.saas_api.dto.activity.ActivityDto
+import com.wewiins.saas_api.dto.activity.ScheduledActivityLoadDto
 import com.wewiins.saas_api.dto.activity.StepOneLoadDto
+import com.wewiins.saas_api.dto.activity.StepTwoLoadDto
 import com.wewiins.saas_api.enums.Categories
+import com.wewiins.saas_api.enums.Days
 import com.wewiins.saas_api.interfaces.StepOne
 import com.wewiins.saas_api.interfaces.StepTwo
+import com.wewiins.saas_api.repositories.CategoryRepository.CategoryConstants
 import com.wewiins.saas_api.repositories.OfferRepository.OfferConstants
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
@@ -179,41 +184,54 @@ class ActivityRepository(
                 filter { eq("id", activityId) }
             }
 
+        val resolvedOfferId: String
+
         if (offerId != null) {
             supabaseClient
                 .from(OfferConstants.OFFER_TABLE)
                 .update(
                     mapOf(
-                        "capacity" to currentStep.maxCapacity,
+                        "min_capacity" to currentStep.minCapacity,
+                        "max_capacity" to currentStep.maxCapacity,
                         "min_age" to currentStep.minAge,
                         "max_age" to currentStep.maxAge,
+                        "min_age_child" to currentStep.minAgeChild,
                         "max_age_child" to currentStep.maxAgeChild,
-                        "is_refund_expected" to currentStep.refundPolicy,
+                        "refund_policy" to currentStep.refundPolicy,
                         "automatic_validation" to currentStep.automaticValidation,
                         "child_allowed_with_adult" to currentStep.childAllowedWithAdult,
                     )
                 ) {
                     filter { eq("id", offerId) }
                 }
+            resolvedOfferId = offerId
         } else {
-            supabaseClient
+            val inserted = supabaseClient
                 .from(OfferConstants.OFFER_TABLE)
                 .insert(
                     mapOf(
                         "activity_id" to activityId,
-                        "capacity" to currentStep.maxCapacity,
+                        "min_capacity" to currentStep.minCapacity,
+                        "max_capacity" to currentStep.maxCapacity,
                         "min_age" to currentStep.minAge,
                         "max_age" to currentStep.maxAge,
+                        "min_age_child" to currentStep.minAgeChild,
                         "max_age_child" to currentStep.maxAgeChild,
-                        "is_refund_expected" to currentStep.refundPolicy,
+                        "refund_policy" to currentStep.refundPolicy,
                         "automatic_validation" to currentStep.automaticValidation,
                         "child_allowed_with_adult" to currentStep.childAllowedWithAdult,
                     )
-                )
+                ) {
+                    select()
+                }
+                .decodeList<Map<String, Any>>()
+                .first()
+
+            resolvedOfferId = inserted["id"] as String
         }
 
         currentStep.scheduledActivities?.let {
-            timeSlotRepository.upsertTimeSlots(activityId, it, currentStep.slotDuration)
+            timeSlotRepository.upsertTimeSlots(activityId, resolvedOfferId, it, currentStep.slotDurationMin)
         }
     }
 
@@ -247,28 +265,69 @@ class ActivityRepository(
 
         val activityId = activity.id
 
+        // --- Step 1 ---
         val categories = supabaseClient
-            .from("activities_to_categories")
+            .from(CategoryConstants.ACTIVITY_TO_CATEGORY_TABLE)
             .select(columns = Columns.raw("activities_categories(name)")) {
                 filter { eq("activity_id", activityId) }
             }
-            .decodeList<Map<String, Any>>()
-            .mapNotNull { row ->
-                @Suppress("UNCHECKED_CAST")
-                (row["activities_categories"] as? Map<String, Any>)?.get("name") as? String
-            }
+            .decodeList<ActivityCategoryJoinDto>()
+            .mapNotNull { it.activityCategory?.name }
             .mapNotNull { supabaseName ->
                 Categories.entries.firstOrNull { it.supabaseValue == supabaseName }?.name
             }
 
+        val stepOneLoadDto = StepOneLoadDto(
+            name        = activity.title,
+            description = activity.description,
+            categories  = categories,
+            photos      = activity.galleryUrls,
+        )
+
+        // --- Step 2 ---
+        val offer = offerRepository.getOfferByActivityId(activityId)
+
+        val stepTwoLoadDto = offer?.let {
+            val timeSlots = timeSlotRepository.getTimeSlotsByOfferId(it.id)
+
+            val scheduledActivities = timeSlots
+                .groupBy { slot -> Triple(slot.openTime, slot.closeTime, slot.breakStart) }
+                .map { (_, slots) ->
+                    ScheduledActivityLoadDto(
+                        id                 = null,
+                        dayOfWeek       = slots.mapNotNull { slot ->
+                            Days.entries.firstOrNull { d -> d.value == slot.dayOfWeek }?.name
+                        },
+                        openTime   = slots.first().openTime?.toString(),
+                        closeTime     = slots.first().closeTime?.toString(),
+                        breakStart = slots.first().breakStart?.toString(),
+                        breakEnd   = slots.first().breakEnd?.toString(),
+                    )
+                }
+
+            StepTwoLoadDto(
+                minCapacity = it.minCapacity,
+                maxCapacity = it.maxCapacity,
+                slotDurationMin = timeSlots.firstOrNull()?.slotDurationMin,
+                minAge = it.minAge,
+                maxAge = it.maxAge,
+                minAgeChild = it.minAgeChild,
+                maxAgeChild = it.maxAgeChild,
+                refundPolicy = it.refundPolicy,
+                automaticValidation = it.automaticValidation,
+                childAllowedWithAdult = it.childAllowedWithAdult,
+                address = activity.address,
+                zipcode = activity.zipcode,
+                city = activity.city,
+                accessInfo = activity.accessInfo,
+                scheduledActivities = scheduledActivities,
+            )
+        }
+
         return ActivityDraftDto(
             activityId = activityId,
-            step1 = StepOneLoadDto(
-                name = activity.title,
-                description = activity.description,
-                categories = categories,
-                photos = activity.galleryUrls,
-            )
+            step1 = stepOneLoadDto,
+            step2 = stepTwoLoadDto,
         )
     }
 

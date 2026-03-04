@@ -1,5 +1,6 @@
 package com.wewiins.saas_api.repositories
 
+import com.wewiins.saas_api.dto.activity.ActivityTimeSlotDto
 import com.wewiins.saas_api.interfaces.ScheduledActivity
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
@@ -18,8 +19,9 @@ class TimeSlotRepository(
 
     suspend fun upsertTimeSlots(
         activityId: String,
+        offerId: String,
         scheduledActivities: List<ScheduledActivity>,
-        slotDuration: Int?
+        slotDurationMin: Int?
     ) {
         logger.info("Upserting time slots for activityId $activityId")
 
@@ -27,21 +29,21 @@ class TimeSlotRepository(
         supabaseClient
             .from(TimeSlotConstants.TIME_SLOT_TABLE)
             .delete {
-                filter { eq("activity_id", activityId) }
+                filter { eq("activity_offer_id", offerId) }
             }
 
         // Each ScheduledActivity can have multiple days with the same schedule.
         // We create one row per day.
         val rows = scheduledActivities.flatMap { schedule ->
-            schedule.selectedDays?.map { day ->
+            schedule.dayOfWeek?.map { day ->
                 mapOf(
-                    "activity_id" to activityId,
+                    "activity_offer_id" to offerId,
                     "day_of_week" to day.value,
-                    "open_time" to schedule.availabilityFrom?.toString(),
-                    "close_time" to schedule.availabilityTo?.toString(),
-                    "break_start" to schedule.unavailabilityFrom?.toString(),
-                    "break_end" to schedule.unavailabilityTo?.toString(),
-                    "slot_duration_min" to slotDuration,
+                    "open_time" to schedule.openTime?.toString(),
+                    "close_time" to schedule.closeTime?.toString(),
+                    "break_start" to schedule.breakStart?.toString(),
+                    "break_end" to schedule.breakEnd?.toString(),
+                    "slot_duration_min" to slotDurationMin,
                 )
             } ?: emptyList()
         }
@@ -51,5 +53,16 @@ class TimeSlotRepository(
                 .from(TimeSlotConstants.TIME_SLOT_TABLE)
                 .insert(rows)
         }
+    }
+
+    suspend fun getTimeSlotsByOfferId(offerId: String): List<ActivityTimeSlotDto> {
+        logger.info("Fetching time slots for offerId $offerId")
+
+        return supabaseClient
+            .from(TimeSlotConstants.TIME_SLOT_TABLE)
+            .select {
+                filter { eq("activity_offer_id", offerId) }
+            }
+            .decodeList<ActivityTimeSlotDto>()
     }
 }

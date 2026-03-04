@@ -22,13 +22,17 @@ data class OfferDto(
     @field:JsonProperty("max_age_child")
     val maxAgeChild: Int?,
 
-    val capacity: Int?,
+    @field:JsonProperty("min_capacity")
+    val minCapacity: Int?,
+
+    @field:JsonProperty("max_capacity")
+    val maxCapacity: Int?,
 
     @field:JsonProperty("created_at")
     val createdAt: OffsetDateTime,
 
-    @field:JsonProperty("is_refund_expected")
-    val isRefundExpected: Boolean = false,
+    @field:JsonProperty("refund_policy")
+    val refundPolicy: Int? = 0,
 
     @field:JsonProperty("max_age")
     val maxAge: Int?,

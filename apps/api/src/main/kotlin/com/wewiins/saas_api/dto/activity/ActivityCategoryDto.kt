@@ -13,3 +13,13 @@ data class ActivityCategoryDto(
 
     val order: Int?,
 )
+
+data class ActivityCategoryJoinDto(
+    @field:JsonProperty("activities_categories")
+    val activityCategory: ActivityCategoryNameDto?
+)
+
+data class ActivityCategoryNameDto(
+    @field:JsonProperty("name")
+    val name: String?
+)

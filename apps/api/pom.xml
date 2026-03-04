@@ -104,6 +104,11 @@
 			<version>${supabase-kt.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>io.github.jan-tennert.supabase</groupId>
+			<artifactId>storage-kt-jvm</artifactId>
+			<version>${supabase-kt.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>io.ktor</groupId>
 			<artifactId>ktor-client-java-jvm</artifactId>
 			<version>${ktor.version}</version>
@@ -117,6 +122,12 @@
 			<groupId>com.stripe</groupId>
 			<artifactId>stripe-java</artifactId>
 			<version>31.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>net.coobird</groupId>
+			<artifactId>thumbnailator</artifactId>
+			<version>0.4.21</version>
+			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 

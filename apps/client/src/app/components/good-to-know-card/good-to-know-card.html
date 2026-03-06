@@ -6,5 +6,5 @@
         </div>
         <p class="content">{{ description() }}</p>
     </div>
-    <p-checkbox class="checkbox" (onChange)="onCheckboxChange($event)" [(ngModel)]="checked" [binary]="true" />
+    <p-checkbox class="checkbox" (onChange)="onCheckboxChange($event)" [ngModel]="checked()" [binary]="true" />
 </div>

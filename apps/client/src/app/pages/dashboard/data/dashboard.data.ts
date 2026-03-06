@@ -7,7 +7,7 @@ export type DashboardStatKey = Exclude<keyof IDashboardDto, ['filterRangeDays','
 interface IDashboardStatsData {
     label: string;
     value: IStatComparison<number>;
-    iconPath: string;
+    iconName: string;
     key: DashboardStatKey;
 }
 
@@ -22,25 +22,25 @@ export const dashboardStatsData = signal<IDashboardStatsData[]>([
     {
         label: "Chiffre d'affaires",
         value: { ...defaultStats },
-        iconPath: "../../../assets/icons/euro.svg",
+        iconName: "euro",
         key: "totalRevenue"
     },
     {
         label: "Nombre de réservations",
         value:{ ...defaultStats },
-        iconPath: "../../../assets/icons/ticket.svg",
+        iconName: "ticket",
         key: "totalBooking"
     },
     {
         label: "Nombre de visiteurs",
         value: { ...defaultStats },
-        iconPath: "../../../assets/icons/user.svg",
+        iconName: "user",
         key: "totalVisit"
     },
     {
         label: "Note moyenne",
         value: { ...defaultStats },
-        iconPath: "../../../assets/icons/star.svg",
+        iconName: "star",
         key: "averageScore"
     }
 ]);

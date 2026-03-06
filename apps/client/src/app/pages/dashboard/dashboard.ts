@@ -2,7 +2,7 @@ import { Component, effect, inject, signal, WritableSignal } from '@angular/core
 import { TitleSection } from '../../components/title-section/title-section';
 import { FormsModule } from '@angular/forms';
 import { DatePickerModule } from 'primeng/datepicker';
-import { OrchestrationService } from '../../services/orchestration.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { KeycloakService } from '../../services/keycloak.service';
 import { SelectModule } from 'primeng/select';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
@@ -33,7 +33,7 @@ import { IDashboardDto } from '../../dto/dashboard';
 export class Dashboard {
 
   private keycloakService = inject(KeycloakService);
-  private orchestrationService = inject(OrchestrationService);
+  private dashboardService = inject(DashboardService);
 
   isLoading = signal(true);
   hasError = signal(false);
@@ -54,7 +54,7 @@ export class Dashboard {
   }
 
   protected initDashboard(): void {
-    this.orchestrationService.initializeDashboard(this.startDate()).subscribe({
+    this.dashboardService.initializeDashboard(this.startDate()).subscribe({
       next: (response) => {
         this.initDashboardStats(response);
         this.initDashboardTable(response.bookings);

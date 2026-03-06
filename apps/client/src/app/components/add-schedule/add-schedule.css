@@ -1,12 +1,12 @@
 .p-dialog {
     max-width: 500px;
     width: 100%;
-    max-height: 540px !important;
+    max-height: 540px;
     height: 100%;
     background-color: var(--primary-background);
 }
 
-.new-activity-dialog {
+.new-activity-schedule {
     .day-list {
         .p-button {
             width: 43px;

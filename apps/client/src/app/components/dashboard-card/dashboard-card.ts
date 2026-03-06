@@ -14,7 +14,7 @@ export class DashboardCard {
   label = input.required<string>();
   stat = input.required<IStatComparison<number>>();
   iconName = input.required<string>();
-  key = input.required<DashboardStatKey>();
+  key = input<DashboardStatKey>();
 
   filterRangeDays = input.required<number>();
   filterRangeDaysStr = signal<string>('');

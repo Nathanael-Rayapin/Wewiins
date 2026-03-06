@@ -1,5 +1,5 @@
 <p-dialog 
-  class="new-activity-dialog" 
+  class="new-activity-schedule" 
   header="Horaire disponibilité de l'activité" 
   [(visible)]="visible" 
   [modal]="true">
@@ -8,7 +8,7 @@
     @for (day of availabilityDays; track day.fullname;) {
       <p-button 
         [label]="day.name" 
-        [class.selected]="selectedDays().includes(day.fullname)" 
+        [class.selected]="dayOfWeek().includes(day.fullname)" 
         (click)="addToSelectedDays(day.fullname)" />
     }
   </div>
@@ -22,7 +22,7 @@
         placeholder="10:00" 
         inputId="availability-from" 
         [showIcon]="true" 
-        [(ngModel)]="availabilityFrom" 
+        [(ngModel)]="openTime" 
         [timeOnly]="true" />
     </div>
     <div class="flex-auto gap-y-2 w-full">
@@ -31,7 +31,7 @@
         placeholder="18:00" 
         inputId="availability-to" 
         [showIcon]="true" 
-        [(ngModel)]="availabilityTo" 
+        [(ngModel)]="closeTime" 
         [timeOnly]="true"
         [invalid]="availabilityToError() !== null" />
       @if (availabilityToError()) {
@@ -41,7 +41,7 @@
   </div>
   
   <!-- Unavailability -->
-  <p>Horaire d'indisponibilité</p>
+  <p>Horaire de pause</p>
   <div class="flex gap-x-4 mb-12">
     <div class="flex-auto gap-y-2 w-full">
       <label class="block mb-2">De</label>
@@ -49,7 +49,7 @@
         placeholder="12:00" 
         inputId="unavailability-from" 
         [showIcon]="true" 
-        [(ngModel)]="unavailabilityFrom" 
+        [(ngModel)]="breakStart" 
         [timeOnly]="true"
         [invalid]="unavailabilityFromError() !== null" />
       @if (unavailabilityFromError()) {
@@ -62,7 +62,7 @@
         placeholder="13:00" 
         inputId="unavailability-to" 
         [showIcon]="true" 
-        [(ngModel)]="unavailabilityTo" 
+        [(ngModel)]="breakEnd" 
         [timeOnly]="true"
         [invalid]="unavailabilityToError() !== null" />
       @if (unavailabilityToError()) {

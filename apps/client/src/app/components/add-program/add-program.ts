@@ -7,6 +7,7 @@ import { FileSelectEvent, FileUploadModule } from 'primeng/fileupload';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
+import { convertToWebp } from '../../utils/image';
 
 @Component({
   selector: 'app-add-program',
@@ -18,7 +19,7 @@ import { map } from 'rxjs';
 })
 export class AddProgram {
   private breakpointObserver = inject(BreakpointObserver);
-  
+
   isDesktop$ = toSignal(
     this.breakpointObserver
       .observe(['(min-width: 1024px)'])
@@ -76,14 +77,14 @@ export class AddProgram {
     return this.imageControl.invalid && (this.imageControl.dirty || this.imageControl.touched);
   }
 
-  protected onImageUpload(event: FileSelectEvent): void {
+  protected async onImageUpload(event: FileSelectEvent): Promise<void> {
     const file = event.currentFiles[0];
-    
-    if (file) {
-      this.imageControl.setValue(file);
-      this.imageControl.markAsDirty();
-      this.imageControl.markAsTouched();
-    }
+    if (!file) return;
+
+    const formattedFile = await convertToWebp(file);
+    this.imageControl.setValue(formattedFile);
+    this.imageControl.markAsDirty();
+    this.imageControl.markAsTouched();
   }
 
   protected removeImage(): void {

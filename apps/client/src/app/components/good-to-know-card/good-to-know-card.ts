@@ -1,4 +1,4 @@
-import { Component, input, output, ViewEncapsulation } from '@angular/core';
+import { Component, input, model, output, ViewEncapsulation } from '@angular/core';
 import { IconSvg } from '../icon-svg/icon-svg';
 import { CheckboxChangeEvent, CheckboxModule } from 'primeng/checkbox';
 import { FormsModule } from '@angular/forms';
@@ -16,10 +16,10 @@ export class GoodToKnowCard {
   name = input.required<string>();
   iconName = input.required<string>();
   description = input.required<string>();
+  checked = model<boolean>(false);
 
-  checked: boolean = false;
-
-  onCheckboxChange(event: CheckboxChangeEvent) {    
-    this.checkedChange.emit(event.checked); 
+  onCheckboxChange(event: CheckboxChangeEvent) {
+    this.checked.set(event.checked);
+    this.checkedChange.emit(event.checked);
   }
 }

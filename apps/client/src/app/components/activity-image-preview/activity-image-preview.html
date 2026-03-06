@@ -1,0 +1,16 @@
+<p-dialog class="activity-image-preview" header="Mes images pour cette activité" [(visible)]="visible" [modal]="true">
+    <div class="image-list flex flex-col gap-y-4 my-6">
+        <p-galleria [value]="imagesUrl()" [numVisible]="5">
+            <ng-template #item let-url>
+        <img [src]="url" style="width:100%; max-height:400px; object-fit:contain" />
+    </ng-template>
+    <ng-template #thumbnail let-url>
+        <img [src]="url" style="width:60px; height:60px; object-fit:cover; border-radius:4px" />
+    </ng-template>
+        </p-galleria>
+    </div>
+
+    <div class="flex justify-end gap-2">
+        <p-button label="Fermer" class="cancel-btn" (click)="onClose()" />
+    </div>
+</p-dialog>

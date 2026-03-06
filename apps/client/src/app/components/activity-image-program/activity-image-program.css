@@ -1,0 +1,27 @@
+.p-dialog {
+    max-width: 500px;
+    width: 100%;
+    max-height: auto;
+    height: auto;
+    background-color: var(--primary-background);
+}
+
+.p-dialog-content {
+    overflow: hidden;
+}
+
+.activity-image-program {
+    .close-btn .p-button {
+        color: var(--primary-color);
+        border: 1px solid var(--primary-color);
+        background-color: var(--primary-background);
+        outline: none;
+        transition: all 0.3s ease-in-out;
+
+        &:hover {
+            color: var(--primary-dark-color);
+            background-color: var(--primary-background);
+            border: 1px solid var(--primary-dark-color);
+        }
+    }
+}

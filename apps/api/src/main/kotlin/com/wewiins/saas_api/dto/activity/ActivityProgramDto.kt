@@ -8,7 +8,12 @@ data class ActivityProgramDto(
     @field:JsonProperty("activity_id")
     val activityId: String,
 
-    val title: String?,
+    val title: String,
 
-    
+    val description: String,
+
+    @field:JsonProperty("photo_url")
+    val photoUrl: String,
+
+    val position: Int?
 )

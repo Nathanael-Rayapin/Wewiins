@@ -43,9 +43,9 @@ data class StepThree(
 )
 
 data class StepFour(
-    val isVariablePricing: Boolean? = null, // Do not store information
+    val isVariablePricing: Boolean? = null,
     val simplePricing: SimplePricing? = null,
-    val variablePricing: VariablePricingDto? = null,
+    val variablePricing: VariablePricing? = null,
 )
 
 data class ScheduledActivity(
@@ -72,23 +72,31 @@ data class Program(
 )
 
 data class SimplePricing(
-    val singleRate: Double? = null, // Info non stocker
+    val singleRate: Double? = null,
     val adultRate: Double? = null,
     val childRate: Double? = null,
     val studentRate: Double? = null,
     val twoPersonGroupRate: Double? = null,
+    val isAdultEnabled: Boolean? = null,
+    val isChildEnabled: Boolean? = null,
+    val isStudentEnabled: Boolean? = null,
+    val isGroup2Enabled: Boolean? = null,
 )
 
 data class DayPricing(
-    val day: String? = null, // En soit on aura déjà mis le jour via dayOfWeek
+    val day: String? = null,
     val selectedMoment: Moment? = null,
-    val singleRate: Double? = null, // Info non stocker
+    val singleRate: Double? = null,
     val adultRate: Double? = null,
     val childRate: Double? = null,
     val studentRate: Double? = null,
     val twoPersonGroupRate: Double? = null,
+    val isAdultEnabled: Boolean? = null,
+    val isChildEnabled: Boolean? = null,
+    val isStudentEnabled: Boolean? = null,
+    val isGroup2Enabled: Boolean? = null,
 )
 
-data class VariablePricingDto(
+data class VariablePricing(
     val dayPricings: List<DayPricing>? = null,
 )

@@ -1,0 +1,106 @@
+:host {
+    width: 100%;
+}
+
+.step-3-content-container {
+    .card {
+        border-radius: 12px;
+        padding: 24px;
+        background-color: var(--primary-background);
+        box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px 0px;
+        contain: inline-size;
+        overflow: hidden;
+
+        .good-to-know {
+            p.description {
+                font-size: 14px;
+                color: var(--placeholder-color);
+            }
+
+            .search-bar {
+                position: relative;
+                width: fit-content;
+
+                .p-autocomplete .p-inputtext {
+                    width: 363px;
+                    height: 40px;
+                    background-color: var(--filled-color) !important;
+                    padding-right: 25px;
+                    border-radius: 8px;
+
+                    &::placeholder {
+                        color: var(--primary-text);
+                        opacity: 1;
+                    }
+                }
+
+                .icon-search {
+                    position: absolute;
+                    top: 50%;
+                    right: 16px;
+                    transform: translateY(-50%);
+                }
+            }
+
+            .add-suggestion {
+                padding: 1rem;
+                background-color: transparent;
+                border-radius: 12px;
+                cursor: pointer;
+                transition: all 0.3s ease-in-out;
+
+                &:hover {
+                    background-color: var(--tertiary-background);
+                }
+
+                p {
+                    font-size: 16px;
+                    color: var(--tertiary-text);
+                    text-decoration: underline;
+                }
+            }
+
+            .options-wrapper {
+                overflow-x: auto;
+                overflow-y: hidden;
+            }
+        }
+
+        .program-title p {
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .program-title p.disabled {
+            color: var(--placeholder-color);
+            text-decoration: none;
+            cursor: default;
+        }
+
+        .programs {
+            >p {
+                font-size: 16px;
+                font-weight: 500;
+                color: var(--tertiary-text);
+            }
+
+            .add-program {
+                padding: 1rem;
+                background-color: transparent;
+                border-radius: 12px;
+                cursor: pointer;
+                transition: all 0.3s ease-in-out;
+
+                &:hover {
+                    background-color: var(--tertiary-background);
+                }
+
+                p {
+                    font-size: 16px;
+                    color: var(--tertiary-text);
+                    text-decoration: underline;
+                }
+            }
+        }
+    }
+}

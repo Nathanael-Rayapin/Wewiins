@@ -1,0 +1,205 @@
+<div class="statistic-container flex flex-col min-h-screen w-full h-full">
+    <app-title-section [title]="'Statistiques'"></app-title-section>
+    <div class="statistic-content h-full flex flex-col gap-4">
+
+        @if (isLoading() === false) {
+        <div class="flex flex-col gap-4 w-full h-full">
+            <!-- Statistic Revenue -->
+            <div class="statistic-revenue-container flex-1 flex flex-col md:flex-row mt-8 gap-x-4">
+                <div class="card card-revenue w-2/3 flex flex-col md:flex-row gap-x-8">
+                    <div class="revenue flex flex-col justify-between w-1/3">
+                        <h2 class="label">Chiffre d'affaire</h2>
+                        <div class="content flex gap-x-4 items-center justify-center">
+                            <p class="value xl">1550</p>
+                            <app-icon-svg width="36" height="36" [iconName]="'euro'" color="#242651"></app-icon-svg>
+                        </div>
+                        <app-trend 
+                        [stat]="{ currentValue: 1550, previousValue: 0, percentageChange: 100, trend: 'UP' }" 
+                        [filterRangeDays]="90">
+                        </app-trend>
+                    </div>
+                    <p-divider layout="vertical" />
+                    <div class="revenue-net-and-booking flex flex-col justify-between w-2/3">
+                        <div class="revenue-net flex flex-col gap-y-4">
+                            <div class="flex items-center justify-between gap-x-2">
+                                <h2 class="label">Revenus nets perçus</h2>
+                                <app-icon-svg 
+                                pTooltip="Montant perçu après déduction de la commission WeWiins (15 % par réservation). La commission couvre la visibilité, la gestion des paiements et les outils d'organisation." 
+                                tooltipPosition="bottom" 
+                                class="tooltip" 
+                                width="24" 
+                                height="24" 
+                                iconName="tooltip" 
+                                color="#242651">
+                                </app-icon-svg>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="content flex items-center gap-x-4">
+                                    <p class="value">1 317,5</p>
+                                    <app-icon-svg width="24" height="24" [iconName]="'euro'" color="#242651"></app-icon-svg>
+                                </div>
+                                <div class="comission">
+                                    <p class="desc-info">232,5€ Com. WeWiins</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="booking flex flex-col gap-y-4">
+                            <div class="flex items-center justify-between gap-x-2">
+                                <h2 class="label">Nombre de réservation</h2>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="content flex items-center gap-x-4">
+                                    <p class="value">25</p>
+                                </div>
+                                <app-trend 
+                                [stat]="{ currentValue: 25, previousValue: 0, percentageChange: 125, trend: 'UP' }" 
+                                [filterRangeDays]="90">
+                                </app-trend>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card card-kpi flex flex-col w-1/3">
+                   @for (kpi of kpis; track kpi.label; let last = $last) {
+                    <div class="fill-rate flex items-center justify-between">
+                        <div class="rate flex items-center gap-x-2">
+                            <h2 class="label">{{ kpi.label }}</h2>
+                            @if (kpi.hasTooltip) {
+                                <app-icon-svg 
+                                    [pTooltip]="kpi.tooltipValue" 
+                                    tooltipPosition="bottom" 
+                                    class="tooltip" 
+                                    width="24" 
+                                    height="24" 
+                                    iconName="tooltip" 
+                                    color="#242651">
+                                </app-icon-svg>
+                            }
+                        </div>
+                     <p>{{ kpi.value }}{{ kpi.unit }}</p>
+                   </div>
+                   @if (!last) {
+                    <p-divider />
+                   }
+                   }
+                </div>
+            </div>
+            <!-- Statistic Visit -->
+            <div class="statistic-visit-container flex-1 flex flex-col md:flex-row gap-x-4">
+                <div class="card card-visit w-2/3 flex flex-col">
+                    <div class="visit-title flex justify-between items-center w-full">
+                        <h2 class="label">Nombre de visiteurs</h2>
+                        <app-icon-svg 
+                            tooltipPosition="bottom" 
+                            class="tooltip"
+                            [pTooltip]="tooltipContent"
+                            width="24" 
+                            height="24" 
+                            iconName="tooltip"
+                            [escape]="false"
+                            color="#242651">
+                        </app-icon-svg>
+                        <ng-template #tooltipContent>
+                            <div class="custom-tooltip">
+                                <p>
+                                Une visite correspond au chargement de votre page d'activité par un utilisateur.
+                                Un même utilisateur ne peut être compté qu'une seule fois par jour.
+                                </p>
+                                <p-divider />
+                                <p>
+                                Les couleurs permettent d'identifier les jours ou mois les plus et les moins
+                                actifs sur la période sélectionnée.
+                                </p>
+                                <div class="legend">
+                                    <div class="legend-item">
+                                        <span class="color active"></span>
+                                        Périodes les plus actives
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="color medium"></span>
+                                        Périodes intermédiaires
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="color low"></span>
+                                        Périodes les moins actives
+                                    </div>
+                                </div>
+                            </div>
+                        </ng-template>
+                    </div>
+                    <p-chart type="bar" [data]="data" [options]="options" />
+                </div>
+                <div class="card card-conversion w-1/3 flex flex-col justify-between">
+                     <div class="conversion-title flex justify-between items-center w-full">
+                        <h2 class="label">Taux de transformation sondage</h2>
+                        <app-icon-svg 
+                            tooltipPosition="bottom" 
+                            class="tooltip"
+                            pTooltip="Pourcentage des apparitions de vos activités en sondage dans les groupes d'amis/familles qui ont généré une réservation. Un taux élevé signifie que votre offre est souvent choisie face aux autres propositions."
+                            width="24" 
+                            height="24" 
+                            iconName="tooltip"
+                            color="#242651">
+                        </app-icon-svg>
+                    </div>
+                    <div class="content flex gap-x-4 items-center justify-center">
+                        <p class="value xl">22%</p>
+                    </div>
+                    <app-trend 
+                    [stat]="{ currentValue: 1550, previousValue: 0, percentageChange: 100, trend: 'UP' }" 
+                    [filterRangeDays]="90">
+                    </app-trend>
+                </div>
+            </div>
+            <!-- Statistic Review -->
+             <div class="statistic-review-container flex-1 flex flex-col md:flex-row gap-x-4">
+                <div class="card card-review w-1/3 flex flex-col justify-between">
+                    <div class="review-title flex justify-between items-center w-full">
+                        <h2 class="label">Note moyenne</h2>
+                    </div>
+                    <div class="average-review flex flex-col items-center">
+                        <p class="value xl">4.7/5</p>
+                        <p-rating [ngModel]="starsValue" [readonly]="true" c />
+                    </div>
+                    <app-trend 
+                        [stat]="{ currentValue: 1550, previousValue: 0, percentageChange: 100, trend: 'UP' }" 
+                        [filterRangeDays]="90">
+                    </app-trend>
+                </div>
+                <div class="card card-vote w-2/3 flex flex-col">
+                     <div class="vote-title flex justify-between items-center w-full mb-4">
+                       <div class="flex w-full justify-between items-center">
+                         <h2 class="label">Répartitions des votes</h2>
+                         <p class="desc-info">100 avis au total</p>
+                       </div>
+                    </div>
+                    <div class="flex flex-col-reverse justify-between h-full">
+                        @for (vote of votes; track vote.star; let index = $index) {
+                            <div class="vote-row flex items-center gap-x-4">
+                                <div class="flex items-center gap-x-2">
+                                    <p>{{ index + 1 }}</p>
+                                    <app-icon-svg 
+                                        width="14" 
+                                        height="14" 
+                                        iconName="star"
+                                        color="#ffce34">
+                                    </app-icon-svg>
+                                </div>
+                                <p-progressbar 
+                                    [value]="getPercentage(vote.count)" 
+                                    [showValue]="false"
+                                    class="flex-1" />
+                                <span class="vote-count w-8 text-right">{{ vote.count }}</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        } @else {
+        <!-- Loading -->
+        <div class="loading-spinner flex justify-center">
+            <p-progress-spinner strokeWidth="8" fill="transparent" animationDuration=".5s" class="progress-spinner" />
+        </div>
+        }
+    </div>

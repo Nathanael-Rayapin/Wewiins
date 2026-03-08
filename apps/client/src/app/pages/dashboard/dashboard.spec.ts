@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Dashboard } from './dashboard';
-import { OrchestrationService } from '../../services/orchestration.service';
 import { environment } from '../../../environments/environment';
 import { KeycloakService } from '../../services/keycloak.service';
 import { provideHttpClient } from '@angular/common/http';
@@ -8,7 +7,8 @@ import { HttpTestingController, provideHttpClientTesting, TestRequest } from '@a
 import { Observable } from 'rxjs';
 import { Mock } from 'vitest';
 import { IDashboardDto } from '../../dto/dashboard';
-import { exampleResponse } from '../../services/orchestration.service.spec';
+import { exampleResponse } from '../../services/dashboard.service.spec';
+import { DashboardService } from '../../services/dashboard.service';
 
 vi.mock(import('keycloak-js'), { spy: true })
 vi.mock(import('../../services/keycloak.service'), { spy: true })
@@ -19,7 +19,7 @@ describe('Dashboard', () => {
     let component: Dashboard;
     let fixture: ComponentFixture<Dashboard>;
 
-    let orchestrationService: OrchestrationService;
+    let dashboardService: DashboardService;
     let keycloakService: KeycloakService;
 
     let httpTesting: HttpTestingController;
@@ -36,7 +36,7 @@ describe('Dashboard', () => {
         });
 
         // Initialize Services
-        orchestrationService = TestBed.inject(OrchestrationService);
+        dashboardService = TestBed.inject(DashboardService);
         keycloakService = TestBed.inject(KeycloakService);
         httpTesting = TestBed.inject(HttpTestingController);
 
@@ -44,7 +44,7 @@ describe('Dashboard', () => {
         vi.spyOn(keycloakService, 'userProfile').mockReturnValue({ email: 'john.doe@test.com' });
         vi.spyOn(keycloakService, 'isReady').mockReturnValue(true);
 
-        spyInitializeDashboard = vi.spyOn(orchestrationService, 'initializeDashboard');
+        spyInitializeDashboard = vi.spyOn(dashboardService, 'initializeDashboard');
 
         fixture = TestBed.createComponent(Dashboard);
         component = fixture.componentInstance;

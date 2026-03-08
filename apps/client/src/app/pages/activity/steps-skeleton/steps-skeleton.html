@@ -1,0 +1,180 @@
+<div class="stepper-container">
+    <p-stepper [value]="currentStep()" [linear]="true">
+        <p-step-list>
+            @for (data of stepsData; track data.value; let idx = $index) {
+            <p-step [value]="data.value" class="flex flex-row flex-auto gap-2" [class.hidden]="idx != (currentStep() - 1)">
+                <ng-template #content let-activateCallback="activateCallback" let-value="value">
+                    <button class="bg-transparent border-0 inline-flex items-center md:items-start md:flex-col gap-2" (click)="activateCallback()"
+                        [class.submited]="currentStep() > value">
+                        <span class="stepper rounded-full w-12 h-12 inline-flex items-center justify-center">
+                            <app-icon-svg width="24" height="24" [iconName]="currentStep() > value ? 'check' : 'stepper-loader'" color="#fafafa"></app-icon-svg>
+                        </span>
+                        <p class="stepper-description">{{ data.label | capitalize }}</p>
+                    </button>
+                </ng-template>
+            </p-step>
+            }
+        </p-step-list>
+        <p-step-panels>
+            <p-step-panel [value]="1">
+                <ng-template #content let-activateCallback="activateCallback">
+                    <ng-container *ngComponentOutlet="getStepComponent(1)" />
+                    <div class="flex flex-col md:flex-row md:items-center w-full pt-4">
+                        <div class="flex-1 flex cta-buttons gap-x-4 pt-4 justify-start lg:justify-center">
+                            <p-button 
+                            class="save-btn w-full md:w-fit"
+                            label="Sauvegarder"
+                            (click)="saveDraft()" 
+                            [loading]="isLoading()"
+                            [disabled]="!isStepOneDraftValid()">
+                                @if (!isLoading()) {
+                                    <app-icon-svg width="14" height="14" iconName="arrow-import" [color]="isStepOneDraftValid() ? '#242651' : '#fafafa'" class="hidden lg:block"></app-icon-svg>
+                                }
+                            </p-button>
+                            <button class="preview-btn w-full md:w-fit" pButton disabled>
+                                <app-icon-svg width="15" height="15" iconName="security-eye" color="#242651" class="hidden lg:block"></app-icon-svg>
+                                <span pButtonLabel>Prévisualiser</span>
+                            </button>
+                            <button class="publish-btn w-full md:w-fit" pButton [disabled]="!isAllStepValid()">
+                                <app-icon-svg width="15" height="15" iconName="send" color="#fafafa" class="hidden lg:block"></app-icon-svg>
+                                <span pButtonLabel>Publier</span>
+                            </button>
+                        </div>
+                        <div class="flex cta-next pt-4 justify-end">
+                            <p-button class="next-btn ml-4 w-[calc(100%/3-12px)] md:w-fit" [disabled]="!isStepOneValid()" (onClick)="nextStep(2, activateCallback)">
+                                <span pButtonLabel>Suivant</span>
+                                @if(isStepOneValid()) {
+                                    <app-icon-svg width="15" height="15" iconName="arrow-right" color="#49a3a3" class="hidden md:block"></app-icon-svg>
+                                }
+                            </p-button>
+                        </div>
+                    </div>
+                </ng-template>
+            </p-step-panel>
+
+            <p-step-panel [value]="2">
+                <ng-template #content let-activateCallback="activateCallback">
+                    <ng-container *ngComponentOutlet="getStepComponent(2)" />
+                    <div class="flex flex-col md:flex-row md:items-center w-full pt-4">
+                        <div class="hidden cta-previous pt-4 justify-start md:flex">
+                            <p-button class="previous-btn mr-4 w-[calc(100%/3-12px)] md:w-fit" (onClick)="previousStep(1, activateCallback)">
+                                <app-icon-svg width="15" height="15" iconName="arrow-left" color="#242651" class="hidden lg:block"></app-icon-svg>
+                                <span pButtonLabel>Retour</span>
+                            </p-button>
+                        </div>
+                        <div class="flex-1 flex cta-buttons gap-x-4 pt-4 justify-start md:justify-center">
+                            <p-button 
+                            class="save-btn w-full md:w-fit"
+                            label="Sauvegarder"
+                            (click)="saveDraft()" 
+                            [loading]="isLoading()"
+                            [disabled]="!isStepTwoDraftValid()">
+                                @if (!isLoading()) {
+                                    <app-icon-svg width="14" height="14" iconName="arrow-import" [color]="isStepTwoDraftValid() ? '#242651' : '#fafafa'" class="hidden lg:block"></app-icon-svg>
+                                }
+                            </p-button>
+                            <button class="preview-btn w-full md:w-fit" pButton>
+                                <app-icon-svg width="15" height="15" iconName="security-eye" color="#242651" class="hidden lg:block"></app-icon-svg>
+                                <span pButtonLabel>Prévisualiser</span>
+                            </button>
+                            <button class="publish-btn w-full md:w-fit" pButton [disabled]="!isAllStepValid()">
+                                <app-icon-svg width="15" height="15" iconName="send" color="#fafafa" class="hidden md:block"></app-icon-svg>
+                                <span pButtonLabel>Publier</span>
+                            </button>
+                        </div>
+                        <div class="flex cta-previous cta-next gap-x-4 pt-4 justify-end">
+                            <p-button class="previous-btn md:hidden w-[calc(50%-8px)]" (onClick)="previousStep(1, activateCallback)">
+                                <span pButtonLabel>Retour</span>
+                            </p-button>
+                            <p-button class="next-btn md:ml-4 w-[calc(50%-8px)] md:w-fit" [disabled]="!isStepTwoValid()" (onClick)="nextStep(3, activateCallback)">
+                                <span pButtonLabel>Suivant</span>
+                                @if(isStepTwoValid()) {
+                                <app-icon-svg width="15" height="15" iconName="arrow-right" color="#49a3a3" class="hidden md:block"></app-icon-svg>
+                                }
+                            </p-button>
+                        </div>
+                    </div>
+                </ng-template>
+            </p-step-panel>
+
+            <p-step-panel [value]="3">
+                <ng-template #content let-activateCallback="activateCallback">
+                    <ng-container *ngComponentOutlet="getStepComponent(3)" />
+                    <div class="flex flex-col md:flex-row md:items-center w-full pt-4">
+                        <div class="hidden cta-previous pt-4 justify-start md:flex">
+                            <p-button class="previous-btn mr-4 w-[calc(100%/3-12px)] md:w-fit" (onClick)="previousStep(2, activateCallback)">
+                                <app-icon-svg width="15" height="15" iconName="arrow-left" color="#242651" class="hidden lg:block"></app-icon-svg>
+                                <span pButtonLabel>Retour</span>
+                            </p-button>
+                        </div>
+                        <div class="flex-1 flex cta-buttons gap-x-4 pt-4 justify-start md:justify-center">
+                            <p-button 
+                            class="save-btn w-full md:w-fit"
+                            label="Sauvegarder"
+                            (click)="saveDraft()" 
+                            [loading]="isLoading()"
+                            [disabled]="!isStepThrDraftValid()">
+                                @if (!isLoading()) {
+                                    <app-icon-svg width="14" height="14" iconName="arrow-import" [color]="isStepThrDraftValid() ? '#242651' : '#fafafa'" class="hidden lg:block"></app-icon-svg>
+                                }
+                            </p-button>
+                            <button class="preview-btn w-full md:w-fit" pButton>
+                                <app-icon-svg width="15" height="15" iconName="security-eye" color="#242651" class="hidden lg:block"></app-icon-svg>
+                                <span pButtonLabel>Prévisualiser</span>
+                            </button>
+                            <button class="publish-btn w-full md:w-fit" pButton [disabled]="!isAllStepValid()">
+                                <app-icon-svg width="15" height="15" iconName="send" color="#fafafa" class="hidden md:block"></app-icon-svg>
+                                <span pButtonLabel>Publier</span>
+                            </button>
+                        </div>
+                        <div class="flex cta-previous cta-next gap-x-4 pt-4 justify-end">
+                            <p-button class="previous-btn md:hidden w-[calc(50%-8px)]" (onClick)="previousStep(2, activateCallback)">
+                                <span pButtonLabel>Retour</span>
+                            </p-button>
+                            <p-button class="next-btn md:ml-4 w-[calc(50%-8px)] md:w-fit" [disabled]="!isStepThrValid()" (onClick)="nextStep(4, activateCallback)">
+                                <span pButtonLabel>Suivant</span>
+                                @if(isStepThrValid()) {
+                                <app-icon-svg width="15" height="15" iconName="arrow-right" color="#49a3a3" class="hidden md:block"></app-icon-svg>
+                                }
+                            </p-button>
+                        </div>
+                    </div>
+                </ng-template>
+            </p-step-panel>
+
+            <p-step-panel [value]="4">
+                <ng-template #content let-activateCallback="activateCallback">
+                    <ng-container *ngComponentOutlet="getStepComponent(4)" />
+                    <div class="flex flex-col md:flex-row md:items-center w-full pt-4">
+                        <div class="hidden cta-previous pt-4 justify-start md:flex">
+                            <p-button class="previous-btn mr-4 w-[calc(100%/3-12px)] md:w-fit" (onClick)="previousStep(2, activateCallback)">
+                                <app-icon-svg width="15" height="15" iconName="arrow-left" color="#242651" class="hidden lg:block"></app-icon-svg>
+                                <span pButtonLabel>Retour</span>
+                            </p-button>
+                        </div>
+                        <div class="flex-1 flex cta-buttons gap-x-4 pt-4 justify-start md:justify-center">
+                            <p-button 
+                            class="save-btn w-full md:w-fit"
+                            label="Sauvegarder"
+                            (click)="saveDraft()" 
+                            [loading]="isLoading()"
+                            [disabled]="!isStepForDraftValid()">
+                                @if (!isLoading()) {
+                                    <app-icon-svg width="14" height="14" iconName="arrow-import" [color]="isStepForDraftValid() ? '#242651' : '#fafafa'" class="hidden lg:block"></app-icon-svg>
+                                }
+                            </p-button>
+                            <button class="preview-btn w-full md:w-fit" pButton>
+                                <app-icon-svg width="15" height="15" iconName="security-eye" color="#242651" class="hidden lg:block"></app-icon-svg>
+                                <span pButtonLabel>Prévisualiser</span>
+                            </button>
+                            <button class="publish-btn w-full md:w-fit" pButton [disabled]="!isAllStepValid()">
+                                <app-icon-svg width="15" height="15" iconName="send" color="#fafafa" class="hidden md:block"></app-icon-svg>
+                                <span pButtonLabel>Publier</span>
+                            </button>
+                        </div>
+                    </div>
+                </ng-template>
+            </p-step-panel>
+        </p-step-panels>
+    </p-stepper>
+</div>

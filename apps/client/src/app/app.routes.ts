@@ -18,4 +18,9 @@ export const routes: Routes = [
         loadChildren: () => import('./pages/activity/activity.routes').then(m => m.activityRoutes),
         title: 'Activités'
     },
+    {
+        path: 'statistiques',
+        loadComponent: () => import('./pages/statistic/statistic').then(m => m.Statistic),
+        title: 'Statistiques'
+    },
 ];

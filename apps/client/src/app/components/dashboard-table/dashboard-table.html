@@ -72,4 +72,7 @@
             }
         </ng-template>
     </p-table>
+    @if (bookings().length === 0) {
+        <p class="text-center mt-8">Pas de réservation pour le moment</p>
+    }
 </div>

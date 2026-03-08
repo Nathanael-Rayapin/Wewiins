@@ -2,20 +2,25 @@ import { Component, computed, inject, OnInit, signal, ViewEncapsulation } from '
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonsValidations, ErrorPriorityType } from '../commons';
 import { InputTextModule } from 'primeng/inputtext';
-import { IScheduledActivity, IStepTwo, IStepTwoForm } from './step-2.interface';
+import { IScheduledActivity, IStepTwoForm } from './step-2.interface';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
-import { automaticValidationOptions, AvailabilityDayFullName, availabilityDays, childAllowedWithAdultOptions, errorMessages } from './data/step-2.data';
+import { automaticValidationOptions, childAllowedWithAdultOptions, dayOfWeekFullName, errorMessages } from './data/step-2.data';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
-import { AddActivityDialog } from '../../../../components/add-activity-dialog/add-activity-dialog';
+import { AddActivityDialog } from '../../../../components/add-schedule/add-schedule';
 import { DatePipe } from '@angular/common';
 import { ToastService } from '../../../../services/toast.service';
 import { IftaLabelModule } from 'primeng/iftalabel';
 import { TextareaModule } from 'primeng/textarea';
 import { IconSvg } from '../../../../components/icon-svg/icon-svg';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { TooltipModule } from 'primeng/tooltip';
+import { StorageService } from '../../../../services/storage.service';
+import { ActivityService } from '../../../../services/activity.service';
+import { getMinutes } from '../../../../utils/date';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-step-2',
@@ -30,6 +35,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
     DatePickerModule,
     IftaLabelModule,
     TextareaModule,
+    TooltipModule,
     DatePipe,
     AddActivityDialog,
     IconSvg
@@ -41,10 +47,14 @@ import { toSignal } from '@angular/core/rxjs-interop';
 export class Step2 extends CommonsValidations<IStepTwoForm> implements OnInit {
   private fb = inject(FormBuilder);
   private toastService = inject(ToastService);
+  private storageService = inject(StorageService);
+  private activityService = inject(ActivityService);
 
   protected readonly errorPriority: ErrorPriorityType[] = ['required', 'min', 'max'];
 
   protected readonly errorMessages = errorMessages;
+
+  public readonly onFormReady$ = new Subject<boolean>(); 
 
   override stepForm = this.fb.group({
     minCapacity: new FormControl<number | null>(null, [
@@ -53,22 +63,26 @@ export class Step2 extends CommonsValidations<IStepTwoForm> implements OnInit {
     maxCapacity: new FormControl<number | null>(null, [
       Validators.required, Validators.max(99)
     ]),
-    slotDuration: new FormControl<number | null>(null, [
-      Validators.required, Validators.min(30), Validators.max(1440)
+    slotDurationMin: new FormControl<number | null>(null, [
+      Validators.required, Validators.min(5), Validators.max(1440)
     ]),
     minAge: new FormControl<number | null>(null, [
       Validators.required, Validators.min(1), Validators.max(98)
     ]),
     maxAge: new FormControl<number | null>(null, [
-      Validators.required, Validators.max(99)
+      Validators.max(99)
+    ]),
+    minAgeChild: new FormControl<number | null>(null, [
+      Validators.min(3), Validators.max(14)
     ]),
     maxAgeChild: new FormControl<number | null>(null, [
-      Validators.min(3), Validators.max(17)
+      Validators.min(15), Validators.max(17)
     ]),
-    automaticValidation: new FormControl<'Automatic' | 'Manual' | null>(null, [
+    refundPolicy: new FormControl<number | null>(null),
+    automaticValidation: new FormControl<'Automatic' | 'Manual'>('Automatic', [
       Validators.required,
     ]),
-    childAllowedWithAdult: new FormControl<'Yes' | 'No' | null>(null, [
+    childAllowedWithAdult: new FormControl<'Yes' | 'No'>('Yes', [
       Validators.required,
     ]),
     address: new FormControl<string | null>(null, [
@@ -80,7 +94,9 @@ export class Step2 extends CommonsValidations<IStepTwoForm> implements OnInit {
     city: new FormControl<string | null>(null, [
       Validators.required,
     ]),
-    accessInfo: new FormControl<string | null>(null),
+    accessInfo: new FormControl<string | null>(null, [
+      Validators.required
+    ]),
     scheduledActivities: new FormControl<IScheduledActivity[]>([], {
       nonNullable: true,
       validators: [Validators.required, Validators.minLength(1)]
@@ -110,42 +126,16 @@ export class Step2 extends CommonsValidations<IStepTwoForm> implements OnInit {
     { initialValue: this.stepForm.get('minCapacity')!.value }
   );
 
-  minForMax1 = computed(() => (this.minCapacitySignal() ?? 0) + 1);
-
   minAgeSignal = toSignal(this.stepForm.get('minAge')!.valueChanges,
     { initialValue: this.stepForm.get('minAge')!.value }
   );
 
-  minForMax2 = computed(() => (this.minAgeSignal() ?? 0) + 1);
+  minForMax1 = computed(() => (this.minCapacitySignal() ?? 0) + 1);
 
+  minForMax2 = computed(() => (this.minAgeSignal() ?? 0) + 1);
 
   ngOnInit(): void {
     this.patchFormWithExistingData();
-  }
-
-  private patchFormWithExistingData(): void {
-    const data = localStorage.getItem('activityData');
-
-    if (data) {
-      const formValues: IStepTwo = JSON.parse(data);
-
-      this.stepForm.patchValue({
-        minCapacity: formValues.minCapacity,
-        maxCapacity: formValues.maxCapacity,
-        slotDuration: formValues.slotDuration,
-        minAge: formValues.minAge,
-        maxAge: formValues.maxAge,
-        maxAgeChild: formValues.maxAgeChild,
-        automaticValidation: formValues.automaticValidation,
-        childAllowedWithAdult: formValues.childAllowedWithAdult,
-        address: formValues.address,
-        zipcode: formValues.zipcode,
-        city: formValues.city,
-        accessInfo: formValues.accessInfo,
-      });
-
-      this.stepForm.updateValueAndValidity();
-    }
   }
 
   protected openDialogForCreation(): void {
@@ -163,63 +153,120 @@ export class Step2 extends CommonsValidations<IStepTwoForm> implements OnInit {
     return this.scheduledActivities.find(s => s.id === id);
   }
 
-  private hasTimeOverlap(schedule1: IScheduledActivity, schedule2: IScheduledActivity): boolean {
-    const commonDays = schedule1.selectedDays.filter(day =>
-      schedule2.selectedDays.includes(day)
-    );
+  protected onScheduleAdded(data: IScheduledActivity): void {
+    const conflictingDays = this.findConflictingDays(data);
 
-    if (commonDays.length === 0) {
+    if (conflictingDays.length > 0) {
+      this.toastService.error(`Conflit d'horaires détecté pour ${conflictingDays.join(', ')}. Les plages horaires se chevauchent.`);
+      return;
+    }
+
+    const slotDurationMin = this.stepForm.controls.slotDurationMin.value;
+
+    if (slotDurationMin && !this.isSlotDurationCompatible(data, slotDurationMin)) {
+      this.toastService.error(
+        `La durée des créneaux (${slotDurationMin} min) n'est pas compatible avec la plage horaire définie.`
+      );
+      return;
+    }
+
+    this.saveSchedule(data);
+    this.isNewActivityDialogVisible = false;
+  }
+
+  private patchFormWithExistingData(): void {
+    const stored = this.storageService.getActivityDraftStorage();
+    const storedId = stored?.activityId;
+    const storedName = stored?.step1?.name;
+
+    if (!storedId && !storedName) {
+      this.onFormReady$.next(false);
+      return;
+    };
+
+    this.activityService.loadDraft(storedId, storedName).subscribe({
+      next: (draft) => {
+        if (!draft.step2) return;
+
+        const step2 = draft.step2;
+
+        this.stepForm.patchValue({
+          ...step2,
+          automaticValidation: step2.automaticValidation ? 'Automatic' : 'Manual',
+          childAllowedWithAdult: step2.childAllowedWithAdult ? 'Yes' : 'No',
+          scheduledActivities: step2.scheduledActivities?.map(s => ({
+            ...s,
+            id: s.id && s.id.trim() !== '' ? s.id : crypto.randomUUID(),
+            dayOfWeek: s.dayOfWeek?.map(day => day.charAt(0).toUpperCase() + day.slice(1).toLowerCase()) as dayOfWeekFullName[],
+            openTime: s.openTime ? new Date(`1970-01-01T${s.openTime}Z`) : undefined,
+            closeTime: s.closeTime ? new Date(`1970-01-01T${s.closeTime}Z`) : undefined,
+            breakStart: s.breakStart ? new Date(`1970-01-01T${s.breakStart}Z`) : undefined,
+            breakEnd: s.breakEnd ? new Date(`1970-01-01T${s.breakEnd}Z`) : undefined,
+          })) ?? []
+        });
+
+        this.stepForm.updateValueAndValidity();
+        this.onFormReady$.next(this.stepForm.valid);
+      },
+      error: (err) => console.error(err)
+    });
+  }
+
+  private hasTimeOverlap(schedule1: IScheduledActivity, schedule2: IScheduledActivity): boolean {
+    if (!schedule1.openTime || !schedule1.closeTime ||
+      !schedule2.openTime || !schedule2.closeTime) {
       return false;
     }
 
-    const getMinutes = (date: Date): number => {
-      return date.getHours() * 60 + date.getMinutes();
-    };
+    const commonDays = schedule1.dayOfWeek.filter(day =>
+      schedule2.dayOfWeek.includes(day)
+    );
 
-    const start1 = getMinutes(schedule1.availabilityFrom);
-    const end1 = getMinutes(schedule1.availabilityTo);
-    const start2 = getMinutes(schedule2.availabilityFrom);
-    const end2 = getMinutes(schedule2.availabilityTo);
+    if (commonDays.length === 0) return false;
+
+    const start1 = getMinutes(schedule1.openTime);
+    const end1 = getMinutes(schedule1.closeTime);
+    const start2 = getMinutes(schedule2.openTime);
+    const end2 = getMinutes(schedule2.closeTime);
 
     return (start1 < end2) && (start2 < end1);
   }
 
-  protected onScheduleAdded(data: IScheduledActivity): void {
+  private findConflictingDays(data: IScheduledActivity): string[] {
     const existingSchedules = this.scheduledActivities.filter(s => s.id !== data.id);
 
     for (const existing of existingSchedules) {
       if (this.hasTimeOverlap(data, existing)) {
-        const commonDays = data.selectedDays.filter(day =>
-          existing.selectedDays.includes(day)
-        );
-
-        this.toastService.error(
-          `Conflit d'horaires détecté pour ${commonDays.join(', ')}. Les plages horaires se chevauchent.`
-        );
-
-        return;
+        return data.dayOfWeek.filter(day => existing.dayOfWeek.includes(day));
       }
     }
 
-    if (data.id) {
-      const updatedActivities = this.scheduledActivities.map(activity =>
-        activity.id === data.id
-          ? { ...activity, ...data }
-          : activity
-      );
-      this.scheduledActivities = updatedActivities;
-    } else {
-      const newSchedule: IScheduledActivity = {
-        id: crypto.randomUUID(),
-        selectedDays: data.selectedDays,
-        availabilityFrom: data.availabilityFrom,
-        availabilityTo: data.availabilityTo,
-        unavailabilityFrom: data.unavailabilityFrom,
-        unavailabilityTo: data.unavailabilityTo,
-      };
-      this.scheduledActivities = [...this.scheduledActivities, newSchedule];
-    }
+    return [];
+  }
 
-    this.isNewActivityDialogVisible = false;
+  private isSlotDurationCompatible(data: IScheduledActivity, slotDuration: number): boolean {
+    if (!data.openTime || !data.closeTime) return true;
+
+    const totalMinutes = getMinutes(data.closeTime) - getMinutes(data.openTime);
+    const pauseMinutes = (data.breakStart && data.breakEnd)
+      ? getMinutes(data.breakEnd) - getMinutes(data.breakStart)
+      : 0;
+
+    const activeMinutes = totalMinutes - pauseMinutes;
+
+    return activeMinutes % slotDuration === 0;
+  }
+
+  private saveSchedule(data: IScheduledActivity): void {
+    if (data.id) {
+      this.scheduledActivities = this.scheduledActivities.map(s =>
+        s.id === data.id ? { ...s, ...data } : s
+      );
+    } else {
+      this.scheduledActivities = [
+        ...this.scheduledActivities,
+        { ...data, id: crypto.randomUUID() }
+      ];
+    }
   }
 }

@@ -1,0 +1,29 @@
+@switch (stat().trend) {
+@case ("UP") {
+<div class="trend flex gap-x-2">
+    <app-icon-svg width="24" height="24" iconName="trend-up" color="#49a3a3"></app-icon-svg>
+    <div class="flex gap-x-2">
+        <span class="percent-up">+{{ stat().percentageChange }}%</span>
+        <span>{{ filterRangeDaysStr() }}</span>
+    </div>
+</div>
+}
+@case ("DOWN") {
+<div class="trend flex gap-x-2">
+    <app-icon-svg width="24" height="24" iconName="trend-down" color="#c60541"></app-icon-svg>
+    <div class="flex gap-x-2">
+        <span class="percent-down">{{ stat().percentageChange }}%</span>
+        <span>{{ filterRangeDaysStr() }}</span>
+    </div>
+</div>
+}
+@default {
+<div class="trend flex gap-x-2">
+    <app-icon-svg width="24" height="24" iconName="minus" color="#aca9a2"></app-icon-svg>
+    <div class="flex gap-x-2">
+        <span class="percent">{{ stat().percentageChange }}</span>
+        <span>{{ filterRangeDaysStr() }}</span>
+    </div>
+</div>
+}
+}

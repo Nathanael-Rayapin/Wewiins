@@ -1,5 +1,4 @@
 import { TestBed } from "@angular/core/testing";
-import { OrchestrationService } from "./orchestration.service";
 import { provideHttpClient } from "@angular/common/http";
 import { HttpTestingController, provideHttpClientTesting } from "@angular/common/http/testing";
 import { firstValueFrom } from "rxjs";
@@ -8,6 +7,8 @@ import { KeycloakService } from "./keycloak.service";
 import { IDashboardDto } from "../dto/dashboard";
 import { defaultStats } from "../pages/dashboard/data/dashboard.data";
 import { BookingStatus } from "../interfaces/booking-status";
+import { ActivityService } from "./activity.service";
+import { DashboardService } from "./dashboard.service";
 
 export const exampleResponse: IDashboardDto = {
     totalRevenue: { ...defaultStats },
@@ -48,26 +49,26 @@ export const exampleResponse: IDashboardDto = {
 describe('Orchestration Service', () => {
     const BASE_URL = environment.api.url;
 
-    let orchestrationService: OrchestrationService;
+    let dashboardService: DashboardService;
     let keycloakService: KeycloakService;
     let httpTesting: HttpTestingController;
 
     beforeEach(() => {
         TestBed.configureTestingModule({
             providers: [
-                OrchestrationService,
+                ActivityService,
                 provideHttpClient(),
                 provideHttpClientTesting(),
             ],
         });
 
-        orchestrationService = TestBed.inject(OrchestrationService);
+        dashboardService = TestBed.inject(DashboardService);
         keycloakService = TestBed.inject(KeycloakService);
         httpTesting = TestBed.inject(HttpTestingController);
     })
 
     it('should initializeDashboard throw an error if user email is not found', async () => {
-        const result$ = orchestrationService.initializeDashboard(new Date());
+        const result$ = dashboardService.initializeDashboard(new Date());
         await expect(firstValueFrom(result$)).rejects.toThrowError('User email not found');
     });
 
@@ -76,7 +77,7 @@ describe('Orchestration Service', () => {
 
         vi.spyOn(keycloakService, 'getUserEmail').mockReturnValue('john.doe@test.com');
 
-        const result$ = orchestrationService.initializeDashboard(new Date());
+        const result$ = dashboardService.initializeDashboard(new Date());
         const resultPromise = firstValueFrom(result$);
 
         const req = httpTesting.expectOne(req =>

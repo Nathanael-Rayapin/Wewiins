@@ -53,4 +53,34 @@ class StripeRepository(
             isComplete = isComplete
         )
     }
+
+    suspend fun getTotalChargesByPeriod(
+        connectedAccountId: String,
+        startDate: Long,
+        endDate: Long
+    ): Double {
+        logger.info("Fetching platform account charges for connected account {}", connectedAccountId)
+
+        val params = BalanceTransactionListParams.builder()
+            .setLimit(100L)
+            .setType("application_fee")
+            .setCreated(
+                BalanceTransactionListParams.Created.builder()
+                    .setGte(startDate)
+                    .setLte(endDate)
+                    .build()
+            )
+            .build()
+
+        val result = stripeClient
+            .v1()
+            .balanceTransactions()
+            .list(params)
+
+        // The amount is negative (it is a debit from the connected account)
+        // We take the absolute value to display a positive amount
+        return result.data
+            .filter { it.status == "available" }
+            .sumOf { Math.abs(it.amount.toDouble()) / 100.0 }
+    }
 }

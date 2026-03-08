@@ -4,8 +4,12 @@ import com.wewiins.saas_api.dto.activity.ActivityTimeSlotDto
 import com.wewiins.saas_api.interfaces.ScheduledActivity
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.postgrest.rpc
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Repository
+import java.time.Instant
+import java.time.ZoneOffset
 
 @Repository
 class TimeSlotRepository(
@@ -64,5 +68,23 @@ class TimeSlotRepository(
                 filter { eq("activity_offer_id", offerId) }
             }
             .decodeList<ActivityTimeSlotDto>()
+    }
+
+    suspend fun getTotalSlotsByPeriod(
+        connectedAccountId: String,
+        startDate: Long,
+        endDate: Long
+    ): Int {
+        val startLocalDate = Instant.ofEpochMilli(startDate).atZone(ZoneOffset.UTC).toLocalDate().toString()
+        val endLocalDate = Instant.ofEpochMilli(endDate).atZone(ZoneOffset.UTC).toLocalDate().toString()
+
+        return supabaseClient.postgrest.rpc(
+            "get_total_slots",
+            mapOf(
+                "p_connected_account_id" to connectedAccountId,
+                "p_start_date" to startLocalDate,
+                "p_end_date" to endLocalDate
+            )
+        ).decodeAs<Int>()
     }
 }

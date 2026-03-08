@@ -1,4 +1,4 @@
-.step-content-container {
+.step-1-content-container {
     .card {
         border-radius: 12px;
         padding: 24px;
@@ -35,6 +35,17 @@
                 font-size: 12px;
                 color: #8B8D91;
             }
+        }
+
+        .upload-title p {
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .upload-title p.disabled {
+            color: var(--placeholder-color);
+            text-decoration: none;
+            cursor: default;
         }
 
         .upload {
@@ -101,7 +112,7 @@
 }
 
 @media screen and (max-width: 1024px) {
-    .step-content-container {
+    .step-1-content-container {
         .card {
             .name-and-category {
                 .name {
@@ -117,7 +128,7 @@
 }
 
 @media screen and (max-width: 767px) {
-    .step-content-container {
+    .step-1-content-container {
         .card {
             .name-and-category {
                 .name {

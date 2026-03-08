@@ -1,0 +1,186 @@
+<div class="step-4-content-container">
+    <div class="flex flex-col gap-y-4">
+        <div class="card w-full flex flex-col gap-y-4">
+            <h2>Tarifs</h2>
+            <hr>
+            <div class="flex flex-col gap-y-2 lg:flex-row lg:gap-y-0 lg:items-center justify-between">
+                <p class="description">Définissez les prix de votre activité</p>
+                <div class="variable-pricing p-3 flex justify-between items-center gap-x-6">
+                    <div class="content">
+                        <p>Tarifs variables</p>
+                        <p>Selon le jour ou le moment</p>
+                    </div>
+                    <p-toggleswitch [formControl]="switchVariablePricing"
+                        (onChange)="onPricingModeChange($event.checked)" />
+                </div>
+            </div>
+        </div>
+
+        @if (isPriceModelHasChanged() === false) {
+        <form [formGroup]="stepForm">
+            <div class="card w-full flex flex-col gap-y-4">
+                <div class="flex flex-col gap-y-2">
+                    <div class="unique-rate flex flex-col md:flex-row items-center">
+                        <p>Tarif unique (€)</p>
+                        <div class="flex items-center gap-x-4">
+                            <p-inputnumber formControlName="singleRate" inputId="minmaxfraction" mode="decimal"
+                                [maxFractionDigits]="5" />
+                            <p-toggleswitch [formControl]="switchSingleRate"
+                                (onChange)="onToggleAllRates($event.checked)" />
+                        </div>
+                    </div>
+                    <hr>
+                    <!-- GridBox Here -->
+                    <div class="rates-grid mt-4">
+                        <div class="unique-rate flex flex-col md:flex-row items-center">
+                            <p>Tarif adulte (€)</p>
+                            <div class="flex items-center gap-x-4">
+                                <p-inputnumber formControlName="adultRate" mode="decimal" [maxFractionDigits]="5"
+                                    [readonly]="isPriceReadOnly()"
+                                    [invalid]="stepForm.controls.adultRate.touched && stepForm.controls.adultRate.invalid" />
+                                <p-toggleswitch [formControl]="switchAdultRate"
+                                    (onChange)="onToggleRate($event.checked, 'adultRate')" />
+                            </div>
+                        </div>
+
+                        <div class="unique-rate flex flex-col md:flex-row items-center">
+                            <p>Tarif étudiant (€)</p>
+                            <div class="flex items-center gap-x-4">
+                                <p-inputnumber formControlName="studentRate" mode="decimal" [maxFractionDigits]="5"
+                                    [invalid]="stepForm.controls.studentRate.touched && stepForm.controls.studentRate.invalid" />
+                                <p-toggleswitch [formControl]="switchStudentRate"
+                                    (onChange)="onToggleRate($event.checked, 'studentRate')" />
+                            </div>
+                        </div>
+
+                        <div class="unique-rate flex flex-col md:flex-row items-center">
+                            <p>Tarif enfant (€)</p>
+                            <div class="flex items-center gap-x-4">
+                                <p-inputnumber formControlName="childRate" mode="decimal" [maxFractionDigits]="5"
+                                    [invalid]="stepForm.controls.childRate.touched && stepForm.controls.childRate.invalid" />
+                                <p-toggleswitch [formControl]="switchChildRate"
+                                    (onChange)="onToggleRate($event.checked, 'childRate')" />
+                            </div>
+                        </div>
+
+                        <div class="unique-rate flex flex-col md:flex-row items-center">
+                            <p>Tarif groupe de 2 (€)</p>
+                            <div class="flex items-center gap-x-4">
+                                <p-inputnumber formControlName="twoPersonGroupRate" mode="decimal"
+                                    [maxFractionDigits]="5"
+                                    [invalid]="stepForm.controls.twoPersonGroupRate.touched && stepForm.controls.twoPersonGroupRate.invalid" />
+                                <p-toggleswitch [formControl]="switchTwoPersonGroup"
+                                    (onChange)="onToggleRate($event.checked, 'twoPersonGroupRate')" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        } @else {
+        <div class="flex flex-col gap-y-4">
+            <div class="available-days">
+                <p-selectbutton 
+                [options]="getUniqueDays()" 
+                (onChange)="onDayChange($event)"
+                [formControl]="selectedDayControl" 
+                aria-labelledby="basic" />
+            </div>
+            @if (selectedDayControl.value) {
+            <div class="card w-full flex flex-col gap-y-8">
+                <h2>{{ selectedDayControl.value }}</h2>
+                <div class="moment flex flex-col gap-y-2">
+                    <p>Moment</p>
+                    <p-selectbutton 
+                    [options]="getMomentOptionsForSelectedDay()" 
+                    [formControl]="selectedMomentControl"
+                        aria-labelledby="basic" />
+                </div>
+                @if (currentMomentGroup) {
+                <form [formGroup]="currentMomentGroup">
+                    <div class="flex flex-col gap-y-2">
+                        <div class="unique-rate flex flex-col md:flex-row items-center">
+                            <p>Tarif unique (€)</p>
+                            <div class="flex items-center gap-x-4">
+                                <p-inputnumber 
+                                formControlName="singleRate" 
+                                mode="decimal" 
+                                [maxFractionDigits]="5" />
+                                <p-toggleswitch 
+                                [formControl]="getMomentSwitches(selectedDayControl.value, selectedMomentControl.value!).singleRate"
+                                (onChange)="onMomentSingleRateToggle(selectedDayControl.value, selectedMomentControl.value!, $event.checked)" />
+                            </div>
+                        </div>
+                        <hr>
+                        <!-- GridBox Here -->
+                        <div class="rates-grid mt-4">
+                            <div class="unique-rate flex flex-col md:flex-row items-center">
+                                <p>Tarif adulte (€)</p>
+                                <div class="flex items-center gap-x-4">
+                                    <p-inputnumber 
+                                    formControlName="adultRate"
+                                    mode="decimal" 
+                                    [maxFractionDigits]="5" 
+                                    [readonly]="isPriceReadOnly()" 
+                                    [readonly]="getMomentReadOnly(selectedDayControl.value!, selectedMomentControl.value!)()"
+                                    [invalid]="currentMomentGroup.controls.adultRate.touched && currentMomentGroup.controls.adultRate.invalid" />
+                                    <p-toggleswitch 
+                                    [formControl]="getMomentSwitches(selectedDayControl.value!, selectedMomentControl.value!).adult"
+                                    (onChange)="onMomentRateToggle(selectedDayControl.value!, selectedMomentControl.value!, 'adultRate', $event.checked)" />
+                                </div>
+                            </div>
+
+                            <div class="unique-rate flex flex-col md:flex-row items-center">
+                                <p>Tarif étudiant (€)</p>
+                                <div class="flex items-center gap-x-4">
+                                    <p-inputnumber 
+                                    formControlName="studentRate"
+                                    mode="decimal" 
+                                    [maxFractionDigits]="5"
+                                    [readonly]="getMomentReadOnly(selectedDayControl.value!, selectedMomentControl.value!)()"
+                                    [invalid]="currentMomentGroup.controls.studentRate.touched && currentMomentGroup.controls.studentRate.invalid" />
+                                    <p-toggleswitch 
+                                    [formControl]="getMomentSwitches(selectedDayControl.value!, selectedMomentControl.value!).student"
+                                    (onChange)="onMomentRateToggle(selectedDayControl.value!, selectedMomentControl.value!, 'studentRate', $event.checked)" />
+                                </div>
+                            </div>
+
+                            <div class="unique-rate flex flex-col md:flex-row items-center">
+                                <p>Tarif enfant (€)</p>
+                                <div class="flex items-center gap-x-4">
+                                    <p-inputnumber 
+                                    formControlName="childRate"
+                                    mode="decimal" 
+                                    [maxFractionDigits]="5"
+                                    [readonly]="getMomentReadOnly(selectedDayControl.value!, selectedMomentControl.value!)()"
+                                    [invalid]="currentMomentGroup.controls.childRate.touched && currentMomentGroup.controls.childRate.invalid" />
+                                    <p-toggleswitch 
+                                    [formControl]="getMomentSwitches(selectedDayControl.value!, selectedMomentControl.value!).child"
+                                    (onChange)="onMomentRateToggle(selectedDayControl.value!, selectedMomentControl.value!, 'childRate', $event.checked)" />
+                                </div>
+                            </div>
+
+                            <div class="unique-rate flex flex-col md:flex-row items-center">
+                                <p>Tarif groupe de 2 (€)</p>
+                                <div class="flex items-center gap-x-4">
+                                    <p-inputnumber
+                                    formControlName="twoPersonGroupRate"
+                                    mode="decimal" 
+                                    [maxFractionDigits]="5"
+                                    [readonly]="getMomentReadOnly(selectedDayControl.value!, selectedMomentControl.value!)()"
+                                    [invalid]="currentMomentGroup.controls.twoPersonGroupRate.touched && currentMomentGroup.controls.twoPersonGroupRate.invalid" />
+                                    <p-toggleswitch 
+                                    [formControl]="getMomentSwitches(selectedDayControl.value!, selectedMomentControl.value!).twoPersonGroup"
+                                    (onChange)="onMomentRateToggle(selectedDayControl.value!, selectedMomentControl.value!, 'twoPersonGroupRate', $event.checked)" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            }
+            </div>
+            }
+        </div>
+        }
+    </div>
+</div>

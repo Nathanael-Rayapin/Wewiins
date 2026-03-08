@@ -1,0 +1,52 @@
+.step-4-content-container {
+
+    .variable-pricing {
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+
+        .content {
+            p:first-child {
+                font-size: 14px;
+                color: var(--primary-text);
+            }
+
+            p:last-child {
+                font-size: 12px;
+                color: var(--secondary-text);
+            }
+        }
+    }
+
+    p:not(.error-message) {
+        width: 180px;
+    }
+
+    .unique-rate {
+        p:first-child {
+            font-size: 14px;
+            color: var(--secondary-text);
+        }
+
+        .p-inputnumber-input {
+            border: 1px solid var(--border-color);
+            font-size: 16px;
+            color: var(--tertiary-text);
+        }
+    }
+
+    .rates-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+
+        @media (min-width: 1024px) {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    .moment p {
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--tertiary-text);
+    }
+}

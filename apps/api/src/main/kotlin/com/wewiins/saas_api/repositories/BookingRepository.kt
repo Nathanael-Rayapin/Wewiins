@@ -139,4 +139,53 @@ class BookingRepository(
 
         return bookings
     }
+
+    suspend fun getBookedSlotsByPeriod(
+        connectedAccountId: String,
+        startDate: Long,
+        endDate: Long
+    ): Int {
+        logger.info(
+            "Fetching booked slots for connected account {} from {} to {}",
+            connectedAccountId,
+            startDate,
+            endDate
+        )
+
+        val startLocalDate = java.time.Instant.ofEpochMilli(startDate)
+            .atZone(java.time.ZoneId.systemDefault())
+            .toLocalDate()
+            .toString()
+
+        val endLocalDate = java.time.Instant.ofEpochMilli(endDate)
+            .atZone(java.time.ZoneId.systemDefault())
+            .toLocalDate()
+            .toString()
+
+        val response = supabaseClient.postgrest["activity_slot_bookings"]
+            .select(
+                columns = Columns.raw(
+                    """
+                id,
+                activity_offers!inner(
+                    activities!inner(
+                        providers!inner(
+                            stripe_connected_account_id
+                        )
+                    )
+                )
+                """.trimIndent()
+                )
+            ) {
+                filter {
+                    gte("date", startLocalDate)
+                    lte("date", endLocalDate)
+                    eq("activity_offers.activities.providers.stripe_connected_account_id", connectedAccountId)
+                    isIn("status", listOf("COMING_SOON", "FINISH"))
+                }
+                count(Count.EXACT)
+            }
+
+        return response.countOrNull()?.toInt() ?: 0
+    }
 }

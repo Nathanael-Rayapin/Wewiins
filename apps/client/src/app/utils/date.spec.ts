@@ -1,9 +1,9 @@
 import { IStatComparison } from "../dto/dashboard";
-import { getDateRange, getRangeAndFormat } from "./date";
+import { getStartOfDayToNowRange, formatComparisonPeriodLabel } from "./date";
 
 describe.concurrent('Get Date Range', () => {
   it('should return startDate and endDate', () => {
-    const result = getDateRange(new Date());
+    const result = getStartOfDayToNowRange(new Date());
 
     expect(result).toBeTruthy();
     expect(result.startDate).toBeDefined();
@@ -11,14 +11,14 @@ describe.concurrent('Get Date Range', () => {
   });
 
   it('should return values of types number', () => {
-    const result = getDateRange(new Date());
+    const result = getStartOfDayToNowRange(new Date());
 
     expect(typeof result.startDate).toBe("number");
     expect(typeof result.endDate).toBe("number");
   });
 });
 
-describe.concurrent('getRangeAndFormat', () => {
+describe.concurrent('formatComparisonPeriodLabel', () => {
   const baseStat: IStatComparison<number> = {
     currentValue: 10,
     previousValue: 8,
@@ -27,12 +27,12 @@ describe.concurrent('getRangeAndFormat', () => {
   };
 
   it.concurrent('should return "dernier jour" when periodDays is 1', () => {
-    const result = getRangeAndFormat(baseStat, 1);
+    const result = formatComparisonPeriodLabel(baseStat, 1);
     expect(result).toBe(' vs dernier jour');
   });
 
   it.concurrent('should return pluralized period when periodDays > 1', () => {
-    const result = getRangeAndFormat(baseStat, 7);
+    const result = formatComparisonPeriodLabel(baseStat, 7);
     expect(result).toBe(' vs 7 derniers jours');
   });
 
@@ -42,7 +42,7 @@ describe.concurrent('getRangeAndFormat', () => {
       trend: 'UP',
     };
 
-    const result = getRangeAndFormat(stat, 3);
+    const result = formatComparisonPeriodLabel(stat, 3);
     expect(result).toBe(' vs 3 derniers jours');
   });
 
@@ -52,7 +52,7 @@ describe.concurrent('getRangeAndFormat', () => {
       trend: 'DOWN',
     };
 
-    const result = getRangeAndFormat(stat, 5);
+    const result = formatComparisonPeriodLabel(stat, 5);
     expect(result).toBe(' vs 5 derniers jours');
   });
 });

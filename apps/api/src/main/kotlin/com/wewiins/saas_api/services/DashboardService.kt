@@ -1,12 +1,8 @@
 package com.wewiins.saas_api.services
 
 import com.wewiins.saas_api.dto.VerifiedAccountDto
-import com.wewiins.saas_api.interfaces.ActivityBooking
 import com.wewiins.saas_api.interfaces.Dashboard
 import com.wewiins.saas_api.interfaces.Revenue
-import com.wewiins.saas_api.repositories.ActivityRepository
-import com.wewiins.saas_api.repositories.BookingRepository
-import com.wewiins.saas_api.repositories.StatisticRepository
 import com.wewiins.saas_api.repositories.StripeRepository
 import com.wewiins.saas_api.utils.ComparisonCalculator
 import kotlinx.coroutines.Dispatchers
@@ -17,10 +13,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class DashboardService(
-    private val activityRepository: ActivityRepository,
-    private val stripeRepository: StripeRepository,
-    private val statisticRepository: StatisticRepository,
-    private val bookingRepository: BookingRepository,
+    private val commonService: CommonService
 ) {
     private val logger = LoggerFactory.getLogger(DashboardService::class.java)
 
@@ -40,7 +33,7 @@ class DashboardService(
         return runBlocking {
             // Retrieve statistics for the current period
             val currentTotalRevenueDeferred = async(Dispatchers.IO) {
-                getTotalRevenueByPeriod(
+                commonService.getTotalRevenueByPeriod(
                     verifiedAccountDto.stripeConnectedAccountId!!,
                     startDate,
                     endDate
@@ -48,7 +41,7 @@ class DashboardService(
             }
 
             val currentTotalBookingDeferred = async(Dispatchers.IO) {
-                getTotalBookingByPeriod(
+                commonService.getTotalBookingByPeriod(
                     verifiedAccountDto.stripeConnectedAccountId!!,
                     startDate,
                     endDate
@@ -56,7 +49,7 @@ class DashboardService(
             }
 
             val currentTotalVisitDeferred = async(Dispatchers.IO) {
-                getTotalVisitByPeriod(
+                commonService.getTotalVisitByPeriod(
                     verifiedAccountDto.stripeConnectedAccountId!!,
                     startDate,
                     endDate
@@ -64,7 +57,7 @@ class DashboardService(
             }
 
             val currentAverageScoreDeferred = async(Dispatchers.IO) {
-                getAverageScoreByPeriod(
+                commonService.getAverageScoreByPeriod(
                     verifiedAccountDto.stripeConnectedAccountId!!,
                     startDate,
                     endDate
@@ -73,7 +66,7 @@ class DashboardService(
 
             // Retrieve statistics from the previous period
             val previousTotalRevenueDeferred = async(Dispatchers.IO) {
-                getTotalRevenueByPeriod(
+                commonService.getTotalRevenueByPeriod(
                     verifiedAccountDto.stripeConnectedAccountId!!,
                     previousStartDate,
                     previousEndDate
@@ -81,7 +74,7 @@ class DashboardService(
             }
 
             val previousTotalBookingDeferred = async(Dispatchers.IO) {
-                getTotalBookingByPeriod(
+                commonService.getTotalBookingByPeriod(
                     verifiedAccountDto.stripeConnectedAccountId!!,
                     previousStartDate,
                     previousEndDate
@@ -89,7 +82,7 @@ class DashboardService(
             }
 
             val previousTotalVisitDeferred = async(Dispatchers.IO) {
-                getTotalVisitByPeriod(
+                commonService.getTotalVisitByPeriod(
                     verifiedAccountDto.stripeConnectedAccountId!!,
                     previousStartDate,
                     previousEndDate
@@ -97,7 +90,7 @@ class DashboardService(
             }
 
             val previousAverageScoreDeferred = async(Dispatchers.IO) {
-                getAverageScoreByPeriod(
+                commonService.getAverageScoreByPeriod(
                     verifiedAccountDto.stripeConnectedAccountId!!,
                     previousStartDate,
                     previousEndDate
@@ -106,7 +99,7 @@ class DashboardService(
 
             // Retrieve the first 2 reservations
             val bookingsDeferred = async(Dispatchers.IO) {
-                getBookingsByPeriod(
+                commonService.getBookingsByPeriod(
                     verifiedAccountDto.stripeConnectedAccountId!!,
                     startDate,
                 )
@@ -158,49 +151,4 @@ class DashboardService(
         }
     }
 
-    fun getTotalRevenueByPeriod(
-        connectedAccountId: String, startDate: Long, endDate: Long
-    ): Revenue {
-        logger.info("Get TotalRevenueByPeriod")
-        return runBlocking {
-            stripeRepository.getRevenueByPeriod(connectedAccountId, startDate, endDate)
-        }
-    }
-
-    fun getTotalBookingByPeriod(
-        connectedAccountId: String, startDate: Long, endDate: Long
-    ): Int {
-        logger.info("Get TotalBookingByPeriod")
-        return runBlocking {
-            bookingRepository.getBookingNumberByPeriod(connectedAccountId, startDate, endDate)
-        }
-    }
-
-    fun getTotalVisitByPeriod(
-        connectedAccountId: String, startDate: Long, endDate: Long
-    ): Int {
-        logger.info("Get TotalVisitByPeriod")
-        return runBlocking {
-            statisticRepository.getVisitNumberByPeriod(connectedAccountId, startDate, endDate)
-        }
-    }
-
-    fun getAverageScoreByPeriod(
-        connectedAccountId: String, startDate: Long, endDate: Long
-    ): Double {
-        logger.info("Get AverageScoreByPeriod")
-        return runBlocking {
-            activityRepository.getAverageScoreByPeriod(connectedAccountId, startDate, endDate)
-        }
-    }
-
-    fun getBookingsByPeriod(
-        connectedAccountId: String,
-        startDate: Long,
-    ): List<ActivityBooking> {
-        logger.info("Get BookingsByPeriod")
-        return runBlocking {
-            bookingRepository.getBookingsByPeriod(connectedAccountId, startDate)
-        }
-    }
 }

@@ -1,0 +1,78 @@
+<div class="step-3-content-container">
+    <form [formGroup]="stepForm" class="flex flex-col gap-y-4">
+        <div class="card w-full flex flex-col gap-y-4">
+            <h2>Bon à savoir</h2>
+            <hr>
+            <div class="good-to-know flex flex-col gap-y-4">
+                <p class="description">Sélectionnez au minimum 2 informations pour mieux informer vos clients.</p>
+                <div class="flex flex-col gap-y-2 lg:flex-row lg:gap-y-0 lg:items-center justify-between">
+                    <div class="search-bar">
+                        <p-autocomplete
+                        placeholder="Recherche..." 
+                        [(ngModel)]="searchValue"
+                        [ngModelOptions]="{standalone: true}" 
+                        (ngModelChange)="onSearchValueChange($event)"
+                        [suggestions]="filteredOptions" 
+                        (completeMethod)="search($event)"
+                        [delay]="500"
+                        optionLabel="name"
+                        (onSelect)="onSelectFromAutocomplete($event)">
+                            <ng-template let-option pTemplate="item">
+                                <div>{{ option.name }}</div>
+                            </ng-template>
+                        </p-autocomplete>
+                        <app-icon-svg 
+                        class="icon-search" 
+                        width="16" 
+                        height="16" 
+                        iconName="search" 
+                        color="#242651">
+                        </app-icon-svg>
+                    </div>
+                    <div class="add-suggestion flex items-center justify-end gap-x-2" (click)="openDialogForSuggestion()">
+                        <p>Suggérer un bon à savoir</p>
+                        <app-icon-svg width="24" height="24" iconName="plus" color="#111827"></app-icon-svg>
+                    </div>
+                </div>
+                <!-- Wrapper pour le scroll -->
+                <div class="options-wrapper w-full pb-4">
+                    <div class="flex gap-x-4 options">
+                    @for (option of suggestsOptions; track option.name; let idx = $index) {
+                        <app-good-to-know-card
+                        [name]="option.name"
+                        [iconName]="option.iconName" 
+                        [description]="option.description"
+                        [checked]="isOptionSelected(option.name)"
+                        (checkedChange)="onGoodToKnowChange($event, option)" />
+                    }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card w-full flex flex-col gap-y-4">
+            <div class="program-title flex flex-col gap-y-2 lg:flex-row lg:gap-y-0 justify-between items-center">
+                <h2>Au programme</h2>
+                <p [class.disabled]="!isNameValid" (click)="openDialogForIamgePreview()">Mes images pour cette activité
+            </p>
+            </div>
+            <hr>
+            <div class="programs flex items-center justify-between gap-x-4">
+                <p>Programmes de l'activité</p>
+                <div class="add-program flex items-center gap-x-2" (click)="addProgram()">
+                    <p>Ajouter une étape</p>
+                    <app-icon-svg width="24" height="24" iconName="plus" color="#111827"></app-icon-svg>
+                </div>
+            </div>
+            <div class="flex flex-col gap-y-8">
+                @for (program of programsFormArray.controls; track $index) {
+                    <app-add-program [programForm]="$any(program)" [index]="$index" (remove)="removeProgram($index)" />
+                }
+            </div>
+        </div>
+    </form>
+
+    <app-activity-image-program
+        [(visible)]="isImageProgramVisible"
+        [imagesUrl]="(selectedFilesFromStorage$ | async) ?? []"
+    />
+</div>

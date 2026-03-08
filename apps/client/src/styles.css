@@ -44,7 +44,7 @@ label {
     font-family: "Rubik", sans-serif;
 }
 
-input:not(#country, .p-inputnumber-input) {
+input:not(#country, .p-inputnumber-input, .p-datepicker-input) {
     background-color: var(--primary-background);
     height: 48px;
     border-radius: 8px;
@@ -53,6 +53,18 @@ input:not(#country, .p-inputnumber-input) {
 
 .error-message {
     font-size: 14px;
+}
+
+.loading-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    .progress-spinner {
+        width: 50px;
+        height: 50px;
+    }
 }
 
 /* 
@@ -189,4 +201,40 @@ input:not(#country, .p-inputnumber-input) {
     .p-toggleswitch:not(.p-disabled):has(.p-toggleswitch-input:hover) .p-toggleswitch-slider {
         background: var(--secondary-color);
     }
+
+    /*
+ * DatePicker
+ */
+    .p-datepicker .p-datepicker-input {
+        background-color: var(--primary-background);
+        height: 48px;
+        border-radius: 8px;
+        border-top-right-radius: 0px;
+        border-bottom-right-radius: 0px;
+        box-shadow: none;
+    }
+}
+
+/*
+ * Rating
+ */
+.p-rating {
+    --p-rating-icon-color: #fbc02d;
+    --p-rating-icon-active-color: #fbc02d;
+    --p-rating-icon-size: 1.2rem;
+
+    .p-rating-option:not(.p-rating-option-active) svg {
+        fill: transparent;
+        stroke: #fbc02d;
+        stroke-width: 0.5px;
+    }
+}
+
+/*
+ * ProgressBar
+ */
+.p-progressbar {
+    --p-progressbar-value-background: var(--primary-color);
+    --p-progressbar-background: var(--border-color);
+    --p-progressbar-height: 8px;
 }

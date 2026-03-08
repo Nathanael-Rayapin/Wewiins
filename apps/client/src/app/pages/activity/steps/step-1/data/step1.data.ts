@@ -1,14 +1,14 @@
 export const categoriesData = [
-    { name: "Ateliers créatifs" },
-    { name: "Loisirs extremes" },
-    { name: "Gastronomie" },
-    { name: "Tourisme" },
-    { name: "Nautiques" },
-    { name: "Famille" },
-    { name: "Bien-être" },
-    { name: "Sportif" },
-    { name: "Culture" },
-    { name: "Avec animaux" },
+    { label: "Ateliers créatifs", value: "ATELIERS_CREATIFS" },
+    { label: "Loisirs extremes",  value: "LOISIRS_EXTREMES" },
+    { label: "Gastronomie",       value: "GASTRONOMIE" },
+    { label: "Tourisme",          value: "TOURISME" },
+    { label: "Nautiques",         value: "NAUTIQUES" },
+    { label: "Famille",           value: "FAMILLE" },
+    { label: "Bien-être",         value: "BIEN_ETRE" },
+    { label: "Sportif",           value: "SPORTIF" },
+    { label: "Culture",           value: "CULTURE" },
+    { label: "Avec animaux",      value: "AVEC_ANIMAUX" },
 ]
 
 export const errorMessages: Record<string, Record<string, string>> = {

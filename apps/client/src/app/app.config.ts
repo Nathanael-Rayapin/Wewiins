@@ -10,6 +10,7 @@ import Aura from '@primeuix/themes/aura';
 import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
 import { MessageService } from 'primeng/api';
+import { providerInterceptor } from './interceptors/provider.interceptor';
 
 registerLocaleData(localeFr)
 
@@ -30,7 +31,7 @@ export const appConfig: ApplicationConfig = {
     }),
     provideHttpClient(
       withFetch(),
-      withInterceptors([authInterceptor])
+      withInterceptors([authInterceptor, providerInterceptor])
     ),
     { provide: LOCALE_ID, useValue: 'fr-FR' },
     { provide: DEFAULT_CURRENCY_CODE, useValue: 'EUR' },

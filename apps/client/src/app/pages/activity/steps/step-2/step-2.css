@@ -1,4 +1,4 @@
-.step-content-container {
+.step-2-content-container {
     .card {
         border-radius: 12px;
         padding: 24px;
@@ -78,6 +78,7 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 16px;
             align-items: stretch;
+            cursor: pointer;
 
             @media (max-width: 1280px) {
                 grid-template-columns: repeat(2, 1fr);

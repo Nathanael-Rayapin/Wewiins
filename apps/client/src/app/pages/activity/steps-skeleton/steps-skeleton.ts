@@ -8,7 +8,7 @@ import { Step3 } from '../steps/step-3/step-3';
 import { Step4 } from '../steps/step-4/step-4';
 import { stepsData } from './data/steps.data';
 import { CapitalizePipe } from '../../../pipes/capitalize.pipe';
-import { debounceTime, distinctUntilChanged, firstValueFrom, map, Observable, startWith, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged, first, firstValueFrom, forkJoin, map, Observable, startWith, Subscription } from 'rxjs';
 import { IconSvg } from "../../../components/icon-svg/icon-svg";
 import { CommonsValidations } from '../steps/commons';
 import { AbstractControl, FormArray, FormControl, FormGroup } from '@angular/forms';
@@ -17,7 +17,9 @@ import { isValueExist } from '../../../utils/string';
 import { ActivityService } from '../../../services/activity.service';
 import { ToastService } from '../../../services/toast.service';
 import { StorageService } from '../../../services/storage.service';
-import { IActivityDraftStorage } from '../../../interfaces/activity';
+import { IScheduledActivityPayload } from '../steps/step-2/step-2.interface';
+import { toTimeString } from '../../../utils/date';
+import { IStepFour } from '../steps/step-4/step-4.interface';
 
 @Component({
   selector: 'app-steps-skeleton',
@@ -66,6 +68,30 @@ export class StepsSkeleton implements AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     this.syncStepsStatus();
     this.syncDraftStatus();
+
+    this.navigateToFirstInvalidStep();
+  }
+
+  private navigateToFirstInvalidStep(): void {
+    const outlets = this.outlets.toArray();
+
+    const step1 = outlets[0]?.componentInstance as Step1;
+    const step2 = outlets[1]?.componentInstance as Step2;
+    const step3 = outlets[2]?.componentInstance as Step3;
+    const step4 = outlets[3]?.componentInstance as Step4;
+
+    const ready$ = [
+      step1.onFormReady$,
+      step2.onFormReady$,
+      step3.onFormReady$,
+      step4.onFormReady$,
+    ];
+
+    forkJoin(ready$.map(obs$ => obs$.pipe(first()))).subscribe(validities => {
+      const firstInvalidIndex = validities.findIndex(valid => !valid);
+      const targetStep = firstInvalidIndex === -1 ? 4 : firstInvalidIndex + 1;
+      this.currentStep.set(targetStep);
+    });
   }
 
   /* 
@@ -99,6 +125,7 @@ export class StepsSkeleton implements AfterViewInit, OnDestroy {
     callback(nextStep);
 
     this.syncStepsStatus();
+    this.syncDraftStatus();
   }
 
   previousStep(previousStep: number, callback: (value: number) => void) {
@@ -163,8 +190,6 @@ export class StepsSkeleton implements AfterViewInit, OnDestroy {
           .subscribe(() => this.updateStep4Validity(instance4))
         );
         this.subscriptions.push(sub4);
-
-        instance4.loadDaySchedulesFromStep2();
         break;
     }
   }
@@ -199,6 +224,62 @@ export class StepsSkeleton implements AfterViewInit, OnDestroy {
           });
         this.draftSubscriptions.push(sub1);
         break;
+
+      case 2:
+        const stepTwoForm = (componentInstance as Step2).stepForm;
+        const sub2 = stepTwoForm.valueChanges
+          .pipe(startWith(stepTwoForm.value), debounceTime(500))
+          .subscribe(() => {
+            this.isStepTwoDraftValid.set(this.isFormDraftValid(stepTwoForm));
+          });
+        this.draftSubscriptions.push(sub2);
+        break;
+
+      case 3:
+        const stepThreeForm = (componentInstance as Step3).stepForm;
+        const sub3 = stepThreeForm.valueChanges
+          .pipe(startWith(stepThreeForm.value), debounceTime(500))
+          .subscribe(() => {
+            this.isStepThrDraftValid.set(this.isFormDraftValid(stepThreeForm));;
+          });
+        this.draftSubscriptions.push(sub3);
+        break;
+
+      case 4:
+        const instance4 = componentInstance as Step4;
+
+        const updateValidity = () => {
+          const form = (instance4.switchVariablePricing.value && instance4.stepFormForVariableRate
+            ? instance4.stepFormForVariableRate
+            : instance4.stepForm) as FormGroup;
+          this.isStepForDraftValid.set(this.isFormDraftValid(form));
+        };
+
+        // On attend que le mode soit prêt avant de s'abonner au bon formulaire
+        const sub4Mode = instance4.onModeReady$.subscribe(isVariable => {
+          if (isVariable && instance4.stepFormForVariableRate) {
+            instance4.dayPricings.controls.forEach(group => {
+              const sub = group.valueChanges
+                .pipe(debounceTime(500))
+                .subscribe(() => updateValidity());
+              this.draftSubscriptions.push(sub);
+            });
+          } else {
+            const sub = instance4.stepForm.valueChanges
+              .pipe(startWith(instance4.stepForm.value), debounceTime(500))
+              .subscribe(() => updateValidity());
+            this.draftSubscriptions.push(sub);
+          }
+          updateValidity();
+        });
+        this.draftSubscriptions.push(sub4Mode);
+
+        // Re-subscribe quand l'utilisateur change de mode manuellement
+        const sub4Switch = instance4.switchVariablePricing.valueChanges.subscribe(() => {
+          this.syncDraftStatus();
+        });
+        this.draftSubscriptions.push(sub4Switch);
+        break;
     }
   }
 
@@ -222,8 +303,8 @@ export class StepsSkeleton implements AfterViewInit, OnDestroy {
 
         this.isLoading.set(true);
 
-        const limit = (componentInstance as Step1).FILE_LIMIT;
-        if (!await this.canStoreImages(name, limit, photos)) return;
+        const limitPreview = (componentInstance as Step1).FILE_LIMIT;
+        if (!await this.canStoreImages(name, limitPreview, photos)) return;
 
         this.activityService.saveDraft({
           step1: stepOneForm.getRawValue(),
@@ -247,21 +328,31 @@ export class StepsSkeleton implements AfterViewInit, OnDestroy {
         })
         break;
 
-    case 2:
-      const stepTwoForm = (componentInstance as Step2).stepForm;
+      case 2:
+        const rawValues = (componentInstance as Step2).stepForm.getRawValue();
 
-      this.isLoading.set(true);
+        this.isLoading.set(true);
 
-      const existingActivityId = this.storageService.getItem<IActivityDraftStorage>('activityDraft')?.activityId ?? null; 
-
-      this.activityService.saveDraft({
+        this.activityService.saveDraft({
           step1: null,
-          step2: stepTwoForm.getRawValue(),
+          step2: {
+            ...rawValues,
+            automaticValidation: rawValues.automaticValidation === 'Automatic',
+            childAllowedWithAdult: rawValues.childAllowedWithAdult === 'Yes',
+            scheduledActivities: rawValues.scheduledActivities.map((s): IScheduledActivityPayload => ({
+              id: s.id,
+              dayOfWeek: s.dayOfWeek.map(day => day.toUpperCase()),
+              openTime: s.openTime ? toTimeString(s.openTime) : null,
+              closeTime: s.closeTime ? toTimeString(s.closeTime) : null,
+              breakStart: s.breakStart ? toTimeString(s.breakStart) : null,
+              breakEnd: s.breakEnd ? toTimeString(s.breakEnd) : null,
+            }))
+          },
           step3: null,
           step4: null
         }).subscribe({
           next: (response: { activityId: string }) => {
-            if (!existingActivityId) this.storeActivityIdInStorage(response.activityId);
+            this.storeActivityIdInStorage(response.activityId);
             this.toastService.success('Formulaire sauvegardé avec succès');
           },
           error: (error: Error) => {
@@ -273,6 +364,115 @@ export class StepsSkeleton implements AfterViewInit, OnDestroy {
             this.isLoading.set(false);
           }
         })
+        break;
+
+      case 3:
+        const { step1: storedStep1 } = this.storageService.getActivityDraftStorage();
+
+        if (!storedStep1?.name) {
+          this.toastService.error('Vous devez d\'abord donner un nom à votre activité avant de pouvoir la sauvegarder');
+          return;
+        }
+
+        const stepThreeRawValues = (componentInstance as Step3).stepForm.getRawValue();
+        const programImages = stepThreeRawValues.program.map(p => p.image).filter((file): file is File => file !== null);
+        const limitProgram = (componentInstance as Step3).PROGRAM_MAX_LENGTH;
+
+        if (!await this.canStoreImages(storedStep1.name, limitProgram, programImages)) return;
+
+        this.isLoading.set(true);
+
+        this.activityService.saveDraft({
+          step1: null,
+          step2: null,
+          step3: {
+            goodToKnow: stepThreeRawValues.goodToKnow,
+            program: stepThreeRawValues.program.map(p => ({
+              title: p.title ?? '',
+              description: p.description ?? '',
+              image: p.image
+            }))
+          },
+          step4: null
+        }).subscribe({
+          next: (response: { activityId: string }) => {
+            (componentInstance as Step3).refreshImages();
+            this.storeActivityIdInStorage(response.activityId);
+            this.toastService.success('Formulaire sauvegardé avec succès');
+          },
+          error: (error: Error) => {
+            this.toastService.error('Erreur lors de la sauvegarde, veuilez contacter le service client');
+            console.error(error.name);
+            this.isLoading.set(false);
+          },
+          complete: () => {
+            this.isLoading.set(false);
+          }
+        })
+        break;
+
+      case 4:
+        const instance4 = componentInstance as Step4;
+        const isVariablePricing = instance4.switchVariablePricing.value;
+
+        this.isLoading.set(true);
+
+        const step4Payload: IStepFour = isVariablePricing
+          ? {
+            isVariablePricing: true,
+            simplePricing: null,
+            variablePricing: {
+              dayPricings: instance4.dayPricings.getRawValue().map(p => {
+                const switches = instance4.getMomentSwitches(p.day!, p.selectedMoment);
+                return {
+                  day: p.day,
+                  selectedMoment: p.selectedMoment,
+                  singleRate: p.singleRate,
+                  adultRate: p.adultRate,
+                  childRate: p.childRate,
+                  studentRate: p.studentRate,
+                  twoPersonGroupRate: p.twoPersonGroupRate,
+                  isAdultEnabled: switches.adult.value,
+                  isChildEnabled: switches.child.value,
+                  isStudentEnabled: switches.student.value,
+                  isGroup2Enabled: switches.twoPersonGroup.value,
+                };
+              })
+            }
+          }
+          : {
+            isVariablePricing: false,
+            simplePricing: {
+              singleRate: instance4.stepForm.getRawValue().singleRate,
+              adultRate: instance4.stepForm.getRawValue().adultRate,
+              childRate: instance4.stepForm.getRawValue().childRate,
+              studentRate: instance4.stepForm.getRawValue().studentRate,
+              twoPersonGroupRate: instance4.stepForm.getRawValue().twoPersonGroupRate,
+              isAdultEnabled: instance4.switchAdultRate.value,    // 🆕
+              isChildEnabled: instance4.switchChildRate.value,    // 🆕
+              isStudentEnabled: instance4.switchStudentRate.value,  // 🆕
+              isGroup2Enabled: instance4.switchTwoPersonGroup.value, // 🆕
+            },
+            variablePricing: null
+          };
+
+        this.activityService.saveDraft({
+          step1: null,
+          step2: null,
+          step3: null,
+          step4: step4Payload
+        }).subscribe({
+          next: (response: { activityId: string }) => {
+            this.storeActivityIdInStorage(response.activityId);
+            this.toastService.success('Formulaire sauvegardé avec succès');
+          },
+          error: (error: Error) => {
+            this.toastService.error('Erreur lors de la sauvegarde, veuilez contacter le service client');
+            console.error(error.name);
+            this.isLoading.set(false);
+          },
+          complete: () => this.isLoading.set(false)
+        });
         break;
     }
   }
@@ -313,9 +513,6 @@ export class StepsSkeleton implements AfterViewInit, OnDestroy {
     this.subscriptions.push(sub);
   }
 
-  protected isFormDraftValid(form: FormGroup): boolean {
-    return this.hasAtLeastOneValue(form) && !this.hasVisibleErrors(form);
-  }
 
   private hasAtLeastOneValue(control: AbstractControl): boolean {
     if (control instanceof FormControl) {
@@ -355,12 +552,18 @@ export class StepsSkeleton implements AfterViewInit, OnDestroy {
     }
 
     if (control instanceof FormArray) {
+      if (control.errors != null) return true;
+
       return control.controls.some(child =>
         this.hasVisibleErrors(child)
       );
     }
 
     return false;
+  }
+
+  protected isFormDraftValid(form: FormGroup): boolean {
+    return this.hasAtLeastOneValue(form) && !this.hasVisibleErrors(form);
   }
 
   storeActivityIdInStorage(activityId: string): void {

@@ -34,7 +34,7 @@ export class DashboardCard {
       case 'totalRevenue':
         return `${value.toLocaleString('fr-FR', { maximumFractionDigits: 2 })}`;
       case 'averageScore':
-        return `${value}/5`;
+        return value === 0 ? `-/5` : `${value}/5`;
       default:
         return value.toString();
     }

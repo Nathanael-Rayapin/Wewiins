@@ -1,0 +1,146 @@
+.stepper-container {
+    overflow: hidden;
+
+    .p-step-header {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .p-step {
+        button.submited .stepper {
+            background-color: var(--primary-color);
+        }
+
+        button .stepper {
+            background-color: var(--primary-text);
+        }
+
+        p.stepper-description {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        button.submited .stepper-description {
+            color: var(--primary-color);
+        }
+
+        button .stepper-description {
+            color: var(--primary-text);
+        }
+    }
+
+    .p-step:has(~ .p-step-active) .p-stepper-separator {
+        background-color: var(--primary-color);
+    }
+
+    .cta-buttons {
+
+        .preview-btn,
+        .save-btn button,
+        .publish-btn {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--primary-text);
+            background-color: var(--primary-background);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+
+            &:hover {
+                border: 1px solid var(--primary-text);
+                background-color: var(--secondary-background);
+                color: var(--primary-text);
+                /* PrimeNg override this if not set */
+            }
+        }
+
+        .save-btn button:disabled,
+        .publish-btn:disabled {
+            color: var(--primary-background);
+            background-color: var(--border-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+
+            span {
+                font-size: 14px;
+                font-weight: 700;
+            }
+        }
+    }
+
+    .cta-previous {
+        .previous-btn {
+            border-radius: 8px;
+            cursor: pointer;
+
+            .p-button {
+                color: var(--primary-text);
+                background-color: var(--primary-background);
+                border: 1px solid var(--border-color);
+
+                span {
+                    font-size: 14px;
+                    font-weight: 700;
+                }
+
+                &:hover {
+                    background-color: var(--secondary-background);
+                }
+            }
+        }
+    }
+
+    .cta-next {
+        .next-btn {
+            border-radius: 8px;
+            cursor: pointer;
+
+            .p-button {
+                color: var(--primary-color);
+                background-color: var(--primary-background);
+                border: 1px solid var(--primary-color);
+
+                span {
+                    font-size: 14px;
+                    font-weight: 700;
+                }
+
+                &:hover {
+                    background-color: var(--secondary-background);
+                }
+            }
+
+            .p-button:disabled {
+                color: var(--border-color);
+                border: 1px solid var(--border-color);
+            }
+        }
+
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .stepper-container {
+
+        .p-step.hidden {
+            display: none;
+        }
+
+        .p-stepper-separator {
+            display: none;
+        }
+
+        .cta-previous {
+            .previous-btn button {
+                width: 100%;
+            }
+        }
+
+        .cta-next {
+            .next-btn button {
+                width: 100%;
+            }
+        }
+    }
+}

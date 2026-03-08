@@ -6,7 +6,6 @@ import { environment } from "../../environments/environment";
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
     const keycloakService = inject(KeycloakService);
 
-    // Si Keycloak est désactivé en local, on ne fait rien
     if (environment.keycloak.enabled === false) {
         return next(req);
     }
@@ -18,7 +17,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         return next(req);
     }
 
-    // 🔥 Clone la requête avec le header Authorization
+    // 🔥 Clone the request with the Authorization header
     const authReq = req.clone({
         setHeaders: {
             Authorization: `Bearer ${token}`

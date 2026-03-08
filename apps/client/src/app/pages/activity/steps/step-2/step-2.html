@@ -1,4 +1,4 @@
-<div class="step-content-container">
+<div class="step-2-content-container">
     <form [formGroup]="stepForm" class="flex flex-col gap-y-4">
         <div class="card w-full flex flex-col gap-y-4">
             <h2>Paramètres de l'activité</h2>
@@ -59,18 +59,18 @@
                     </p>
                     }
                 </div>
-                <div class="slotDuration">
+                <div class="slotDurationMin">
                     <div class="flex flex-row-reverse items-center gap-x-2">
                         <label>Durée de l'activité en minute</label>
                         <p-inputnumber 
                         [showButtons]="true" 
                         buttonLayout="horizontal" 
-                        inputId="slotDuration" 
+                        inputId="slotDurationMin" 
                         spinnerMode="horizontal" 
                         [step]="1" 
                         placeholder="60"
-                        formControlName="slotDuration"
-                        [min]="30"
+                        formControlName="slotDurationMin"
+                        [min]="5"
                         [max]="1440">
                             <ng-template #incrementbuttonicon>
                                 <app-icon-svg width="14" height="14" iconName="plus" color="#111827"></app-icon-svg>
@@ -80,9 +80,9 @@
                             </ng-template>
                         </p-inputnumber>
                     </div>
-                    @if (stepForm.controls.slotDuration.touched && stepForm.controls.slotDuration.invalid) {
+                    @if (stepForm.controls.slotDurationMin.touched && stepForm.controls.slotDurationMin.invalid) {
                     <p class="error-message text-red-400">
-                        {{ getErrorMessage('slotDuration') }}
+                        {{ getErrorMessage('slotDurationMin') }}
                     </p>
                     }
                 </div>
@@ -141,8 +141,45 @@
                     </p>
                     }
                 </div>
+                <div class="minAgeChild">
+                    <div class="flex flex-row-reverse items-center gap-x-2">
+                        <label>Age min. des enfants</label>
+                        <p-inputnumber 
+                        [showButtons]="true" 
+                        buttonLayout="horizontal" 
+                        inputId="minAgeChild" 
+                        spinnerMode="horizontal" 
+                        [step]="1" 
+                        placeholder="3"
+                        formControlName="minAgeChild"
+                        [min]="3"
+                        [max]="14"
+                        >
+                            <ng-template #incrementbuttonicon>
+                               <app-icon-svg width="14" height="14" iconName="plus" color="#111827"></app-icon-svg>
+                            </ng-template>
+                            <ng-template #decrementbuttonicon>
+                                <app-icon-svg width="14" height="14" iconName="minus" color="#111827"></app-icon-svg>
+                            </ng-template>
+                        </p-inputnumber>
+                    </div>
+                    @if (stepForm.controls.minAgeChild.touched && stepForm.controls.minAgeChild.invalid) {
+                    <p class="error-message text-red-400">
+                        {{ getErrorMessage('minAgeChild') }}
+                    </p>
+                    }
+                </div>
                 <div class="maxAgeChild">
                     <div class="flex flex-row-reverse items-center gap-x-2">
+                        <app-icon-svg 
+                        pTooltip="L'âge indiqué définit la limite pour appliquer le tarif enfant. Par exemple, si vous indiquez 12 ans, toute réservation pour une personne de 13 ans ou plus sera automatiquement considérée comme un tarif adulte." 
+                        tooltipPosition="bottom" 
+                        class="tooltip" 
+                        width="24" 
+                        height="24" 
+                        iconName="tooltip" 
+                        color="#242651">
+                        </app-icon-svg>
                         <label>Age max. des enfants</label>
                         <p-inputnumber 
                         [showButtons]="true" 
@@ -152,7 +189,7 @@
                         [step]="1" 
                         placeholder="12"
                         formControlName="maxAgeChild"
-                        [min]="3"
+                        [min]="15"
                         [max]="17"
                         >
                             <ng-template #incrementbuttonicon>
@@ -171,13 +208,22 @@
                 </div>
                 <div class="automaticValidation">
                     <div class="flex flex-row-reverse items-center gap-x-2">
+                        <app-icon-svg 
+                        pTooltip="Automatique : chaque réservation est validée instantanément sans action de votre part. Manuelle : vous devez valider ou refuser chaque demande de réservation avant qu'elle soit confirmée." 
+                        tooltipPosition="bottom" 
+                        class="tooltip" 
+                        width="24" 
+                        height="24" 
+                        iconName="tooltip" 
+                        color="#242651">
+                        </app-icon-svg>
                         <label>Confirmation des réservations </label>
                         <p-select 
+                        class="flex items-center"
                         [options]="autoValidationOpts" 
                         id="automaticValidation" 
-                        class="flex items-center"
-                        optionLabel="name" 
-                        placeholder="Automatique"
+                        optionLabel="name"
+                        optionValue="code"
                         formControlName="automaticValidation"
                         [invalid]="stepForm.controls.automaticValidation.touched && stepForm.controls.automaticValidation.invalid"
                         (onBlur)="stepForm.controls.automaticValidation.markAsTouched()"
@@ -196,8 +242,8 @@
                         class="flex items-center"
                         [options]="childWithAdultOpts" 
                         id="childAllowedWithAdult" 
-                        optionLabel="name" 
-                        placeholder="Oui"
+                        optionLabel="name"
+                        optionValue="code"
                         formControlName="childAllowedWithAdult"
                         [invalid]="stepForm.controls.childAllowedWithAdult.touched && stepForm.controls.childAllowedWithAdult.invalid"
                         (onBlur)="stepForm.controls.childAllowedWithAdult.markAsTouched()"
@@ -208,6 +254,37 @@
                         {{ getErrorMessage('childAllowedWithAdult') }}
                     </p>
                     }
+                </div>
+                <div class="refundPolicy">
+                    <div class="flex flex-row-reverse items-center gap-x-2">
+                        <app-icon-svg 
+                        pTooltip="Ce délai correspond au nombre de jours avant l'activité pendant lesquels un participant peut annuler et être remboursé." 
+                        tooltipPosition="bottom" 
+                        class="tooltip" 
+                        width="24" 
+                        height="24" 
+                        iconName="tooltip" 
+                        color="#242651">
+                        </app-icon-svg>
+                        <label>Politique de remb.<br>(en jour)</label>
+                        <p-inputnumber 
+                        [showButtons]="true" 
+                        buttonLayout="horizontal" 
+                        inputId="refundPolicy" 
+                        spinnerMode="horizontal" 
+                        [step]="1" 
+                        placeholder="1"
+                        formControlName="refundPolicy"
+                        [min]="1"
+                        >
+                            <ng-template #incrementbuttonicon>
+                               <app-icon-svg width="14" height="14" iconName="plus" color="#111827"></app-icon-svg>
+                            </ng-template>
+                            <ng-template #decrementbuttonicon>
+                                <app-icon-svg width="14" height="14" iconName="minus" color="#111827"></app-icon-svg>
+                            </ng-template>
+                        </p-inputnumber>
+                    </div>
                 </div>
             </div>
         </div>
@@ -225,11 +302,11 @@
             <div class="schedule-activities flex items-center gap-2">
                 @for (schedule of scheduledActivities; track schedule.id) {
                     <div class="schedule-date flex flex-col" (click)="openDialogForEdit(schedule.id!)">
-                        <p class="day mb-0">{{ schedule.selectedDays.join(' - ') }}</p>
+                        <p class="day mb-0">{{ schedule.dayOfWeek.join(' - ') }}</p>
                         <p class="hour mb-0">
-                            {{ schedule.availabilityFrom | date:'shortTime' }} - {{ schedule.availabilityTo | date:'shortTime' }}
-                            @if (schedule.unavailabilityFrom && schedule.unavailabilityTo) {
-                                <span>· Pause ({{ schedule.unavailabilityFrom | date:'shortTime' }} - {{ schedule.unavailabilityTo | date:'shortTime' }})</span>
+                            {{ schedule.openTime | date:'shortTime' }} - {{ schedule.closeTime | date:'shortTime' }}
+                            @if (schedule.breakStart && schedule.breakEnd) {
+                                <span>· Pause ({{ schedule.breakStart | date:'shortTime' }} - {{ schedule.breakEnd | date:'shortTime' }})</span>
                             }
                         </p>
                     </div>
@@ -257,7 +334,8 @@
                     type="text" 
                     placeholder="12 avenue des Pins, 06210 Mandelieu-La Napoule" 
                     pInputText
-                    formControlName="address" />
+                    formControlName="address"
+                    autocomplete="new-address" />
                 </div>
                 <div class="zipcode-city flex flex-col gap-y-4 w-full lg:flex-row lg:gap-x-4 lg:gap-y-0 lg:w-1/2">
                     <div class="zipcode flex flex-col gap-y-2 w-full">
@@ -268,7 +346,8 @@
                         type="text"
                         placeholder="06210" 
                         pInputText
-                        formControlName="zipcode" />
+                        formControlName="zipcode"
+                        autocomplete="new-zipcode" />
                     </div>
                     <div class="city flex flex-col gap-y-2 w-full">
                          <label>Ville</label>
@@ -278,7 +357,8 @@
                         type="text" 
                         placeholder="Mandelieu" 
                         pInputText
-                        formControlName="city" />
+                        formControlName="city"
+                        autocomplete="new-city" />
                     </div>
                 </div>
                 <div class="access-info flex flex-col gap-y-2">
@@ -299,14 +379,14 @@
         </div>
     </form>
 
-    <app-add-activity-dialog 
+    <app-add-schedule 
         [(visible)]="isNewActivityDialogVisible"
         [editingScheduleId]="editingScheduleId()"
-        [initialAvailabilityFrom]="getScheduleData(editingScheduleId())?.availabilityFrom"
-        [initialAvailabilityTo]="getScheduleData(editingScheduleId())?.availabilityTo"
-        [initialUnavailabilityFrom]="getScheduleData(editingScheduleId())?.unavailabilityFrom"
-        [initialUnavailabilityTo]="getScheduleData(editingScheduleId())?.unavailabilityTo"
-        [initialSelectedDays]="getScheduleData(editingScheduleId())?.selectedDays ?? []"
+        [initialAvailabilityFrom]="getScheduleData(editingScheduleId())?.openTime"
+        [initialAvailabilityTo]="getScheduleData(editingScheduleId())?.closeTime"
+        [initialUnavailabilityFrom]="getScheduleData(editingScheduleId())?.breakStart"
+        [initialUnavailabilityTo]="getScheduleData(editingScheduleId())?.breakEnd"
+        [initialSelectedDays]="getScheduleData(editingScheduleId())?.dayOfWeek ?? []"
         (scheduleAdded)="onScheduleAdded($event)"
         (cancelled)="isNewActivityDialogVisible = false" 
     />

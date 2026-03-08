@@ -18,10 +18,10 @@ export const errorMessages: Record<string, Record<string, string>> = {
         required: 'Le nombre max. de personnes est requis',
         max: 'Le nombre max. de personnes autorisé est de 99'
     },
-    slotDuration: {
+    slotDurationMin: {
         required: 'La durée de l\'activité est requise',
-        min: 'La durée de l\'activité est de 30 minutes',
-        max: 'La durée de l\'activité est de 1440 minutes'
+        min: 'La durée minimum de l\'activité est de 5 minutes',
+        max: 'La durée maximum de l\'activité est de 1440 minutes (24h)'
     },
     minAge: {
         required: 'L\'âge minimum est requis',
@@ -29,11 +29,9 @@ export const errorMessages: Record<string, Record<string, string>> = {
         max: 'L\'âge maximum autorisé est de 98'
     },
     maxAge: {
-        required: 'L\'âge maximum est requis',
         max: 'L\'âge maximum autorisé est de 99'
     },
     maxAgeChild: {
-        required: 'L\'âge max. des enfants est requis',
         min: 'L\'âge max. des enfants autorisé est de 3',
         max: 'L\'âge max. des enfants autorisé est de 17'
     },
@@ -42,10 +40,13 @@ export const errorMessages: Record<string, Record<string, string>> = {
     },
     childAllowedWithAdult: {
         required: 'Ce champ est requis'
+    },
+    accessInfo: {
+        required: 'Ce champ est requis'
     }
 };
     
-export type AvailabilityDayFullName = typeof availabilityDays[number]['fullname'];
+export type dayOfWeekFullName = typeof availabilityDays[number]['fullname'];
 export const availabilityDays = [
     { name: 'Lun.', fullname: 'Lundi' },
     { name: 'Mar.', fullname: 'Mardi' },
@@ -56,5 +57,5 @@ export const availabilityDays = [
     { name: 'Dim.', fullname: 'Dimanche' },
 ] as const;
 
-export const DAY_ORDER: AvailabilityDayFullName[] = availabilityDays.
-    map(d => d.fullname.slice(0, 3).toUpperCase() as AvailabilityDayFullName);
+export const DAY_ORDER: dayOfWeekFullName[] = availabilityDays.
+    map(d => d.fullname.slice(0, 3).toUpperCase() as dayOfWeekFullName);

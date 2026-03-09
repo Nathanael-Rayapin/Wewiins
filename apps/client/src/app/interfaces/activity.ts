@@ -11,7 +11,3 @@ export interface IActivityDraft {
     step3: IStepThree | null;
     step4: IStepFour | null;
 }
-
-export interface IActivityDraftStorage extends IActivityDraft {
-    activityId: string | null;
-}

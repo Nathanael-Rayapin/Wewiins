@@ -5,8 +5,11 @@ import com.wewiins.saas_api.dto.VerifiedAccountDto
 import com.wewiins.saas_api.dto.activity.ActivityDraftDto
 import com.wewiins.saas_api.interfaces.ActivityDraft
 import com.wewiins.saas_api.repositories.ActivityRepository
+import com.wewiins.saas_api.repositories.BookingRepository
+import com.wewiins.saas_api.repositories.FavoriteRepository
 import com.wewiins.saas_api.repositories.ProviderRepository
 import com.wewiins.saas_api.repositories.StorageRepository
+import com.wewiins.saas_api.repositories.TimeSlotRepository
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -16,7 +19,10 @@ import org.springframework.web.multipart.MultipartFile
 class ActivityService(
     private val activityRepository: ActivityRepository,
     private val providerRepository: ProviderRepository,
-    private val storageRepository: StorageRepository
+    private val storageRepository: StorageRepository,
+    private val timeSlotRepository: TimeSlotRepository,
+    private val bookingRepository: BookingRepository,
+    private val favoriteRepository: FavoriteRepository
 ) {
     private val logger = LoggerFactory.getLogger(ActivityService::class.java)
 

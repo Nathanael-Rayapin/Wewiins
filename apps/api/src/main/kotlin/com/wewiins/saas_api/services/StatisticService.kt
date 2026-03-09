@@ -1,9 +1,13 @@
 package com.wewiins.saas_api.services
 
 import com.wewiins.saas_api.dto.VerifiedAccountDto
-import com.wewiins.saas_api.interfaces.Dashboard
+import com.wewiins.saas_api.interfaces.ScoreDistribution
 import com.wewiins.saas_api.interfaces.Statistic
+import com.wewiins.saas_api.interfaces.VisitDataPoint
+import com.wewiins.saas_api.repositories.ActivityRepository
 import com.wewiins.saas_api.repositories.BookingRepository
+import com.wewiins.saas_api.repositories.FavoriteRepository
+import com.wewiins.saas_api.repositories.StatisticRepository
 import com.wewiins.saas_api.repositories.StripeRepository
 import com.wewiins.saas_api.repositories.TimeSlotRepository
 import com.wewiins.saas_api.utils.ComparisonCalculator
@@ -16,10 +20,13 @@ import kotlin.math.roundToInt
 
 @Service
 class StatisticService(
-    private val commonService: CommonService,
+    private val stripeService: StripeService,
     private val stripeRepository: StripeRepository,
+    private val activityRepository: ActivityRepository,
+    private val favoriteRepository: FavoriteRepository,
+    private val bookingRepository: BookingRepository,
     private val timeSlotRepository: TimeSlotRepository,
-    private val bookingRepository: BookingRepository
+    private val statisticRepository: StatisticRepository
 ) {
     private val logger = LoggerFactory.getLogger(StatisticService::class.java)
 
@@ -36,76 +43,87 @@ class StatisticService(
         val previousStartDate = previousEndDate - periodDuration
 
         return runBlocking {
+            // Revenues
             val currentTotalRevenueDeferred = async(Dispatchers.IO) {
-                commonService.getTotalRevenueByPeriod(
+                stripeRepository.getTotalRevenueByPeriod(
                     verifiedAccountDto.stripeConnectedAccountId!!,
                     startDate,
                     endDate
                 )
             }
 
-            val currentTotalChargeDeferred = async(Dispatchers.IO) {
-                getTotalChargeByPeriod(
-                    verifiedAccountDto.stripeConnectedAccountId!!,
-                    startDate,
-                    endDate
-                )
-            }
-
-            val currentTotalBookingDeferred = async(Dispatchers.IO) {
-                commonService.getTotalBookingByPeriod(
-                    verifiedAccountDto.stripeConnectedAccountId!!,
-                    startDate,
-                    endDate
-                )
-            }
-
-            val totalSlotsDeferred = async(Dispatchers.IO) {
-                timeSlotRepository.getTotalSlotsByPeriod(
-                    connectedAccountId = verifiedAccountDto.stripeConnectedAccountId!!,
-                    startDate = startDate,
-                    endDate = endDate
-                )
-            }
-
-            val bookedSlotsDeferred = async(Dispatchers.IO) {
-                bookingRepository.getBookedSlotsByPeriod(
-                    connectedAccountId = verifiedAccountDto.stripeConnectedAccountId!!,
-                    startDate = startDate,
-                    endDate = endDate
-                )
-            }
-
-            val currentAverageScoreDeferred = async(Dispatchers.IO) {
-                commonService.getAverageScoreByPeriod(
-                    verifiedAccountDto.stripeConnectedAccountId!!,
-                    startDate,
-                    endDate
-                )
-            }
-
-            // Retrieve statistics from the previous period
             val previousTotalRevenueDeferred = async(Dispatchers.IO) {
-                commonService.getTotalRevenueByPeriod(
+                stripeRepository.getTotalRevenueByPeriod(
                     verifiedAccountDto.stripeConnectedAccountId!!,
                     previousStartDate,
                     previousEndDate
+                )
+            }
+
+            val currentTotalRevenue = currentTotalRevenueDeferred.await()
+            val previousTotalRevenue = previousTotalRevenueDeferred.await()
+
+            val revenueComparison = ComparisonCalculator.calculate(
+                currentTotalRevenue.revenue,
+                previousTotalRevenue.revenue
+            )
+
+            // Charges
+            val currentTotalChargeDeferred = async(Dispatchers.IO) {
+                stripeService.getTotalChargeByPeriod(
+                    verifiedAccountDto.stripeConnectedAccountId!!,
+                    startDate,
+                    endDate
                 )
             }
 
             val previousTotalChargeDeferred = async(Dispatchers.IO) {
-                getTotalChargeByPeriod(
+                stripeService.getTotalChargeByPeriod(
                     verifiedAccountDto.stripeConnectedAccountId!!,
                     previousStartDate,
                     previousEndDate
                 )
             }
 
+            val currentTotalCharge = currentTotalChargeDeferred.await()
+            val previousTotalCharge = previousTotalChargeDeferred.await()
+
+            val chargeComparison = ComparisonCalculator.calculate(
+                currentTotalCharge,
+                previousTotalCharge
+            )
+
+            // Bookings
+            val currentTotalBookingDeferred = async(Dispatchers.IO) {
+                bookingRepository.getConfirmedBookingCountByPeriod(
+                    verifiedAccountDto.stripeConnectedAccountId!!,
+                    startDate,
+                    endDate
+                )
+            }
+
             val previousTotalBookingDeferred = async(Dispatchers.IO) {
-                commonService.getTotalBookingByPeriod(
+                bookingRepository.getConfirmedBookingCountByPeriod(
                     verifiedAccountDto.stripeConnectedAccountId!!,
                     previousStartDate,
                     previousEndDate
+                )
+            }
+
+            val currentTotalBooking = currentTotalBookingDeferred.await()
+            val previousTotalBooking = previousTotalBookingDeferred.await()
+
+            val bookingComparison = ComparisonCalculator.calculate(
+                currentTotalBooking,
+                previousTotalBooking
+            )
+
+            // Slots
+            val currentTotalSlotsDeferred = async(Dispatchers.IO) {
+                timeSlotRepository.getTotalSlotsByPeriod(
+                    connectedAccountId = verifiedAccountDto.stripeConnectedAccountId!!,
+                    startDate = startDate,
+                    endDate = endDate
                 )
             }
 
@@ -117,77 +135,163 @@ class StatisticService(
                 )
             }
 
-            val previousBookedSlotsDeferred = async(Dispatchers.IO) {
-                bookingRepository.getBookedSlotsByPeriod(
-                    connectedAccountId = verifiedAccountDto.stripeConnectedAccountId!!,
-                    startDate = previousStartDate,
-                    endDate = previousEndDate
+            val currentTotalSlot = currentTotalSlotsDeferred.await()
+            val previousTotalSlot = previousTotalSlotsDeferred.await()
+
+            val slotComparison = ComparisonCalculator.calculate(
+                currentTotalSlot,
+                previousTotalSlot
+            )
+
+            // Average Score
+            val currentAverageScoreDeferred = async(Dispatchers.IO) {
+                activityRepository.getAverageScoreByPeriod(
+                    verifiedAccountDto.stripeConnectedAccountId!!,
+                    startDate,
+                    endDate
                 )
             }
 
             val previousAverageScoreDeferred = async(Dispatchers.IO) {
-                commonService.getAverageScoreByPeriod(
+                activityRepository.getAverageScoreByPeriod(
                     verifiedAccountDto.stripeConnectedAccountId!!,
                     previousStartDate,
                     previousEndDate
                 )
             }
 
-            // Current period
-            val currentTotalRevenue = currentTotalRevenueDeferred.await()
-            val currentTotalCharge = currentTotalChargeDeferred.await()
-            val currentTotalBookingCount = currentTotalBookingDeferred.await()
-            val currentTotalSlotCount = totalSlotsDeferred.await()
-            val currentReservedSlotCount = bookedSlotsDeferred.await()
             val currentAverageScore = currentAverageScoreDeferred.await()
-
-            // Previous period
-            val previousTotalRevenue = previousTotalRevenueDeferred.await()
-            val previousTotalCharge = previousTotalChargeDeferred.await()
-            val previousTotalBookingCount = previousTotalBookingDeferred.await()
-            val previousTotalSlotCount = previousTotalSlotsDeferred.await()
-            val previousReservedSlotCount = previousBookedSlotsDeferred.await()
             val previousAverageScore = previousAverageScoreDeferred.await()
 
-            val currentOccupancyRate = if (currentTotalSlotCount > 0) {
-                ((currentReservedSlotCount.toDouble() / currentTotalSlotCount.toDouble()) * 100).roundToInt()
-            } else 0
-
-            val previousOccupancyRate = if (previousTotalSlotCount > 0) {
-                ((previousReservedSlotCount.toDouble() / previousTotalSlotCount.toDouble()) * 100).roundToInt()
-            } else 0
-
-            // Compare statistics
-            val revenueComparison = ComparisonCalculator.calculate(
-                currentTotalRevenue.revenue,
-                previousTotalRevenue.revenue
-            )
-
-            val chargeComparison = ComparisonCalculator.calculate(
-                currentTotalCharge,
-                previousTotalCharge
-            )
-
-            val bookingComparison = ComparisonCalculator.calculate(
-                currentTotalBookingCount,
-                previousTotalBookingCount
-            )
-
-            val occupancyRateComparison = ComparisonCalculator.calculate(
-                currentOccupancyRate,
-                previousOccupancyRate
-            )
-
-            val scoreComparison = ComparisonCalculator.calculate(
+            val averageScoreComparison = ComparisonCalculator.calculate(
                 currentAverageScore,
                 previousAverageScore
             )
 
-            Dashboard(
+            // Occupancy
+            val currentOccupancyRate = if (currentTotalSlot > 0) {
+                ((currentTotalBooking.toDouble() / currentTotalSlot.toDouble()) * 100).roundToInt()
+            } else 0
+
+            val previousOccupancyRate = if (previousTotalSlot > 0) {
+                ((previousTotalBooking.toDouble() / previousTotalSlot.toDouble()) * 100).roundToInt()
+            } else 0
+
+            val occupancyComparison = ComparisonCalculator.calculate(
+                currentOccupancyRate,
+                previousOccupancyRate
+            )
+
+            // Cancellation
+            val currentCancellationRateDeferred = async(Dispatchers.IO) {
+                bookingRepository.getCancellationRateByPeriod(
+                    verifiedAccountDto.stripeConnectedAccountId!!,
+                    startDate,
+                    endDate
+                )
+            }
+
+            val previousCancellationRateDeferred = async(Dispatchers.IO) {
+                bookingRepository.getCancellationRateByPeriod(
+                    verifiedAccountDto.stripeConnectedAccountId!!,
+                    previousStartDate,
+                    previousEndDate
+                )
+            }
+
+            val currentCancellationRate = currentCancellationRateDeferred.await()
+            val previousCancellationRate = previousCancellationRateDeferred.await()
+
+            val cancellationComparison = ComparisonCalculator.calculate(
+                currentCancellationRate,
+                previousCancellationRate
+            )
+
+            // Average Participant
+            val currentAverageParticipantsDeferred = async(Dispatchers.IO) {
+                bookingRepository.getAverageParticipantsByPeriod(
+                    verifiedAccountDto.stripeConnectedAccountId!!,
+                    startDate,
+                    endDate
+                )
+            }
+
+            val previousAverageParticipantsDeferred = async(Dispatchers.IO) {
+                bookingRepository.getAverageParticipantsByPeriod(
+                    verifiedAccountDto.stripeConnectedAccountId!!,
+                    previousStartDate,
+                    previousEndDate
+                )
+            }
+
+            val currentAverageParticipants = currentAverageParticipantsDeferred.await()
+            val previousAverageParticipants = previousAverageParticipantsDeferred.await()
+
+            val averageParticipantsComparison = ComparisonCalculator.calculate(
+                currentAverageParticipants,
+                previousAverageParticipants
+            )
+
+            // Favorite
+            val currentFavoritesCountDeferred = async(Dispatchers.IO) {
+                favoriteRepository.getTotalFavoritesByPeriod(
+                    verifiedAccountDto.stripeConnectedAccountId!!,
+                    startDate,
+                    endDate
+                )
+            }
+
+            val previousFavoritesCountDeferred = async(Dispatchers.IO) {
+                favoriteRepository.getTotalFavoritesByPeriod(
+                    verifiedAccountDto.stripeConnectedAccountId!!,
+                    previousStartDate,
+                    previousEndDate
+                )
+            }
+
+            val currentFavoritesCount = currentFavoritesCountDeferred.await()
+            val previousFavoritesCount = previousFavoritesCountDeferred.await()
+
+            val favoritesComparison = ComparisonCalculator.calculate(
+                currentFavoritesCount,
+                previousFavoritesCount
+            )
+
+            // Visit Distribution
+            val visitsByPeriodDeferred = async(Dispatchers.IO) {
+                statisticRepository.getVisitDataPointsByPeriod(
+                    verifiedAccountDto.stripeConnectedAccountId!!,
+                    startDate,
+                    endDate
+                )
+            }
+
+            val visitsByPeriod = visitsByPeriodDeferred.await()
+
+
+            // Score Distribution
+            val scoreDistributionDeferred = async(Dispatchers.IO) {
+                statisticRepository.getScoreDistributionByPeriod(
+                    verifiedAccountDto.stripeConnectedAccountId!!,
+                    startDate,
+                    endDate
+                )
+            }
+
+            val scoreDistribution = scoreDistributionDeferred.await()
+
+            Statistic(
                 totalRevenue = revenueComparison,
                 totalCharges = chargeComparison,
                 totalBooking = bookingComparison,
-                occupancyRate = occupancyRateComparison
+                averageOccupancy = occupancyComparison,
+                averageCancellation = cancellationComparison,
+                averageParticipants = averageParticipantsComparison,
+                totalFavorites = favoritesComparison,
+                averageScore = averageScoreComparison,
+                visitsByPeriod = visitsByPeriod,
+                scoreDistribution = scoreDistribution,
+                filterRangeDays = filterRangeDays,
             )
         }
     }
@@ -198,6 +302,24 @@ class StatisticService(
         logger.info("Get TotalChargeByPeriod")
         return runBlocking {
             stripeRepository.getTotalChargesByPeriod(connectedAccountId, startDate, endDate)
+        }
+    }
+
+    fun getVisitDataPointsByPeriod(
+        connectedAccountId: String, startDate: Long, endDate: Long
+    ): List<VisitDataPoint> {
+        logger.info("Get VisitDataPointByPeriod")
+        return runBlocking {
+            statisticRepository.getVisitDataPointsByPeriod(connectedAccountId, startDate, endDate)
+        }
+    }
+
+    fun getScoreDistributionByPeriod(
+        connectedAccountId: String, startDate: Long, endDate: Long
+    ): List<ScoreDistribution> {
+        logger.info("Get ScoreDistributionByPeriod")
+        return runBlocking {
+            statisticRepository.getScoreDistributionByPeriod(connectedAccountId, startDate, endDate)
         }
     }
 }

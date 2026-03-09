@@ -1,7 +1,7 @@
 import { Component, effect, input, signal } from '@angular/core';
-import { IStatComparison } from '../../dto/dashboard';
 import { formatComparisonPeriodLabel } from '../../utils/date';
 import { IconSvg } from '../icon-svg/icon-svg';
+import { IStatComparisonDto } from '../../dto/common';
 
 @Component({
   selector: 'app-trend',
@@ -10,7 +10,7 @@ import { IconSvg } from '../icon-svg/icon-svg';
   styleUrl: './trend.css',
 })
 export class Trend {
-  stat = input.required<IStatComparison<number>>();
+  stat = input.required<IStatComparisonDto<number>>();
   filterRangeDays = input.required<number>();
   filterRangeDaysStr = signal<string>('');
 

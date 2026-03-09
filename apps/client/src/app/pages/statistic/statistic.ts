@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, ViewEncapsulation } from '@angular/core';
+import { Component, inject, OnInit, signal, ViewEncapsulation, WritableSignal } from '@angular/core';
 import { TitleSection } from '../../components/title-section/title-section';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { IconSvg } from '../../components/icon-svg/icon-svg';
@@ -6,11 +6,13 @@ import { DividerModule } from 'primeng/divider';
 import { TooltipModule } from 'primeng/tooltip';
 import { RatingModule } from 'primeng/rating';
 import { ChartModule } from 'primeng/chart';
-import { IStatisticKPIs, IVoteDistribution } from './statistic.interface';
+import { IChartData, IChartOptions, IStatisticKPIs } from './statistic.interface';
 import { Trend } from '../../components/trend/trend';
-import { kpis, votes } from './data/statistic.data';
+import { DAY_LABELS, defaultStatisticData, kpis, MONTH_LABELS, MONTH_THRESHOLD } from './data/statistic.data';
 import { FormsModule } from '@angular/forms';
 import { ProgressBarModule } from 'primeng/progressbar';
+import { StatisticService } from '../../services/statistic.service';
+import { IStatisticDto, IVisitDataPointDto } from '../../dto/statistic';
 
 @Component({
   selector: 'app-statistic',
@@ -32,35 +34,97 @@ import { ProgressBarModule } from 'primeng/progressbar';
   encapsulation: ViewEncapsulation.None,
 })
 export class Statistic implements OnInit {
-  private readonly MONTH_THRESHOLD = 21;
-  private readonly DAY_LABELS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
-  private readonly MONTH_LABELS = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+  private statisticService = inject(StatisticService);
 
   isLoading = signal(false);
   startDate = signal<Date>(this.getDefaultStartDate());
 
   kpis: IStatisticKPIs[] = kpis;
-  votes: IVoteDistribution[] = votes;
 
-  data: any;
-  options: any;
+  data: IChartData | null = null;
+  options: IChartOptions | null = null;
+
+  statisticData: WritableSignal<IStatisticDto> = defaultStatisticData;
+  filterRangeDays = signal<number>(0);
 
   starsValue: number = 4.7;
 
-  ngOnInit(): void {
-    this.initChart();
+  get totalRevenue(): string {
+    return this.statisticData().totalRevenue.currentValue
+      .toLocaleString('fr-FR', { maximumFractionDigits: 2 });
   }
 
-  initChart(): void {
+  get totalNetRevenue(): string {
+    return (this.statisticData().totalRevenue.currentValue - this.statisticData().totalCharges.currentValue)
+      .toLocaleString('fr-FR', { maximumFractionDigits: 2 });
+  }
+
+  get totalCharge(): string {
+    return this.statisticData().totalCharges.currentValue
+      .toLocaleString('fr-FR', { maximumFractionDigits: 2 });
+  }
+
+  get totalBooking(): string {
+    return this.statisticData().totalBooking.currentValue
+      .toLocaleString('fr-FR', { maximumFractionDigits: 2 });
+  }
+
+  get averageScore(): string {
+    return `${this.statisticData().averageScore.currentValue
+      .toLocaleString('fr-FR', { maximumFractionDigits: 2 })}/5`;
+  }
+
+  get totalVotes(): number {
+    return this.statisticData().scoreDistribution.reduce((sum, v) => sum + v.count, 0);
+  }
+
+  ngOnInit(): void {
+    this.initStatistic();
+  }
+
+  protected initStatistic(): void {
+    this.isLoading.set(true);
+
+    this.statisticService.initializeStatistic(this.startDate()).subscribe({
+      next: (response) => {
+        this.statisticData.set(response);
+        this.starsValue = response.averageScore.currentValue;
+        this.filterRangeDays.set(response.filterRangeDays);
+
+
+        this.updateKPIs();
+        this.initChart(response.visitsByPeriod);
+      },
+      error: (error: Error) => {
+        console.error("Erreur lors du chargement de la page de statistiques", error.name);
+        this.isLoading.set(false);
+      },
+      complete: () => {
+        this.isLoading.set(false);
+      }
+    });
+  }
+
+  private updateKPIs(): void {
+    this.kpis.forEach(kpi => {
+      const value = this.statisticData()[kpi.name].currentValue;
+      kpi.value = value;
+    });
+  }
+
+  initChart(visitsByPeriod: IVisitDataPointDto[]): void {
     const labels = this.getLabels();
-    const rawData = this.getMockedData(labels.length);
+
+    const chartData = this.isMonthView
+      ? this.aggregateByMonth(visitsByPeriod, labels)
+      : this.aggregateByDay(visitsByPeriod, labels);
 
     this.data = {
       labels,
       datasets: [{
         label: '',
-        backgroundColor: this.getColors(rawData),
-        data: rawData,
+        backgroundColor: this.getColors(chartData),
+        data: chartData,
         barPercentage: this.getBarPercentage(),
         categoryPercentage: 0.6,
         borderRadius: 6,
@@ -71,17 +135,9 @@ export class Statistic implements OnInit {
       maintainAspectRatio: false,
       plugins: { legend: { display: false } },
       scales: {
-        y: {
-          ticks: {
-            stepSize: 50
-          }
-        }
+        y: { ticks: { stepSize: 50 } }
       },
     };
-  }
-
-  get totalVotes(): number {
-    return this.votes.reduce((sum, v) => sum + v.count, 0);
   }
 
   protected getPercentage(count: number): number {
@@ -89,40 +145,58 @@ export class Statistic implements OnInit {
     return (count / this.totalVotes) * 100;
   }
 
-  private get filterRangeDays(): number {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+  private aggregateByDay(visits: IVisitDataPointDto[], labels: string[]): number[] {
+    const counts = new Array(labels.length).fill(0);
 
-    const start = new Date(this.startDate());
-    start.setHours(0, 0, 0, 0);
+    visits.forEach(point => {
+      const date = new Date(point.date * 1000);
+      const dayIndex = (date.getDay() + 6) % 7;
 
-    const diffMs = today.getTime() - start.getTime();
-    const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
-    return Math.max(1, diffDays);
+      if (dayIndex < counts.length) {
+        counts[dayIndex] += point.count;
+      }
+    });
+
+    return counts;
+  }
+
+  private aggregateByMonth(visits: IVisitDataPointDto[], labels: string[]): number[] {
+    const counts = new Array(labels.length).fill(0);
+
+    visits.forEach(point => {
+      const date = new Date(point.date * 1000);
+      const monthIndex = date.getMonth();
+
+      if (monthIndex < counts.length) {
+        counts[monthIndex] += point.count;
+      }
+    });
+
+    return counts;
   }
 
   private get isMonthView(): boolean {
-    return this.filterRangeDays > this.MONTH_THRESHOLD;
+    return this.filterRangeDays() > MONTH_THRESHOLD;
   }
 
   private getDefaultStartDate(): Date {
     const date = new Date();
-    date.setDate(date.getDate() - 7);
+    date.setDate(date.getDate() - 6);
     return date;
   }
 
   private getLabels(): string[] {
     if (this.isMonthView) {
-      const monthCount = Math.min(Math.ceil(this.filterRangeDays / 30), 12);
-      return this.MONTH_LABELS.slice(0, monthCount);
+      const monthCount = Math.min(Math.ceil(this.filterRangeDays() / 30), 12);
+      return MONTH_LABELS.slice(0, monthCount);
     }
-    return Array.from({ length: this.filterRangeDays }, (_, i) => this.DAY_LABELS[i % 7]);
+    return Array.from({ length: this.filterRangeDays() }, (_, i) => DAY_LABELS[i % 7]);
   }
 
   private getBarPercentage(): number {
     if (this.isMonthView) return 0.5;
-    if (this.filterRangeDays <= 7) return 0.5;
-    if (this.filterRangeDays <= 14) return 0.3;
+    if (this.filterRangeDays() <= 7) return 0.5;
+    if (this.filterRangeDays() <= 14) return 0.3;
     return 0.15;
   }
 
@@ -138,10 +212,6 @@ export class Statistic implements OnInit {
       if (value < tier2) return '#ffce34';
       return '#49a3a3';
     });
-  }
-
-  private getMockedData(length: number): number[] {
-    return Array.from({ length }, () => Math.floor(Math.random() * 150) + 50);
   }
 
 }

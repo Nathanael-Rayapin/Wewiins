@@ -1,4 +1,4 @@
-import { IStatComparison } from "../dto/dashboard";
+import { IStatComparisonDto } from "../dto/dashboard";
 import { getStartOfDayToNowRange, formatComparisonPeriodLabel } from "./date";
 
 describe.concurrent('Get Date Range', () => {
@@ -19,7 +19,7 @@ describe.concurrent('Get Date Range', () => {
 });
 
 describe.concurrent('formatComparisonPeriodLabel', () => {
-  const baseStat: IStatComparison<number> = {
+  const baseStat: IStatComparisonDto<number> = {
     currentValue: 10,
     previousValue: 8,
     percentageChange: 25,
@@ -37,7 +37,7 @@ describe.concurrent('formatComparisonPeriodLabel', () => {
   });
 
   it.concurrent('should return same format when trend is UP', () => {
-    const stat: IStatComparison<number> = {
+    const stat: IStatComparisonDto<number> = {
       ...baseStat,
       trend: 'UP',
     };
@@ -47,7 +47,7 @@ describe.concurrent('formatComparisonPeriodLabel', () => {
   });
 
   it.concurrent('should return same format when trend is DOWN', () => {
-    const stat: IStatComparison<number> = {
+    const stat: IStatComparisonDto<number> = {
       ...baseStat,
       trend: 'DOWN',
     };

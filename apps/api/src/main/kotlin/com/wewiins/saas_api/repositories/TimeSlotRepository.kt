@@ -75,8 +75,8 @@ class TimeSlotRepository(
         startDate: Long,
         endDate: Long
     ): Int {
-        val startLocalDate = Instant.ofEpochMilli(startDate).atZone(ZoneOffset.UTC).toLocalDate().toString()
-        val endLocalDate = Instant.ofEpochMilli(endDate).atZone(ZoneOffset.UTC).toLocalDate().toString()
+        val startLocalDate = Instant.ofEpochSecond(startDate).atZone(ZoneOffset.UTC).toLocalDate().toString()
+        val endLocalDate = Instant.ofEpochSecond(endDate).atZone(ZoneOffset.UTC).toLocalDate().toString()
 
         return supabaseClient.postgrest.rpc(
             "get_total_slots",

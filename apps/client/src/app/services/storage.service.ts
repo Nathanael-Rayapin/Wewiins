@@ -1,11 +1,5 @@
 import { Injectable } from "@angular/core";
-
-export interface IActivityDraftStorage {
-    activityId: string | undefined;
-    step1: {
-        name: string | undefined;
-    } | undefined;
-}
+import { IActivityDraftStorage } from "../interfaces/storage";
 
 @Injectable({ providedIn: 'root' })
 export class StorageService {

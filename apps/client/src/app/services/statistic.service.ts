@@ -3,7 +3,7 @@ import { environment } from "../../environments/environment";
 import { HttpClient } from "@angular/common/http";
 import { Observable, throwError } from "rxjs";
 import { getStartOfDayToNowRange } from "../utils/date";
-import { IDashboardDto } from "../dto/dashboard";
+import { IStatisticDto } from "../dto/statistic";
 
 @Injectable({ providedIn: 'root' })
 export class StatisticService {
@@ -11,12 +11,11 @@ export class StatisticService {
 
     private http = inject(HttpClient);
 
-    initializeStatistic(startRange: Date) {
+    initializeStatistic(startRange: Date): Observable<IStatisticDto> {
         try {
-            // Initialized to today
             const { startDate, endDate } = getStartOfDayToNowRange(startRange);
 
-            return this.http.get<IDashboardDto>(`${this.BASE_URL}/statistic/initialize`, {
+            return this.http.get<IStatisticDto>(`${this.BASE_URL}/statistic/initialize`, {
                 params: {
                     startDate: startDate.toString(),
                     endDate: endDate.toString()

@@ -12,7 +12,7 @@ class StripeRepository(
 ) {
     private val logger = LoggerFactory.getLogger(StripeRepository::class.java)
 
-    suspend fun getRevenueByPeriod(
+    suspend fun getTotalRevenueByPeriod(
         connectedAccountId: String,
         startDate: Long,
         endDate: Long

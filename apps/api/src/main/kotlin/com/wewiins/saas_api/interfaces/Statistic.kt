@@ -1,16 +1,17 @@
 package com.wewiins.saas_api.interfaces
 
 data class Statistic(
-    val totalRevenue: ComparisonStat<Double>, // OK
-    val totalCharges: ComparisonStat<Double>, // OK
-    val totalBooking: ComparisonStat<Int>, // OK
-    val occupancyRate: ComparisonStat<Int>, // OK
-    val cancellationRate: ComparisonStat<Int>,
-    val averageParticipants: ComparisonStat<Int>,
-    val favoritesCount: ComparisonStat<Int>,
-    val averageScore: ComparisonStat<Double>, // OK
+    val totalRevenue: ComparisonStat<Double>,
+    val totalCharges: ComparisonStat<Double>,
+    val totalBooking: ComparisonStat<Int>,
+    val averageOccupancy: ComparisonStat<Int>,
+    val averageCancellation: ComparisonStat<Double>,
+    val averageParticipants: ComparisonStat<Double>,
+    val totalFavorites: ComparisonStat<Int>,
+    val averageScore: ComparisonStat<Double>,
     val visitsByPeriod: List<VisitDataPoint>,
-    val scoreDistribution: List<ScoreDistribution>
+    val scoreDistribution: List<ScoreDistribution>,
+    val filterRangeDays: Int,
 )
 
 data class VisitDataPoint(

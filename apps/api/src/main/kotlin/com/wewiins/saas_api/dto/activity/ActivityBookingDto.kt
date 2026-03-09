@@ -39,3 +39,7 @@ data class ActivityTitleWrapper(
 data class ActivityTitle(
     val title: String
 )
+
+data class ActivityBookingDateDto(
+    val date: String
+)

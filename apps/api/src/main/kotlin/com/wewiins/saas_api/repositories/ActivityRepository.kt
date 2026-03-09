@@ -2,7 +2,7 @@ package com.wewiins.saas_api.repositories
 
 import com.wewiins.saas_api.dto.activity.ActivityCategoryJoinDto
 import com.wewiins.saas_api.dto.activity.ActivityDraftDto
-import com.wewiins.saas_api.dto.activity.AverageScore
+import com.wewiins.saas_api.dto.activity.ActivityScoreDto
 import com.wewiins.saas_api.interfaces.ActivityDraft
 import com.wewiins.saas_api.dto.activity.ActivityDto
 import com.wewiins.saas_api.dto.activity.ActivityInfoJoinDto
@@ -96,7 +96,7 @@ class ActivityRepository(
                 count(Count.EXACT)
             }
 
-        val scores = response.decodeList<AverageScore>()
+        val scores = response.decodeList<ActivityScoreDto>()
             .mapNotNull { it.averageScore }
 
         if (scores.isEmpty()) {

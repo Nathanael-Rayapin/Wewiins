@@ -1,8 +1,8 @@
 import { Component, computed, effect, input, signal } from '@angular/core';
-import { IStatComparison } from '../../dto/dashboard';
 import { DashboardStatKey } from '../../pages/dashboard/data/dashboard.data';
 import { formatComparisonPeriodLabel } from '../../utils/date';
 import { IconSvg } from '../icon-svg/icon-svg';
+import { IStatComparisonDto } from '../../dto/common';
 
 @Component({
   selector: 'app-dashboard-card',
@@ -12,7 +12,7 @@ import { IconSvg } from '../icon-svg/icon-svg';
 })
 export class DashboardCard {
   label = input.required<string>();
-  stat = input.required<IStatComparison<number>>();
+  stat = input.required<IStatComparisonDto<number>>();
   iconName = input.required<string>();
   key = input<DashboardStatKey>();
 

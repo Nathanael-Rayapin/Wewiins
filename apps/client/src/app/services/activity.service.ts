@@ -4,9 +4,10 @@ import { environment } from "../../environments/environment";
 import { HttpClient } from "@angular/common/http";
 import { sanitize } from "../utils/sanitize";
 import { IStepOne } from "../pages/activity/steps/step-1/step-1.interface";
-import { IActivityDraft, IActivityDraftStorage, ImageType } from "../interfaces/activity";
+import { IActivityDraft, ImageType } from "../interfaces/activity";
 import { IStepThree } from "../pages/activity/steps/step-3/step-3.interface";
 import { StorageService } from "./storage.service";
+import { IActivityDraftDto } from "../dto/activity";
 
 @Injectable({ providedIn: 'root' })
 export class ActivityService {
@@ -72,13 +73,13 @@ export class ActivityService {
         return step3?.program?.map(file => file.image).filter((img): img is File => img !== null) ?? [];
     }
 
-    loadDraft(activityId?: string, activityName?: string): Observable<IActivityDraftStorage> {
+    loadDraft(activityId?: string, activityName?: string): Observable<IActivityDraftDto> {
         const params: Record<string, string> = {};
 
         if (activityId) params['existingActivityId'] = activityId;
         if (activityName) params['existingActivityName'] = activityName;
 
-        return this.http.get<IActivityDraftStorage>(`${this.BASE_URL}/activity/draft/load`,
+        return this.http.get<IActivityDraftDto>(`${this.BASE_URL}/activity/draft/load`,
             { params }
         );
     }

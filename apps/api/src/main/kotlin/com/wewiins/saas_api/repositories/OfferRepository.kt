@@ -1,6 +1,6 @@
 package com.wewiins.saas_api.repositories
 
-import com.wewiins.saas_api.dto.activity.OfferDto
+import com.wewiins.saas_api.dto.activity.ActivityOfferDto
 import com.wewiins.saas_api.dto.activity.OfferIdDto
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
@@ -31,7 +31,7 @@ class OfferRepository(
             ?.id
     }
 
-    suspend fun getOfferByActivityId(activityId: String): OfferDto? {
+    suspend fun getOfferByActivityId(activityId: String): ActivityOfferDto? {
         logger.info("Fetching Offer with activityId: $activityId")
 
         return supabaseClient
@@ -39,7 +39,7 @@ class OfferRepository(
             .select {
                 filter { eq("activity_id", activityId) }
             }
-            .decodeList<OfferDto>()
+            .decodeList<ActivityOfferDto>()
             .firstOrNull()
     }
 }

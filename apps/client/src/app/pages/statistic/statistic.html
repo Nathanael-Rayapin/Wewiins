@@ -10,13 +10,12 @@
                     <div class="revenue flex flex-col justify-between w-1/3">
                         <h2 class="label">Chiffre d'affaire</h2>
                         <div class="content flex gap-x-4 items-center justify-center">
-                            <p class="value xl">1550</p>
+                            <p class="value xl">
+                                {{ statisticData().totalRevenue.currentValue === 0 ? '-' : totalRevenue }}
+                            </p>
                             <app-icon-svg width="36" height="36" [iconName]="'euro'" color="#242651"></app-icon-svg>
                         </div>
-                        <app-trend 
-                        [stat]="{ currentValue: 1550, previousValue: 0, percentageChange: 100, trend: 'UP' }" 
-                        [filterRangeDays]="90">
-                        </app-trend>
+                        <app-trend [stat]=" statisticData().totalRevenue" [filterRangeDays]="filterRangeDays()"></app-trend>
                     </div>
                     <p-divider layout="vertical" />
                     <div class="revenue-net-and-booking flex flex-col justify-between w-2/3">
@@ -35,11 +34,13 @@
                             </div>
                             <div class="flex items-center justify-between">
                                 <div class="content flex items-center gap-x-4">
-                                    <p class="value">1 317,5</p>
+                                    <p class="value">
+                                        {{ statisticData().totalCharges.currentValue === 0 ? '-' : totalNetRevenue }}
+                                    </p>
                                     <app-icon-svg width="24" height="24" [iconName]="'euro'" color="#242651"></app-icon-svg>
                                 </div>
                                 <div class="comission">
-                                    <p class="desc-info">232,5€ Com. WeWiins</p>
+                                    <p class="desc-info">{{ statisticData().totalCharges.currentValue === 0 ? '-' : totalCharge }} € Com. WeWiins</p>
                                 </div>
                             </div>
                         </div>
@@ -49,11 +50,10 @@
                             </div>
                             <div class="flex items-center justify-between">
                                 <div class="content flex items-center gap-x-4">
-                                    <p class="value">25</p>
+                                    <p class="value">{{statisticData().totalBooking.currentValue === 0 ? '-' : totalBooking }}</p>
                                 </div>
                                 <app-trend 
-                                [stat]="{ currentValue: 25, previousValue: 0, percentageChange: 125, trend: 'UP' }" 
-                                [filterRangeDays]="90">
+                                [stat]="statisticData().totalBooking" [filterRangeDays]="filterRangeDays()">
                                 </app-trend>
                             </div>
                         </div>
@@ -129,9 +129,9 @@
                     </div>
                     <p-chart type="bar" [data]="data" [options]="options" />
                 </div>
-                <div class="card card-conversion w-1/3 flex flex-col justify-between">
+                <div class="card card-conversion w-1/3 flex flex-col">
                      <div class="conversion-title flex justify-between items-center w-full">
-                        <h2 class="label">Taux de transformation sondage</h2>
+                        <h2 class="label !text-gray-400">Taux de transformation sondage</h2>
                         <app-icon-svg 
                             tooltipPosition="bottom" 
                             class="tooltip"
@@ -142,13 +142,13 @@
                             color="#242651">
                         </app-icon-svg>
                     </div>
-                    <div class="content flex gap-x-4 items-center justify-center">
-                        <p class="value xl">22%</p>
+                    <div class="content flex gap-x-4 items-center justify-center mt-8">
+                        <p class="value !text-gray-400 !text-xs">Cette statistique fait partie des prochaines évolutions de WeWiins.</p>
                     </div>
-                    <app-trend 
+                    <!-- <app-trend 
                     [stat]="{ currentValue: 1550, previousValue: 0, percentageChange: 100, trend: 'UP' }" 
                     [filterRangeDays]="90">
-                    </app-trend>
+                    </app-trend> -->
                 </div>
             </div>
             <!-- Statistic Review -->
@@ -158,26 +158,25 @@
                         <h2 class="label">Note moyenne</h2>
                     </div>
                     <div class="average-review flex flex-col items-center">
-                        <p class="value xl">4.7/5</p>
-                        <p-rating [ngModel]="starsValue" [readonly]="true" c />
+                        <p class="value xl">{{ statisticData().averageScore.currentValue === 0 ? '-/5' : averageScore }}</p>
+                        <p-rating [ngModel]="starsValue" [readonly]="true" />
                     </div>
                     <app-trend 
-                        [stat]="{ currentValue: 1550, previousValue: 0, percentageChange: 100, trend: 'UP' }" 
-                        [filterRangeDays]="90">
+                        [stat]="statisticData().averageScore" [filterRangeDays]="filterRangeDays()">
                     </app-trend>
                 </div>
                 <div class="card card-vote w-2/3 flex flex-col">
                      <div class="vote-title flex justify-between items-center w-full mb-4">
                        <div class="flex w-full justify-between items-center">
                          <h2 class="label">Répartitions des votes</h2>
-                         <p class="desc-info">100 avis au total</p>
+                         <p class="desc-info">{{ totalVotes ? totalVotes : '-' }} avis au total</p>
                        </div>
                     </div>
                     <div class="flex flex-col-reverse justify-between h-full">
-                        @for (vote of votes; track vote.star; let index = $index) {
+                        @for (vote of statisticData().scoreDistribution; track vote.star) {
                             <div class="vote-row flex items-center gap-x-4">
                                 <div class="flex items-center gap-x-2">
-                                    <p>{{ index + 1 }}</p>
+                                    <p>{{ vote.star }}</p>
                                     <app-icon-svg 
                                         width="14" 
                                         height="14" 

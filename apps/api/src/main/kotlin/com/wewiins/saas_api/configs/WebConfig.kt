@@ -12,6 +12,6 @@ class WebConfig(
 
     override fun addInterceptors(registry: InterceptorRegistry) {
         registry.addInterceptor(providerVerificationInterceptor)
-            .addPathPatterns("/dashboard/**", "/activity/**")
+            .addPathPatterns("/dashboard/**", "/activity/**", "/statistic/**")
     }
 }

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.wewiins.saas_api.enums.BookingType
 import java.time.OffsetDateTime
 
-data class OfferDto(
+data class ActivityOfferDto(
     val id: String,
 
     @field:JsonProperty("activity_id")

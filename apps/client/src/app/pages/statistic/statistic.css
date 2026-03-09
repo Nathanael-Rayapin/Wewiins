@@ -25,6 +25,10 @@
         color: var(--primary-text)
     }
 
+    p.value.disabled {
+        font-size: 12px;
+    }
+
     p.desc-info {
         font-size: 14px;
         font-weight: 400;

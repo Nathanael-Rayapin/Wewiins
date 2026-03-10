@@ -11,6 +11,8 @@ import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.rpc
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonObject
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Repository
 import java.time.LocalDate
@@ -156,13 +158,24 @@ class StatisticRepository(
             .toLocalDate()
             .toString()
 
+        logger.info("Score distribution dates: startLocalDate={}, endLocalDate={}", startLocalDate, endLocalDate)
+
+//        val result = supabaseClient.postgrest.rpc(
+//            "get_score_distribution_by_period",
+//            mapOf(
+//                "p_connected_account_id" to connectedAccountId,
+//                "p_start_date" to startLocalDate,
+//                "p_end_date" to endLocalDate
+//            )
+//        )
+
         val result = supabaseClient.postgrest.rpc(
             "get_score_distribution_by_period",
-            mapOf(
-                "p_connected_account_id" to connectedAccountId,
-                "p_start_date" to startLocalDate,
-                "p_end_date" to endLocalDate
-            )
+            buildJsonObject {
+                put("p_connected_account_id", JsonPrimitive(connectedAccountId))
+                put("p_start_date", JsonPrimitive(startLocalDate))
+                put("p_end_date", JsonPrimitive(endLocalDate))
+            }
         )
 
         val rows = result.decodeList<ActivityScoreDistributionDto>()

@@ -4,8 +4,9 @@
 
         @if (isLoading() === false) {
         <div class="flex flex-col gap-4 w-full h-full">
+            <app-datepicker class="ml-auto mt-8" [(startDate)]="startDate" (startDateChange)="initStatistic()"></app-datepicker>
             <!-- Statistic Revenue -->
-            <div class="statistic-revenue-container flex-1 flex flex-col lg:flex-row mt-8 gap-y-4 lg:gap-y-0 lg:gap-x-4">
+            <div class="statistic-revenue-container flex-1 flex flex-col lg:flex-row gap-y-4 lg:gap-y-0 lg:gap-x-4">
                 <div class="card card-revenue w-full lg:w-2/3 flex flex-row gap-x-8">
                     <div class="revenue flex flex-col justify-between w-1/3">
                         <h2 class="label">Chiffre d'affaire</h2>
@@ -172,7 +173,7 @@
                          <p class="desc-info">{{ totalVotes ? totalVotes : '-' }} avis au total</p>
                        </div>
                     </div>
-                    <div class="flex flex-col-reverse justify-between h-full">
+                    <div class="flex flex-col justify-between h-full">
                         @for (vote of statisticData().scoreDistribution; track vote.star) {
                             <div class="vote-row flex items-center gap-x-4">
                                 <div class="flex items-center gap-x-2">

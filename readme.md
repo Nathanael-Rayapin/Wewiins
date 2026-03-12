@@ -58,10 +58,10 @@ git clone git@github.com:<USERNAME>/wewiins.git
    
 3. **Builder le projet keycloak-theme**
 ```bash
-npm run build
-keycloakify build
+pnpm install
+npm run build-keycloak-theme
 ```
-- Déplacer le `.jar` généré dans le dossier `providers` du projet `keycloak`
+- Déplacer le `.jar` généré (dist_keycloak) dans le dossier `providers` du projet `keycloak`
 
 4. **Builder le projet keycloak**
 - Suivre le README du projet `keycloak`

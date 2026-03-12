@@ -7,6 +7,7 @@ import com.wewiins.saas_api.interfaces.ActivityDraft
 import com.wewiins.saas_api.dto.activity.ActivityDto
 import com.wewiins.saas_api.dto.activity.ActivityInfoJoinDto
 import com.wewiins.saas_api.dto.activity.ActivityProgramDto
+import com.wewiins.saas_api.dto.activity.ActivityReviewDto
 import com.wewiins.saas_api.dto.activity.ActivitySlotPriceDto
 import com.wewiins.saas_api.dto.activity.DayPricingDto
 import com.wewiins.saas_api.dto.activity.GoodToKnowDto
@@ -21,18 +22,23 @@ import com.wewiins.saas_api.dto.activity.VariablePricingDto
 import com.wewiins.saas_api.enums.Categories
 import com.wewiins.saas_api.enums.Days
 import com.wewiins.saas_api.enums.Moment
+import com.wewiins.saas_api.interfaces.ActivityReview
+import com.wewiins.saas_api.interfaces.PaginatedResult
 import com.wewiins.saas_api.interfaces.StepFour
 import com.wewiins.saas_api.interfaces.StepOne
 import com.wewiins.saas_api.interfaces.StepThree
 import com.wewiins.saas_api.interfaces.StepTwo
 import com.wewiins.saas_api.repositories.CategoryRepository.CategoryConstants
 import com.wewiins.saas_api.repositories.OfferRepository.OfferConstants
+import com.wewiins.saas_api.utils.ComparisonCalculator
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Count
 import io.github.jan.supabase.postgrest.query.Order
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonObject
 import org.springframework.stereotype.Repository
 import org.slf4j.LoggerFactory
 import kotlin.math.roundToInt
@@ -612,5 +618,77 @@ class ActivityRepository(
             .firstOrNull()
             ?.get("title") as String?
             ?: throw IllegalArgumentException("Activité introuvable pour l'id : $activityId")
+    }
+
+    suspend fun getActivitiesWithReviewStats(
+        connectedAccountId: String,
+        startDate: Long,
+        endDate: Long,
+        previousStartDate: Long,
+        previousEndDate: Long,
+        page: Int,
+        pageSize: Int
+    ): PaginatedResult<ActivityReview> {
+        logger.info(
+            "Fetching activities with review stats for connected account {} page {}",
+            connectedAccountId,
+            page
+        )
+
+        val startLocalDate = java.time.Instant.ofEpochSecond(startDate)
+            .atZone(java.time.ZoneId.systemDefault())
+            .toLocalDate()
+            .toString()
+
+        val endLocalDate = java.time.Instant.ofEpochSecond(endDate)
+            .atZone(java.time.ZoneId.systemDefault())
+            .toLocalDate()
+            .toString()
+
+        val previousStartLocalDate = java.time.Instant.ofEpochSecond(previousStartDate)
+            .atZone(java.time.ZoneId.systemDefault())
+            .toLocalDate()
+            .toString()
+
+        val previousEndLocalDate = java.time.Instant.ofEpochSecond(previousEndDate)
+            .atZone(java.time.ZoneId.systemDefault())
+            .toLocalDate()
+            .toString()
+
+        val result = supabaseClient.postgrest.rpc(
+            "get_activities_with_review",
+            buildJsonObject {
+                put("p_connected_account_id", JsonPrimitive(connectedAccountId))
+                put("p_start_date", JsonPrimitive(startLocalDate))
+                put("p_end_date", JsonPrimitive(endLocalDate))
+                put("p_previous_start_date", JsonPrimitive(previousStartLocalDate))
+                put("p_previous_end_date", JsonPrimitive(previousEndLocalDate))
+                put("p_page", JsonPrimitive(page))
+                put("p_page_size", JsonPrimitive(pageSize))
+            }
+        )
+
+        val rows = result.decodeList<ActivityReviewDto>()
+        val totalCount = rows.firstOrNull()?.totalCount?.toInt() ?: 0
+
+        val items = rows.map { row ->
+            ActivityReview(
+                activityId = row.activityId,
+                activityName = row.activityName,
+                averageScore = ComparisonCalculator.calculate(
+                    row.currentAverageScore.toDouble(),
+                    row.previousAverageScore.toDouble()
+                ),
+                totalReviews = row.totalReviews.toInt()
+            )
+        }
+
+        return PaginatedResult(
+            items = items,
+            totalCount = totalCount,
+            page = page,
+            pageSize = pageSize,
+            hasMore = (page * pageSize) < totalCount
+        )
     }
 }

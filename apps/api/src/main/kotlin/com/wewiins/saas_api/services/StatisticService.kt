@@ -1,9 +1,7 @@
 package com.wewiins.saas_api.services
 
 import com.wewiins.saas_api.dto.VerifiedAccountDto
-import com.wewiins.saas_api.interfaces.ScoreDistribution
 import com.wewiins.saas_api.interfaces.Statistic
-import com.wewiins.saas_api.interfaces.VisitDataPoint
 import com.wewiins.saas_api.repositories.ActivityRepository
 import com.wewiins.saas_api.repositories.BookingRepository
 import com.wewiins.saas_api.repositories.FavoriteRepository
@@ -293,33 +291,6 @@ class StatisticService(
                 scoreDistribution = scoreDistribution,
                 filterRangeDays = filterRangeDays,
             )
-        }
-    }
-
-    fun getTotalChargeByPeriod(
-        connectedAccountId: String, startDate: Long, endDate: Long
-    ): Double {
-        logger.info("Get TotalChargeByPeriod")
-        return runBlocking {
-            stripeRepository.getTotalChargesByPeriod(connectedAccountId, startDate, endDate)
-        }
-    }
-
-    fun getVisitDataPointsByPeriod(
-        connectedAccountId: String, startDate: Long, endDate: Long
-    ): List<VisitDataPoint> {
-        logger.info("Get VisitDataPointByPeriod")
-        return runBlocking {
-            statisticRepository.getVisitDataPointsByPeriod(connectedAccountId, startDate, endDate)
-        }
-    }
-
-    fun getScoreDistributionByPeriod(
-        connectedAccountId: String, startDate: Long, endDate: Long
-    ): List<ScoreDistribution> {
-        logger.info("Get ScoreDistributionByPeriod")
-        return runBlocking {
-            statisticRepository.getScoreDistributionByPeriod(connectedAccountId, startDate, endDate)
         }
     }
 }

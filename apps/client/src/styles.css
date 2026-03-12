@@ -238,3 +238,18 @@ input:not(#country, .p-inputnumber-input, .p-datepicker-input) {
     --p-progressbar-background: var(--border-color);
     --p-progressbar-height: 8px;
 }
+
+/*
+ * Paginator
+ */
+.p-paginator {
+    justify-content: flex-end !important;
+}
+
+.p-autocomplete .p-inputtext {
+    width: 363px;
+    height: 40px;
+    background-color: var(--filled-color);
+    padding-right: 35px;
+    border-radius: 8px;
+}

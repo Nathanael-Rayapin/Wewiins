@@ -23,4 +23,9 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/statistic/statistic').then(m => m.Statistic),
         title: 'Statistiques'
     },
+    {
+        path: 'avis',
+        loadComponent: () => import('./pages/review/review').then(m => m.Review),
+        title: 'Avis'
+    },
 ];

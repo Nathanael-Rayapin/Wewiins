@@ -1,0 +1,117 @@
+<div class="review-container flex flex-col min-h-screen w-full h-full">
+    <app-title-section [title]="'Statistiques'"></app-title-section>
+    <div class="review-content h-full flex flex-col gap-4">
+
+        @if (isLoading() === false) {
+        <div class="flex flex-col gap-4 w-full h-full">
+            <app-datepicker class="ml-auto mt-8" [(startDate)]="startDate" (startDateChange)="initReview()"></app-datepicker>
+            <!-- Statistic Review -->
+             <div class="flex-[1] flex flex-col lg:flex-row gap-y-4 lg:gap-y-0 lg:gap-x-4">
+                <div class="card card-review w-full lg:w-1/3 flex flex-col justify-between">
+                    <div class="review-title flex justify-between items-center w-full">
+                        <h2 class="label">Note moyenne</h2>
+                    </div>
+                    <div class="average-review flex flex-col items-center">
+                        <p class="value xl">{{ reviewData().averageScore.currentValue === 0 ? '-/5' : averageScore }}</p>
+                        <p-rating [ngModel]="starsValue" [readonly]="true" />
+                    </div>
+                    <app-trend 
+                        [stat]="reviewData().averageScore" [filterRangeDays]="filterRangeDays()">
+                    </app-trend>
+                </div>
+                <div class="card card-vote w-full lg:w-2/3 flex flex-col">
+                     <div class="vote-title flex justify-between items-center w-full mb-4">
+                       <div class="flex w-full justify-between items-center">
+                         <h2 class="label">Répartitions des votes</h2>
+                         <p class="desc-info">{{ totalVotes ? totalVotes : '-' }} avis au total</p>
+                       </div>
+                    </div>
+                    <div class="flex flex-col justify-between h-full">
+                        @for (vote of reviewData().scoreDistribution; track vote.star) {
+                            <div class="vote-row flex items-center gap-x-4">
+                                <div class="flex items-center gap-x-2">
+                                    <p>{{ vote.star }}</p>
+                                    <app-icon-svg 
+                                        width="14" 
+                                        height="14" 
+                                        iconName="star"
+                                        color="#ffce34">
+                                    </app-icon-svg>
+                                </div>
+                                <p-progressbar 
+                                    [value]="getPercentage(vote.count)" 
+                                    [showValue]="false"
+                                    class="flex-1" />
+                                <span class="vote-count w-8 text-right">{{ vote.count }}</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+             <div class="flex-[2] flex flex-col lg:flex-row gap-y-4 lg:gap-y-0 lg:gap-x-4">
+                <div class="card w-full">
+                    <div class="review-title flex justify-between items-center w-full mb-8">
+                        <h2 class="label">Note par activité</h2>
+                        <div class="flex gap-x-4 items-center">
+                            <div class="search-bar">
+                                <p-autocomplete 
+                                placeholder="Nom d'activité..." 
+                                [(ngModel)]="searchValue" 
+                                [suggestions]="items" 
+                                (completeMethod)="search($event)"
+                                (onClear)="onSearchClear()"
+                                (onSelect)="onActivitySelect($event)"
+                                optionLabel="activityName"
+                                optionValue="activityName" />
+                            </div>
+                            <app-icon-svg 
+                                width="20" 
+                                height="20" 
+                                iconName="filter"
+                                color="#e2e2e2">
+                            </app-icon-svg>
+                        </div>
+                    </div>
+                    <div class="cards-container flex flex-col gap-y-4">
+                        @for (activity of reviewData().activities.items; track activity.activityId) {
+                        <div class="cards">
+                            <div class="flex justify-between items-center">
+                                <div class="activity-name-and-reviews-nbr flex flex-col">
+                                    <p>{{ activity.activityName }}</p>
+                                    <p>{{ activity.totalReviews }} avis</p>
+                                </div>
+                                <div class="activity-note flex items-center gap-x-8">
+                                    <app-trend 
+                                        [stat]="activity.averageScore" [filterRangeDays]="filterRangeDays()">
+                                    </app-trend>
+                                    <div class="flex items-center gap-x-2">
+                                        <app-icon-svg 
+                                        width="14" 
+                                        height="14" 
+                                        iconName="star"
+                                        color="#ffce34">
+                                        </app-icon-svg>
+                                        <p>{{ activity.averageScore.currentValue === 0 ? '-/5' : averageScore }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        }   
+                    </div>
+                    <p-paginator 
+                        (onPageChange)="onPageChange($event)" 
+                        [first]="first()" 
+                        [rows]="reviewData().activities.pageSize"
+                        [totalRecords]="reviewData().activities.totalCount"
+                    />
+                </div>
+            </div>
+        </div>
+        } @else {
+        <!-- Loading -->
+        <div class="loading-spinner flex justify-center">
+            <p-progress-spinner strokeWidth="8" fill="transparent" animationDuration=".5s" class="progress-spinner" />
+        </div>
+        }
+    </div>

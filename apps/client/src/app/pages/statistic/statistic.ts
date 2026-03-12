@@ -13,6 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { StatisticService } from '../../services/statistic.service';
 import { IStatisticDto, IVisitDataPointDto } from '../../dto/statistic';
+import { Datepicker } from '../../components/datepicker/datepicker';
 
 @Component({
   selector: 'app-statistic',
@@ -20,6 +21,7 @@ import { IStatisticDto, IVisitDataPointDto } from '../../dto/statistic';
     TitleSection,
     IconSvg,
     Trend,
+    Datepicker,
     ProgressSpinnerModule,
     FormsModule,
     DividerModule,
@@ -47,7 +49,7 @@ export class Statistic implements OnInit {
   statisticData: WritableSignal<IStatisticDto> = defaultStatisticData;
   filterRangeDays = signal<number>(0);
 
-  starsValue: number = 4.7;
+  starsValue: number = 0;
 
   get totalRevenue(): string {
     return this.statisticData().totalRevenue.currentValue
@@ -90,7 +92,6 @@ export class Statistic implements OnInit {
         this.statisticData.set(response);
         this.starsValue = response.averageScore.currentValue;
         this.filterRangeDays.set(response.filterRangeDays);
-
 
         this.updateKPIs();
         this.initChart(response.visitsByPeriod);

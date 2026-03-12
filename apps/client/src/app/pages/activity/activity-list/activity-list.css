@@ -5,14 +5,6 @@
         position: relative;
         width: fit-content;
 
-        .p-autocomplete .p-inputtext {
-            width: 363px;
-            height: 40px;
-            background-color: var(--filled-color);
-            padding-right: 25px;
-            border-radius: 8px;
-        }
-
         .icon-search {
             position: absolute;
             top: 50%;

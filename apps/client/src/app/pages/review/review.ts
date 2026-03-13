@@ -65,6 +65,8 @@ export class Review {
       this.startDate(), page, pageSize
     ).subscribe({
       next: (response) => {
+        console.log("Response : ", response);
+
         this.reviewData.set(response);
         this.starsValue = response.averageScore.currentValue;
         this.filterRangeDays.set(response.filterRangeDays);

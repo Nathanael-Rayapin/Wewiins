@@ -1,4 +1,4 @@
-import { IStatComparisonDto } from "../dto/dashboard";
+import { IStatComparisonDto } from "../dto/common";
 import { getStartOfDayToNowRange, formatComparisonPeriodLabel } from "./date";
 
 describe.concurrent('Get Date Range', () => {
@@ -27,12 +27,12 @@ describe.concurrent('formatComparisonPeriodLabel', () => {
   };
 
   it.concurrent('should return "dernier jour" when periodDays is 1', () => {
-    const result = formatComparisonPeriodLabel(baseStat, 1);
+    const result = formatComparisonPeriodLabel(1);
     expect(result).toBe(' vs dernier jour');
   });
 
   it.concurrent('should return pluralized period when periodDays > 1', () => {
-    const result = formatComparisonPeriodLabel(baseStat, 7);
+    const result = formatComparisonPeriodLabel(7);
     expect(result).toBe(' vs 7 derniers jours');
   });
 
@@ -42,7 +42,7 @@ describe.concurrent('formatComparisonPeriodLabel', () => {
       trend: 'UP',
     };
 
-    const result = formatComparisonPeriodLabel(stat, 3);
+    const result = formatComparisonPeriodLabel(3);
     expect(result).toBe(' vs 3 derniers jours');
   });
 
@@ -52,7 +52,7 @@ describe.concurrent('formatComparisonPeriodLabel', () => {
       trend: 'DOWN',
     };
 
-    const result = formatComparisonPeriodLabel(stat, 5);
+    const result = formatComparisonPeriodLabel(5);
     expect(result).toBe(' vs 5 derniers jours');
   });
 });

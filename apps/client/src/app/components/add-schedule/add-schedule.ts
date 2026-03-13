@@ -151,8 +151,8 @@ export class AddActivityDialog {
     return this.availabilityToError() === null
       && this.unavailabilityFromError() === null
       && this.unavailabilityToError() === null
-      && this.openTime() !== undefined
-      && this.closeTime() !== undefined
+      && this.openTime() !== null
+      && this.closeTime() !== null
       && this.dayOfWeek().length > 0;
   }
 
